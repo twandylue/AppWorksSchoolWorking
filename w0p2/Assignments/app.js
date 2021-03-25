@@ -49,7 +49,7 @@ app.get('/trackName', (req, res) => {
     }
 });
 
-// set sever to port:3000
-app.listen(3000, () => {
+// set sever to port:80
+app.listen(80, () => {
     console.log('running...');
 }); 
