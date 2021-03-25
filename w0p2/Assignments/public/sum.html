@@ -1,0 +1,75 @@
+<!-- Assignment-3 -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Assignment-3</title>
+        <!-- 暫不需要css -->
+        <!-- <link rel='stylesheet' href="./css/style.css"> -->
+    </head>
+    <body>
+        <header>   
+                <h1>Assignment-3</h1>
+        </header>
+      
+        <section>
+            <h2>This is Assignment-3</h2>
+            <label>Please enter a number(a positive integer):
+                <input type="text" name="number" id="input_value">
+            </label>
+
+            <!-- <button type="submit" onclick="number_SUM()">Submit</button> -->
+            <!-- onclick = "function()" 點擊按鈕後執行function() -->
+
+            <button type="submit" id="input_button">Submit</button>
+            <!-- 配合addEventListener寫法 -->
+
+            <div class="to_show">
+                <div id="answer"></div>
+            </div>
+        </section>
+
+    <!-- js -->
+    <script>
+        // Assignment 3: send an HTTP request to your backend API by AJAX     
+        
+        // button with function()
+        // function number_SUM() {
+        //     let number = document.querySelector("#input_value")
+        //     // number為一個物件，其中有一項property為value，number.value存取input的數值
+        //     let sum = new XMLHttpRequest();
+        //     sum.onreadystatechange = function () {
+        //         if (sum.readyState === 4) {
+        //             if (sum.status === 200) {
+        //                 document.querySelector("#answer").innerHTML = sum.responseText;
+        //             } else {
+        //                 alert(sum.statusText);
+        //             };
+        //         };
+        //     };
+        //     sum.open("GET", `http://localhost:3000/Data?number=${number.value}`);
+        //     sum.send();
+        // };
+
+        // addEventListener
+        let number = document.querySelector('#input_value');
+        let input = document.querySelector('#input_button');
+        input.addEventListener('click', () => {
+            let sum = new XMLHttpRequest();
+            sum.onreadystatechange = function () {
+                if (sum.readyState === 4) {
+                    if (sum.status === 200) {
+                        document.querySelector('#answer').innerHTML = sum.responseText;
+                        console.log('test');
+                    } else {
+                        alert(sum.statusText);
+                    };
+                };
+            };
+            sum.open("GET", `http://localhost:3000/Data?number=${number.value}`);
+            sum.send();
+        });
+    </script>
+    
+    </body>
+</html>
