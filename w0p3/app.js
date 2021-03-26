@@ -14,13 +14,6 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.set('view engine', 'pug'); 
 
-// const db = mysql.createConnection({
-//     host     : '127.0.0.1',
-//     user     : 'root',
-//     password : 'laserlue0308',
-//     database : 'assignment' 
-// })
-
 const db = mysql.createConnection({
     host     : process.env["DB_HOST"],
     user     : process.env["DB_USER"],
