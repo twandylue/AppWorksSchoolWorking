@@ -1,0 +1,76 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  meta(name='viewport' content='width=device-width, initial-scale=1.0')
+  // title /名稱
+  title w0p3
+  link(rel='stylesheet' href='css/base.css')
+.content
+  .upload
+    form.upload_cont(action='/admin/upload' method='post')
+      label
+        | Please enter id: 
+        input#id(type='text' name='id')
+      br
+      label
+        | Please enter your title: 
+        input#title(type='text' name='title')
+      br
+      label
+        | Please enter your description: 
+        input#description(type='text' name='description')
+      br
+      label
+        | Please enter your price: 
+        input#price(type='text' name='price')
+      br
+      label
+        | Please enter your texture: 
+        input#texture(type='text' name='texture')
+      br
+      label
+        | Please enter your wash: 
+        input#wash(type='text' name='wash')
+      br
+      label
+        | Please enter your place: 
+        input#place(type='text' name='place')
+      br
+      label
+        | Please enter your note: 
+        input#note(type='text' name='note')
+      br
+      label
+        | Please enter your story: 
+        input#story(type='text' name='story')
+      br
+      label
+        | Please enter your colors(wrning):
+        // warning: Colors is object
+        input#colors(type='text' name='name' placeholder='name')
+        input#colors(type='text' name='code' placeholder='code')
+      br
+      label
+        | Please enter your sizes(wrning):
+        // warning: size is array
+        input#sizes(type='text' name='sizes')
+      br
+      label
+        | Please enter your variants(wrning):
+        // warning: Variant is object
+        input#variants(type='text' name='color_code' placeholder='color_code')
+        input#variants(type='text' name='size' placeholder='size')
+        input#variants(type='text' name='stock' placeholder='stock')
+      br
+      label
+        | Please enter your main_image(wrning):
+        // warning: image file url
+        input#main_image(type='text' name='main_image')
+      br
+      label
+        | Please enter your images(wrning):
+        // warning: images is array
+        input#images(type='text' name='images')
+      br
+      button#update_button(type='submit') UPDATE!
+// <script src="../app.js"></script>
