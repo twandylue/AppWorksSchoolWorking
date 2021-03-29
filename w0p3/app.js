@@ -84,6 +84,10 @@ db.connect((err) =>{
 // })
 // ############### for test ############### 
 
+app.get('/', (req, res) => {
+    res.send("Connect to EC2!");
+})
+
 let fields = [{name: 'main_image', maxCount: 1}, {name: 'images', maxCount: 3}];
 app.post('/admin/upload', upload.fields(fields), (req, res) => {
     const id = parseInt(req.body.id);
