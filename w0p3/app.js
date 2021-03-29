@@ -5,6 +5,28 @@ const bodyParser = require('body-parser');
 const path = require('path');
 // const dotenv = require('dotenv').config();
 require('dotenv').config({path: process.cwd() + '/DOTENV/config.env'});
+const multer = require('multer');
+// set storage engine
+const storage_eng = multer.diskStorage({
+    // destination為保留字
+    destination: './public/upload_pics/',
+    filename: function(req, file, callback){
+        // callback(null, file.fieldname + '-' + Date.now() + '-' + path.extname(file.originalname));
+        callback(null, file.fieldname + '-' + Date.now() + '-' + file.originalname);
+    } 
+})
+
+// input upload
+const upload = multer({
+    storage: storage_eng
+})
+
+// const upload = multer({
+//     dest: './public/upload_pics/'
+// })
+// const upload = multer({ dest: './pics/' });
+
+
 const app = express();
 
 app.use(express.static('public')); 
@@ -27,152 +49,96 @@ db.connect((err) =>{
         throw err;
     }
     console.log('MySql connected!');
-    db.query( "SELECT * FROM colors_table;", function (err, result) {
-        if(err) {
-            throw err;
-        }
-        console.log('Connect to colors_table.');
-        // console.log(result[0]);
-        // console.log(typeof result);
-        // console.dir(result);
-        // console.log(typeof body);
-      });
+    // db.query( "SELECT * FROM colors;", function (err, result) {
+    //     if(err) {
+    //         throw err;
+    //     }
+    //     console.log('Connect to colors.');
+    //   });
 })
 
-// test
-// Create DB
-// app.get('/createdb', (req, res)=>{
-//     let sql = 'CREATE DATABASE my_db';
-//     db.query(sql, (err, result)=>{
-//         if(err) throw err;
-//         console.log(result);
-//         res.send('Database created...');
-//     })
+// ############### for test ############### 
+// app.get('/for_test', (req, res) => {
+//     res.render('for_test');
 // })
-
-app.post('/admin/upload', (req, res) => {
-    // let id = req.body.id;
-    let {id} = req.body;
-    let {title} = req.body;
-    let {description} = req.body;
-    let {price} = req.body;
-    let {texture} = req.body;
-    let {wash} = req.body;
-    let {place} = req.body;
-    let {note} = req.body;
-    let {story} = req.body;
-    let {sizes} = req.body;
-
-    // for colors
-    let {name} = req.body;
-    let {code} = req.body;
-
-    // for variant
-    // let {variants} = req.body;
-    let {color_code} = req.body;
-    let {size} = req.body;
-    let {stock} = req.body;
-
-    // 還有問題
-    let {main_image} = req.body;
-    let {images} = req.body;
-    // ----------------
+// app.post('/upload_main_img', upload.single('myImage'), (req, res) => {
+//     console.log(req.file);
+//     // console.log(req.body);
+//     res.send('test');
+// })
+// let fields = [{name: 'main_image'}, {name: 'image1', maxCount: 1},{name: 'image2', maxCount: 1},{name: 'image3', maxCount: 1}];
+// app.post('/upload_main_img', upload.fields(fields), (req,res) => {
     
-    let sql = `SELECT * from products_table;`
+//     let images = [];
+//     images.push(req.files.image1[0].path);
+//     images.push(req.files.image2[0].path);
+//     images.push(req.files.image3[0].path);
+//     console.log(req.files);
+//     let main_image = req.files.main_image[0].path;
+//     let images = [];
+//     images.push(req.files.image1[0].path);
+//     images.push(req.files.image2[0].path);
+//     images.push(req.files.image3[0].path);
+//     console.log(images); // test
+//     console.log(main_image); // test
+// })
+// ############### for test ############### 
+
+let fields = [{name: 'main_image', maxCount: 1}, {name: 'images', maxCount: 3}];
+app.post('/admin/upload', upload.fields(fields), (req, res) => {
+    const id = parseInt(req.body.id);
+    const price = parseInt(req.body.price);
+    const {catagory, title, description, texture, wash, place, note, story, sizes, name, code, color_code, size, stock} = req.body;
+    // let information = {id:req.body.id,title:req.body.title,description:req.body.description,price:req.body.price,texture:req.body.texture,wash:req.body.wash,place:req.body.place,note:req.body.note,story:req.body.story,colors:req.body.colors,sizes:req.body.sizes,variants:req.body.variants,main_image:req.body.main_image,images:req.body.images};
+
+    let sql = `SELECT * from product_table;`
     db.query(sql, (err, result) => {
         if (err) throw err;
-        // 決定table後再處理
-        let sql = `INSERT INTO products_table (id, title, description, price, texture, wash, place, note, story, sizes, main_image, images) VALUES ('${id}', '${title}', '${description}', '${price}', '${texture}', '${wash}', '${place}', '${note}', '${story}', '${sizes}', '${main_image}', '${images}');`;
-        db.query(sql, (err, result)=>{
-            if (err) throw err;
-            // res.render('info',{message: 'update successes'});
-        })
-
-        // if (result[0]) {
-        //     // 已經有email註冊資料
-        //     res.render('homepage',{message: 'Email has been used!'});
-        //     // console.log(result[0]); // test
-        // } else {
-        //     let sql = `INSERT INTO user (email, password) VALUES ('${email}', '${password}');`;
-        //     db.query(sql, (err, result) => {
-        //         if (err) throw err;
-
-        //     })
-        // }
-    })
-
-    // let sql = `SELECT * from colors_table;`
-    sql = `SELECT * from colors_table;`
-    db.query(sql, (err, result) => {
-        if (err) throw err;
-        let sql = `INSERT INTO colors_table (color_name, color_code) VALUES ('${name}', '${code}');`;
-        db.query(sql, (err, result)=>{
-            if (err) throw err;
-            // res.render('info',{message: 'update successes'});
-        })
-    })
-
-    // let sql = `SELECT * from variants_table;`
-    sql = `SELECT * from variants_table;`
-    db.query(sql, (err, result) => {
-        if (err) throw err;
-        let sql = `INSERT INTO variants_table (product_id, color_code_INDEX, size, stock) VALUES ('${id}', '${color_code}', '${size}', '${stock}');`;
+        let sql = `INSERT INTO product_table (id, catagory, title, description, price, texture, wash, place, note, story, sizes, main_image) VALUES ('${id}', '${catagory}', '${title}', '${description}', '${price}', '${texture}', '${wash}', '${place}', '${note}', '${story}', '${sizes}', '${req.files.main_image[0]['path']}');`;
         db.query(sql, (err, result)=>{
             if (err) throw err;
             // res.render('info',{message: 'update successes'});
         })
     })
 
+    sql = `SELECT * from colors;`
+    db.query(sql, (err, result) => {
+        if (err) throw err;
+        let sql = `INSERT INTO colors (name, code) VALUES ('${name}', '${code}');`;
+        db.query(sql, (err, result)=>{
+            if (err) throw err;
+            // res.render('info',{message: 'update successes'});
+        })
+    })
+
+    sql = `SELECT * from stock;`
+    db.query(sql, (err, result) => {
+        if (err) throw err;
+        let sql = `INSERT INTO stock (product_id, color_code, size, quantity) VALUES ('${id}', '${color_code}', '${size}', '${stock}');`;
+        db.query(sql, (err, result)=>{
+            if (err) throw err;
+            // res.render('info',{message: 'update successes'});
+        })
+    })
+
+    sql = `SELECT * from images;`
+    db.query(sql, (err, result) => {
+        if (err) throw err;
+        for (let i = 0; i < req.files.images.length; i++) {
+            let sql = `INSERT INTO images (product_id, image) VALUES ('${id}', '${req.files.images[i]['path']}');`;
+            db.query(sql, (err, result)=>{
+                if (err) throw err;
+                // res.render('info',{message: 'update successes'});
+            })
+        }
+    })
     res.render('info',{message: 'update successes'});
 })
 
-// app.post('/sign_in', (req, res) => {
-//     let {email} = req.body;
-//     let {password} = req.body;
-//     let sql = `SELECT * FROM user WHERE email = '${email}' AND password = '${password}';`;
-//     db.query(sql, (err, result) => {
-//         if (err) throw err;
-//         if (result[0] == undefined) {
-//             // console.log(result[0]);
-//             res.render('homepage',{message: 'Email or Password is wrong!'});
-//         } else {
-//             res.redirect('/member');
-//             // res.send(result);
-//         }
-//     })
-//     // console.log('test_signin');
-// })
-
-// app.post('/sign_up', (req, res) => {
-//     let {email} = req.body;
-//     let {password} = req.body;
-//     let sql = `SELECT * from user WHERE email='${email}';`
-//     db.query(sql, (err, result) => {
-//         if (err) throw err;
-//         if (result[0]) {
-//             // 已經有email註冊資料
-//             res.render('homepage',{message: 'Email has been used!'});
-//             // console.log(result[0]); // test
-//         } else {
-//             let sql = `INSERT INTO user (email, password) VALUES ('${email}', '${password}');`;
-//             db.query(sql, (err, result) => {
-//                 if (err) throw err;
-//                 res.redirect('/member');
-//             })
-//         }
-//     })
-//     // console.log('test_signup');
-// })
 
 app.get('/admin/product.html', (req, res) => {
     res.render('product');
-    // res.sendFile('product.html'); //還不確定
 })
-
-// app.get('/member', (req, res) => {
-//     // res.send("<h2>Log In Success!</h2>");
-//     res.render('welcome');
-// })
 
 // 額外功能
 // 查詢所有products
@@ -187,21 +153,6 @@ app.get('/allproducts', (req, res) => {
         }
     })
 })
-
-// 額外功能
-// 創建table
-// app.get('/createTable', (req, res) => {
-//     let sql = 'CREATE TABLE user(id int(10) NOT NULL AUTO_INCREMENT, email char(50), password char(50), PRIMARY KEY (`id`));'
-//     db.query(sql, (err, result) => {
-//         if (err) {
-//             throw err;
-//         } else {
-//             // console.log(result);
-//             // res.send(result);
-//             res.send('<h2>Creating table success!</h2>');
-//         }
-//     })
-// })
 
 // app.listen(3000, () => {console.log('running at port: 3000')});
 app.listen(3000, () => {console.log('running...')});

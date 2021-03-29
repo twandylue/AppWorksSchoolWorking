@@ -7,10 +7,18 @@ head
   link(rel='stylesheet' href='css/base.css')
 .content
   .upload
-    form.upload_cont(action='/admin/upload' method='post')
+    form.upload_cont(action='/admin/upload' method='post' enctype='multipart/form-data')
       label
         | Please enter id: 
         input#id(type='text' name='id')
+      br
+      label
+        | Please select your catagory: 
+        select(name='catagory')
+          option(value='Choose') Choose
+          option(value='men') Men
+          option(value='women') Women
+          option(value='accessories') Accessories
       br
       label
         | Please enter your title: 
@@ -63,14 +71,16 @@ head
         input#variants(type='text' name='stock' placeholder='stock')
       br
       label
-        | Please enter your main_image(wrning):
+        | Please enter your main_image:
         // warning: image file url
-        input#main_image(type='text' name='main_image')
+        input#main_image(name='main_image' type='file')
       br
       label
-        | Please enter your images(wrning):
+        | Please choose your images: 
+        input#images(name='images' type='file')
+        input#images(name='images' type='file')
+        input#images(name='images' type='file')
         // warning: images is array
-        input#images(type='text' name='images')
       br
-      button#update_button(type='submit') UPDATE!
+      input(type='submit' value='UPDATE')
 // <script src="../app.js"></script>
