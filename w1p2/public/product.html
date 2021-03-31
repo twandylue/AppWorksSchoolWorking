@@ -1,0 +1,84 @@
+<!-- 舊資料 已廢除 版型供參考 -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- title /名稱 -->
+    <title>w0p2</title>        
+    <link rel="stylesheet" href="css/base.css">
+  </head>
+  
+  <body>
+    <div class="content">
+        <div class='upload'>
+            <form class="upload_cont" action='/admin/upload' method="post">
+                <label>Please enter id: 
+                    <input type="text" name="id" id="id">
+                </label>
+                <br>
+                <label>Please enter your title: 
+                    <input type="text" name="title" id="title">
+                </label>
+                <br>
+                <label>Please enter your description: 
+                    <input type="text" name="description" id="description">
+                </label>
+                <br>
+                <label>Please enter your price: 
+                    <input type="text" name="price" id="price">
+                </label>
+                <br>
+                <label>Please enter your texture: 
+                    <input type="text" name="texture" id="texture">
+                </label>
+                <br>
+                <label>Please enter your wash: 
+                    <input type="text" name="wash" id="wash">
+                </label>
+                <br>
+                <label>Please enter your place: 
+                    <input type="text" name="place" id="place">
+                </label>
+                <br>
+                <label>Please enter your note: 
+                    <input type="text" name="note" id="note">
+                </label>
+                <br>
+                <label>Please enter your story: 
+                    <input type="text" name="story" id="story">
+                </label>
+                <br>
+                <label>Please enter your colors(wrning): 
+                    <!-- warning: Colors is object -->
+                    <input type="text" name="colors" id="colors">
+                </label>
+                <br>
+                <label>Please enter your sizes(wrning): 
+                    <!-- warning: size is array -->
+                    <input type="text" name="sizes" id="sizes">
+                </label>
+                <br>
+                <label>Please enter your variants(wrning): 
+                    <!-- warning: Variant is object -->
+                    <input type="text" name="variants" id="variants">
+                </label>
+                <br>
+                <label>Please enter your main_image(wrning): 
+                    <!-- warning: image file url -->
+                    <input type="text" name="main_image" id="main_image">
+                </label>
+                <br>
+                <label>Please enter your images(wrning): 
+                    <!-- warning: images is array -->
+                    <input type="text" name="images" id="images">
+                </label>
+                <br>
+
+                <button type="submit" id="update_button">UPDATE!</button>
+            </form>
+        </div>
+    </div>
+    <!-- <script src="../app.js"></script>   -->
+  </body>
+</html>
