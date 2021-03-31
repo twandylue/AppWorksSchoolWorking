@@ -227,7 +227,7 @@ app.post('/admin/upload', upload.fields(fields), (req, res) => {
     const price = parseInt(req.body.price);
     const {catagory, title, description, texture, wash, place, note, story, sizes, name, code, color_code, size, stock} = req.body;
     const {color_code_1, color_code_2, color_code_3, size_1, size_2, size_3, stock_1, stock_2, stock_3} = req.body;
- 
+
     class variants {
         constructor(id, color_code, size, stock){
             this.id = parseInt(id);
@@ -242,7 +242,12 @@ app.post('/admin/upload', upload.fields(fields), (req, res) => {
     variant[1] = new variants(id, color_code_2, size_2, stock_2); 
     variant[2] = new variants(id, color_code_3, size_3, stock_3);
 
+    // let upload_var = {id: id, price: price, catagory: catagory, title: title, description: description, texture: texture, wash: wash, place: place, note: note, story: story, sizes: sizes, name: name, code: code, color_code: color_code, size: size, stock,color_code_1, color_code_2, color_code_3, size_1, size_2, size_3, stock_1, stock_2, stock_3};
 
+    let upload_var = {id: id, price: price, catagory: catagory, title: title, description: description, texture: texture, wash: wash, place: place, note: note, story: story, sizes: sizes, name: name, code: code, color_code: color_code, size: size, variant: variant};
+
+    // console.log(upload_var.variant);
+    // upload_main(upload_var);
     upload_main()
     // res.render('info'); 
 })
