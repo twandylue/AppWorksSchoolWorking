@@ -10,7 +10,7 @@ const { resolve } = require('path');
 const { debugPort } = require('process');
 const { toASCII } = require('punycode');
 // set storage engine
-const storage_eng = multer.diskStorage({
+const storage_eng = multer.diskStorage({ 
     // destination為保留字
     destination: './public/upload_pics/',
     filename: function(req, file, callback){
