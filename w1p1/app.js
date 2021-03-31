@@ -108,42 +108,42 @@ function dbsql(sql) {
     return db_result;
 }
 
-async function upload_main() {
-    if (id&&catagory&&title&&description&&price&&texture&&wash&&place&&note&&story&&req.files.main_image) {
+async function upload_main(upload_var) {
+    if (upload_var.id && upload_var.catagory && upload_var.title && upload_var.description && upload_var.price && upload_var.texture && upload_var.wash && upload_var.place && upload_var.note && upload_var.story && upload_var.image_files.main_image) {
         // 上方判斷氏可補上sizes(optional)
-        let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${id}`;
-        let sql_product_table = `INSERT INTO product_table (id, catagory, title, description, price, texture, wash, place, note, story, sizes, main_image) VALUES ('${id}', '${catagory}', '${title}', '${description}', '${price}', '${texture}', '${wash}', '${place}', '${note}', '${story}', '${sizes}', '${req.files.main_image[0]['path']}');`; 
+        let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${upload_var.id}`;
+        let sql_product_table = `INSERT INTO product_table (id, catagory, title, description, price, texture, wash, place, note, story, sizes, main_image) VALUES ('${upload_var.id}', '${upload_var.catagory}', '${upload_var.title}', '${upload_var.description}', '${upload_var.price}', '${upload_var.texture}', '${upload_var.wash}', '${upload_var.place}', '${upload_var.note}', '${upload_var.story}', '${upload_var.sizes}', '${upload_var.image_files.main_image[0]['path']}');`; 
         let product = await make_sql(sql_check_product_table, sql_product_table);
-        console.log(product);
+        // console.log(product);
         // console.log(typeof(product))
         console.log("Update product.");
     } 
-    if (name && code) {
-        let sql_check_colors = `SELECT * FROM colors WHERE code = '${code}'`;
-        let sql_colors = `INSERT INTO colors (name, code) VALUES ('${name}', '${code}');`;
+    if (upload_var.name && upload_var.code) {
+        let sql_check_colors = `SELECT * FROM colors WHERE code = '${upload_var.code}'`;
+        let sql_colors = `INSERT INTO colors (name, code) VALUES ('${upload_var.name}', '${upload_var.code}');`;
         let colors = await make_sql(sql_check_colors, sql_colors);
-        console.log(colors);
+        // console.log(colors);
         // console.log(typeof(colors))     
         console.log('Updata colors.');
     }
-    if (id && req.files.images) {  
-        let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${id}`;
+    if (upload_var.id && upload_var.image_files.images) {  
+        let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${upload_var.id}`;
         let insert_images = `INSERT INTO images VALUES `; 
-        for (let i = 0; i<req.files.images.length-1; i++) {
-            insert_images += `('${id}', '${req.files.images[i]['path']}'),`; 
+        for (let i = 0; i<upload_var.image_files.images.length-1; i++) {
+            insert_images += `('${upload_var.id}', '${upload_var.image_files.images[i]['path']}'),`; 
         }
-        insert_images += `('${id}', '${req.files.images[req.files.images.length-1]['path']}');`;
+        insert_images += `('${upload_var.id}', '${upload_var.image_files.images[upload_var.image_files.images.length-1]['path']}');`;
         let images = await make_multi_sql(sql_check_product_table, insert_images);
         // console.log(images); 
         console.log('Updata images.');
-    }
-    if (id&&variant[0].id && variant[0].color_code && variant[0].size && variant[0].stock !== null) {
-        let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${id}`;
+    } 
+    if (upload_var.id && upload_var.variant[0].id && upload_var.variant[0].color_code && upload_var.variant[0].size && upload_var.variant[0].stock !== null) {
+        let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${upload_var.id}`;
         let insert_variant = `INSERT INTO stock VALUES `; 
-        for (let i = 0; i<variant.length-1; i++) {
-            insert_variant += `('${variant[i].id}', '${variant[i].color_code}', '${variant[i].size}', '${variant[i].stock}'),`; 
+        for (let i = 0; i<upload_var.variant.length-1; i++) {
+            insert_variant += `('${upload_var.variant[i].id}', '${upload_var.variant[i].color_code}', '${upload_var.variant[i].size}', '${upload_var.variant[i].stock}'),`; 
         }
-        insert_variant += `('${variant[variant.length-1].id}', '${variant[variant.length-1].color_code}', '${variant[variant.length-1].size}', '${variant[variant.length-1].stock}');`;   
+        insert_variant += `('${upload_var.variant[upload_var.variant.length-1].id}', '${upload_var.variant[upload_var.variant.length-1].color_code}', '${upload_var.variant[upload_var.variant.length-1].size}', '${upload_var.variant[upload_var.variant.length-1].stock}');`;   
         let stock = await make_multi_sql(sql_check_product_table, insert_variant); 
         console.log('Updata stock.');
         // console.log(stock); 
@@ -242,14 +242,11 @@ app.post('/admin/upload', upload.fields(fields), (req, res) => {
     variant[1] = new variants(id, color_code_2, size_2, stock_2); 
     variant[2] = new variants(id, color_code_3, size_3, stock_3);
 
-    // let upload_var = {id: id, price: price, catagory: catagory, title: title, description: description, texture: texture, wash: wash, place: place, note: note, story: story, sizes: sizes, name: name, code: code, color_code: color_code, size: size, stock,color_code_1, color_code_2, color_code_3, size_1, size_2, size_3, stock_1, stock_2, stock_3};
+    let upload_var = {id: id, price: price, catagory: catagory, title: title, description: description, texture: texture, wash: wash, place: place, note: note, story: story, sizes: sizes, name: name, code: code, color_code: color_code, size: size, variant: variant, image_files: req.files};
 
-    let upload_var = {id: id, price: price, catagory: catagory, title: title, description: description, texture: texture, wash: wash, place: place, note: note, story: story, sizes: sizes, name: name, code: code, color_code: color_code, size: size, variant: variant};
-
-    // console.log(upload_var.variant);
-    // upload_main(upload_var);
-    upload_main()
-    // res.render('info'); 
+    upload_main(upload_var).then(() => {
+        res.render('info'); 
+    })
 })
 
 app.get(`/api/${process.env["API_VERSION"]}/products/all`, (req, res) => {
