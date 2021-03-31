@@ -153,19 +153,18 @@ async function upload_main(upload_var) {
     console.log('-----')
 }
 
-async function query_main(query_catagory, query_page) {
+async function query_main(sql_select, sql_count, query_page) {
     let total_pages = 0;
-    if(query_page) {
-        let sql_count = `SELECT Count(*) FROM stylish.product_table WHERE catagory = '${query_catagory}';`;
+    if (query_page == null) {
+        query_page = '0';
+    }
+
+    if (sql_count !== 'none') {
         let sql_totalnumber = await dbsql(sql_count);
         total_pages = parseInt(sql_totalnumber[0]['Count(*)']/6);
         let sqlData_start = (query_page)*6;
         let pages_gqp = 6;
-        sql_select = `SELECT * FROM product_table WHERE catagory = '${query_catagory}' LIMIT ${sqlData_start} , ${pages_gqp};`;
-    } else if (query_catagory === 'all') {
-        sql_select = `SELECT * FROM product_table;`;
-    } else {
-        sql_select = `SELECT * FROM product_table WHERE catagory = '${query_catagory}';`;
+        sql_select = sql_select + ` LIMIT ${sqlData_start} , ${pages_gqp};`;
         // console.log(sql_select);
     }
 
@@ -204,83 +203,39 @@ async function query_main(query_catagory, query_page) {
     }
     // console.log(product_list);
     let output = {};
-    output.data = product_list;
-
-    if(query_page) {
-        // 檢查是否有next page
-        let next_paging = parseInt(query_page)+1;
-        if (next_paging <= total_pages) {
-            output.next_paging = next_paging;
-            return output;
+    if (sql_count !== 'none') {
+        output.data = product_list;
+        if(query_page) {
+            // 檢查是否有next page
+            let next_paging = parseInt(query_page)+1;
+            if (next_paging <= total_pages) {
+                output.next_paging = next_paging;
+                return output;
+            }
+            // return output;
         }
+
+    } else {
+
     }
-    return output;
-}
+    // output.data = product_list;
 
-async function query_main_2(sql_select, sql_count, query_catagory, query_page) {
-    let total_pages = 0;
-    if (query_page == null) {
-        query_page = '0';
-    }
-    let sql_totalnumber = await dbsql(sql_count);
-    total_pages = parseInt(sql_totalnumber[0]['Count(*)']/6);
-    let sqlData_start = (query_page)*6;
-    let pages_gqp = 6;
-    sql_select = sql_select + ` LIMIT ${sqlData_start} , ${pages_gqp};`;
-    // console.log(sql_select);
-
-    let product_list = await dbsql(sql_select);
-    // console.log(product_list);
-    for (let i = 0; i<product_list.length; i++) {
-        // 每項product
-        let images_arr = [];
-        let sql_images = `SELECT image FROM images WHERE product_id = ${parseInt(product_list[i]['id'])};`;
-        let images = await dbsql(sql_images)
-        // console.log(images)
-        for (let i = 0; i<images.length; i++){
-            images_arr.push(images[i].image);
-        }
-        // console.log(images_arr); // 同個id
-
-        let sql_stock = `SELECT color_code, size, quantity FROM stock WHERE product_id = ${parseInt(product_list[i]['id'])};`;
-        let stock = await dbsql(sql_stock);
-        // console.log(stock); // ok
-
-        let ans = Object.keys(groupByKey(stock, 'color_code'));
-        // console.log(ans);
-        let sql_color = `SELECT * FROM colors WHERE code = `;
-        for (let i = 0; i<ans.length-1; i++){
-            sql_color += `'${ans[i]}' OR code =`;
-        }
-        sql_color += `'${ans[ans.length-1]}';`;
-        // console.log(sql_color) // ok
-        let colors = await dbsql(sql_color);
-        // console.log(colors); // ok
-        stock_size = Object.keys(groupByKey(stock, 'size'));
-        product_list[i].images = images_arr
-        product_list[i].variants = stock;
-        product_list[i].colors = colors;
-        product_list[i].sizes = stock_size;
-    }
-    // console.log(product_list);
-    let output = {};
-    output.data = product_list;
-
-    if(query_page) {
-        // 檢查是否有next page
-        let next_paging = parseInt(query_page)+1;
-        if (next_paging <= total_pages) {
-            output.next_paging = next_paging;
-            return output;
-        }
-    }
-    return output;
+    // if(query_page) {
+    //     // 檢查是否有next page
+    //     let next_paging = parseInt(query_page)+1;
+    //     if (next_paging <= total_pages) {
+    //         output.next_paging = next_paging;
+    //         return output;
+    //     }
+    // }
+    // return output;
 }
 
 app.get('/', (req, res) => {
     res.send("Connect to EC2!");
 })
 
+// ---w0p3
 let fields = [{name: 'main_image', maxCount: 1}, {name: 'images', maxCount: 3}];
 app.post('/admin/upload', upload.fields(fields), (req, res) => {
     const id = parseInt(req.body.id);
@@ -309,12 +264,17 @@ app.post('/admin/upload', upload.fields(fields), (req, res) => {
     })
 })
 
+app.get('/admin/product.html', (req, res) => {
+    res.render('product'); 
+})
+
+// ---w1p1
 app.get(`/api/${process.env["API_VERSION"]}/products/all`, (req, res) => {
     let query_catagory = 'all';
     let query_page = req.query.paging;
     let sql_select = `SELECT * FROM product_table`;
     let sql_count = `SELECT Count(*) FROM product_table;`;
-    query_main_2(sql_select, sql_count, query_catagory, query_page).then((result) => {
+    query_main(sql_select, sql_count, query_page).then((result) => {
         res.send(result);
     });
 })
@@ -324,7 +284,7 @@ app.get(`/api/${process.env["API_VERSION"]}/products/women`, (req, res) => {
     let query_page = req.query.paging;
     let sql_select = `SELECT * FROM product_table WHERE catagory = '${query_catagory}'`;
     let sql_count = `SELECT Count(*) FROM product_table WHERE catagory = '${query_catagory}'`;
-    query_main_2(sql_select, sql_count, query_catagory, query_page).then((result) => {
+    query_main(sql_select, sql_count, query_page).then((result) => {
         res.send(result);
     });
 })
@@ -334,7 +294,7 @@ app.get(`/api/${process.env["API_VERSION"]}/products/accessories`, (req, res) =>
     let query_page = req.query.paging;
     let sql_select = `SELECT * FROM product_table WHERE catagory = '${query_catagory}'`;
     let sql_count = `SELECT Count(*) FROM product_table WHERE catagory = '${query_catagory}'`;
-    query_main_2(sql_select, sql_count, query_catagory, query_page).then((result) => {
+    query_main(sql_select, sql_count, query_page).then((result) => {
         res.send(result);
     });
 })
@@ -345,16 +305,12 @@ app.get(`/api/${process.env["API_VERSION"]}/products/men`, (req, res) => {
     // console.log(query_page)
     let sql_select = `SELECT * FROM product_table WHERE catagory = '${query_catagory}'`;
     let sql_count = `SELECT Count(*) FROM product_table WHERE catagory = '${query_catagory}'`;
-    query_main_2(sql_select, sql_count, query_catagory, query_page).then((result) => {
+    query_main(sql_select, sql_count, query_page).then((result) => {
         res.send(result);
     });
     // query_main(query_catagory, query_page).then(result => {
     //     res.send(result);
     // })
-})
-
-app.get('/admin/product.html', (req, res) => {
-    res.render('product'); 
 })
 
 // ---w1p2
@@ -363,7 +319,19 @@ app.get(`/api/${process.env["API_VERSION"]}/products/search`, (req, res) => {
     let query_page = req.query.paging;
     let sql_select = `SELECT * FROM product_table WHERE title LIKE '%${keyword}%'`;
     let sql_count = `SELECT Count(*) FROM product_table WHERE title LIKE '%${keyword}%'`;
-    query_main_2(sql_select, sql_count, keyword, query_page).then((result) => {
+    query_main(sql_select, sql_count, query_page).then((result) => {
+        res.send(result);
+    })
+})
+
+app.get(`/api/${process.env["API_VERSION"]}/products/details`, (req, res) => {
+    let query_id = req.query.id;
+    // console.log(query_id)
+    let query_page = req.query.paging;
+    let sql_select = `SELECT * FROM product_table WHERE id = '${query_id}'`;
+    // let sql_count = `SELECT Count(*) FROM product_table WHERE title LIKE '%${keyword}%'`;
+    let sql_count = 'none';
+    query_main(sql_select, sql_count, query_page).then((result) => {
         res.send(result);
     })
 })
