@@ -46,6 +46,176 @@ db.connect((err) =>{
     console.log('mySQL connected!');
 })
 
+function make_sql(sql_check, sql) { 
+    let sql_next = new Promise(function(resolve, reject) {
+        db.query(sql_check, (err, result) => {
+            if (err) throw err;
+            if (result.length) {
+                let letter = sql_check.split(' '); 
+                resolve(`<h2>${letter[letter.length-3]} is duplicated! Please refill the upload sheet.</h2>`); 
+            } else {
+                db.query(sql, (err, result)=>{
+                    if (err) throw err;
+                    if (result) {
+                        resolve(1); 
+                    }
+                })
+            }
+        })
+    });
+    return sql_next;
+}
+
+function make_multi_sql(sql_check, multi_sql) {
+    let sql_next = new Promise(function(resolve, reject) {
+        db.query(sql_check, (err, result) => {
+            if (err) throw err;
+            if (result.length) {
+                db.query(multi_sql, (err, result) => {
+                    if (err) throw err;
+                    resolve(1);
+                })
+            } else {
+                let letter = sql_check.split(' '); 
+                resolve(`<h2>${letter[letter.length-3]} is not existed! Please refill the upload sheet.</h2>`);
+            }
+        })
+    })
+    return sql_next;
+}
+
+function groupByKey(input, index) {
+    // input is object
+    let ans = {};
+    for (let i = 0; i<input.length; i++) {
+        if (ans[input[i][`${index}`]] >= 0) {
+            ans[input[i][`${index}`]] += 1;
+            continue;
+        } else {
+            ans[input[i][`${index}`]] = 1;
+        }
+    }
+    return(ans);
+}
+
+function dbsql(sql) {
+    let db_result = new Promise((resolve,reject) => {
+        db.query(sql, (err, result) => {
+            if (err) throw err;
+            resolve(result);
+        })
+    })
+    return db_result;
+}
+
+async function upload_main() {
+    if (id&&catagory&&title&&description&&price&&texture&&wash&&place&&note&&story&&req.files.main_image) {
+        // 上方判斷氏可補上sizes(optional)
+        let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${id}`;
+        let sql_product_table = `INSERT INTO product_table (id, catagory, title, description, price, texture, wash, place, note, story, sizes, main_image) VALUES ('${id}', '${catagory}', '${title}', '${description}', '${price}', '${texture}', '${wash}', '${place}', '${note}', '${story}', '${sizes}', '${req.files.main_image[0]['path']}');`; 
+        let product = await make_sql(sql_check_product_table, sql_product_table);
+        console.log(product);
+        // console.log(typeof(product))
+        console.log("Update product.");
+    } 
+    if (name && code) {
+        let sql_check_colors = `SELECT * FROM colors WHERE code = '${code}'`;
+        let sql_colors = `INSERT INTO colors (name, code) VALUES ('${name}', '${code}');`;
+        let colors = await make_sql(sql_check_colors, sql_colors);
+        console.log(colors);
+        // console.log(typeof(colors))     
+        console.log('Updata colors.');
+    }
+    if (id && req.files.images) {  
+        let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${id}`;
+        let insert_images = `INSERT INTO images VALUES `; 
+        for (let i = 0; i<req.files.images.length-1; i++) {
+            insert_images += `('${id}', '${req.files.images[i]['path']}'),`; 
+        }
+        insert_images += `('${id}', '${req.files.images[req.files.images.length-1]['path']}');`;
+        let images = await make_multi_sql(sql_check_product_table, insert_images);
+        // console.log(images); 
+        console.log('Updata images.');
+    }
+    if (id&&variant[0].id && variant[0].color_code && variant[0].size && variant[0].stock !== null) {
+        let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${id}`;
+        let insert_variant = `INSERT INTO stock VALUES `; 
+        for (let i = 0; i<variant.length-1; i++) {
+            insert_variant += `('${variant[i].id}', '${variant[i].color_code}', '${variant[i].size}', '${variant[i].stock}'),`; 
+        }
+        insert_variant += `('${variant[variant.length-1].id}', '${variant[variant.length-1].color_code}', '${variant[variant.length-1].size}', '${variant[variant.length-1].stock}');`;   
+        let stock = await make_multi_sql(sql_check_product_table, insert_variant); 
+        console.log('Updata stock.');
+        // console.log(stock); 
+    } else {
+        // res.render(warning);
+    }
+    console.log('-----')
+}
+
+async function query_main(query_catagory, query_page) {
+    let total_pages = 0;
+    if(query_page) {
+        let sql_count = `SELECT Count(*) FROM stylish.product_table WHERE catagory = '${query_catagory}';`;
+        let sql_totalnumber = await dbsql(sql_count);
+        total_pages = parseInt(sql_totalnumber[0]['Count(*)']/6);
+        let sqlData_start = (query_page)*6;
+        let pages_gqp = 6;
+        sql_select = `SELECT * FROM product_table WHERE catagory = '${query_catagory}' LIMIT ${sqlData_start} , ${pages_gqp};`;
+    } else if (query_catagory === 'all') {
+        sql_select = `SELECT * FROM product_table;`;
+    } else {
+        sql_select = `SELECT * FROM product_table WHERE catagory = '${query_catagory}';`;
+        // console.log(sql_select);
+    }
+
+    let product_list = await dbsql(sql_select);
+    // console.log(product_list);
+    for (let i = 0; i<product_list.length; i++) {
+        // 每項product
+        let images_arr = [];
+        let sql_images = `SELECT image FROM images WHERE product_id = ${parseInt(product_list[i]['id'])};`;
+        let images = await dbsql(sql_images)
+        // console.log(images)
+        for (let i = 0; i<images.length; i++){
+            images_arr.push(images[i].image);
+        }
+        // console.log(images_arr); // 同個id
+
+        let sql_stock = `SELECT color_code, size, quantity FROM stock WHERE product_id = ${parseInt(product_list[i]['id'])};`;
+        let stock = await dbsql(sql_stock);
+        // console.log(stock); // ok
+
+        let ans = Object.keys(groupByKey(stock, 'color_code'));
+        // console.log(ans);
+        let sql_color = `SELECT * FROM colors WHERE code = `;
+        for (let i = 0; i<ans.length-1; i++){
+            sql_color += `'${ans[i]}' OR code =`;
+        }
+        sql_color += `'${ans[ans.length-1]}';`;
+        // console.log(sql_color) // ok
+        let colors = await dbsql(sql_color);
+        // console.log(colors); // ok
+        stock_size = Object.keys(groupByKey(stock, 'size'));
+        product_list[i].images = images_arr
+        product_list[i].variants = stock;
+        product_list[i].colors = colors;
+        product_list[i].sizes = stock_size;
+    }
+    // console.log(product_list);
+    let output = {};
+    output.data = product_list;
+
+    if(query_page) {
+        // 檢查是否有next page
+        let next_paging = parseInt(query_page)+1;
+        if (next_paging <= total_pages) {
+            output.next_paging = next_paging;
+            return output;
+        }
+    }
+    return output;
+}
 
 app.get('/', (req, res) => {
     res.send("Connect to EC2!");
@@ -72,323 +242,42 @@ app.post('/admin/upload', upload.fields(fields), (req, res) => {
     variant[1] = new variants(id, color_code_2, size_2, stock_2); 
     variant[2] = new variants(id, color_code_3, size_3, stock_3);
 
-    function make_sql(sql_check, sql) { 
-        let sql_next = new Promise(function(resolve, reject) {
-            db.query(sql_check, (err, result) => {
-                if (err) throw err;
-                if (result.length) {
-                    let letter = sql_check.split(' '); 
-                    resolve(`<h2>${letter[letter.length-3]} is duplicated! Please refill the upload sheet.</h2>`); 
-                } else {
-                    db.query(sql, (err, result)=>{
-                        if (err) throw err;
-                        if (result) {
-                            resolve(1); 
-                        }
-                    })
-                }
-            })
-        });
-        return sql_next;
-    }
-    
-    function make_multi_sql(sql_check, multi_sql) {
-        let sql_next = new Promise(function(resolve, reject) {
-            db.query(sql_check, (err, result) => {
-                if (err) throw err;
-                if (result.length) {
-                    db.query(multi_sql, (err, result) => {
-                        if (err) throw err;
-                        resolve(1);
-                    })
-                } else {
-                    let letter = sql_check.split(' '); 
-                    resolve(`<h2>${letter[letter.length-3]} is not existed! Please refill the upload sheet.</h2>`);
-                }
-            })
-        })
-        return sql_next;
-    }
 
-    async function main() {
-        if (id&&catagory&&title&&description&&price&&texture&&wash&&place&&note&&story&&req.files.main_image) {
-            // 上方判斷氏可補上sizes(optional)
-            let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${id}`;
-            let sql_product_table = `INSERT INTO product_table (id, catagory, title, description, price, texture, wash, place, note, story, sizes, main_image) VALUES ('${id}', '${catagory}', '${title}', '${description}', '${price}', '${texture}', '${wash}', '${place}', '${note}', '${story}', '${sizes}', '${req.files.main_image[0]['path']}');`; 
-            let product = await make_sql(sql_check_product_table, sql_product_table);
-            console.log(product);
-            // console.log(typeof(product))
-            // id_index = 1;
-            console.log("Update product.");
-        } 
-        if (name && code) {
-            let sql_check_colors = `SELECT * FROM colors WHERE code = '${code}'`;
-            let sql_colors = `INSERT INTO colors (name, code) VALUES ('${name}', '${code}');`;
-            let colors = await make_sql(sql_check_colors, sql_colors);
-            console.log(colors);
-            // console.log(typeof(colors))     
-            console.log('Updata colors.');
-        }
-        if (id && req.files.images) {  
-            let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${id}`;
-            let insert_images = `INSERT INTO images VALUES `; 
-            for (let i = 0; i<req.files.images.length-1; i++) {
-                insert_images += `('${id}', '${req.files.images[i]['path']}'),`; 
-            }
-            insert_images += `('${id}', '${req.files.images[req.files.images.length-1]['path']}');`;
-            let images = await make_multi_sql(sql_check_product_table, insert_images);
-            // console.log(images); 
-            console.log('Updata images.');
-        }
-        if (id&&variant[0].id && variant[0].color_code && variant[0].size && variant[0].stock !== null) {
-            let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${id}`;
-            let insert_variant = `INSERT INTO stock VALUES `; 
-            for (let i = 0; i<variant.length-1; i++) {
-                insert_variant += `('${variant[i].id}', '${variant[i].color_code}', '${variant[i].size}', '${variant[i].stock}'),`; 
-            }
-            insert_variant += `('${variant[variant.length-1].id}', '${variant[variant.length-1].color_code}', '${variant[variant.length-1].size}', '${variant[variant.length-1].stock}');`;   
-            let stock = await make_multi_sql(sql_check_product_table, insert_variant); 
-            console.log('Updata stock.');
-            // console.log(stock); 
-        } else {
-            // res.render(warning);
-        }
-        console.log('-----')
-    }
-    main()
+    upload_main()
     // res.render('info'); 
 })
 
-function groupByKey(input, index) {
-    // input is object
-    let ans = {};
-    for (let i = 0; i<input.length; i++) {
-        if (ans[input[i][`${index}`]] >= 0) {
-            ans[input[i][`${index}`]] += 1;
-            continue;
-        } else {
-            ans[input[i][`${index}`]] = 1;
-        }
-    }
-    return(ans);
-}
-
-function dbsql(sql) {
-    let db_result = new Promise((resolve,reject) => {
-        db.query(sql, (err, result) => {
-            if (err) throw err;
-            resolve(result);
-        })
+app.get(`/api/${process.env["API_VERSION"]}/products/all`, (req, res) => {
+    let query_catagory = 'all';
+    let query_page = req.query.paging;
+    query_main(query_catagory, query_page).then(result => {
+        res.send(result);
     })
-    return db_result;
-}
+})
 
-// async function sqlcount(query) {
-//     let sql_count = `Select Count(*) FROM product_table;`;
-//     let sql_totalnumber = await dbsql(sql_count);
-//     // console.log(sql_number[0]['Count(*)']);
-//     let total_pages = parseInt(sql_totalnumber[0]['Count(*)']/6);
-//     // console.log(total_pages);
-//     let next_paging = parseInt(query)+1;
-//     // if (next_paging > total_pages) {
-//     //     next_paging = 'There are no more pages.'
-//     // }
-
-//     if(query) {
-//         let sqlData_start = (query)*6;
-//         let pages_gqp = 6;
-//         let sql_select = `Select * FROM product_table LIMIT ${sqlData_start} , ${pages_gqp};`;
-//         let sql_query_results = await dbsql(sql_select);
-//         if (next_paging <= total_pages) {
-//             for (let i = 0; i<sql_query_results.length; i++) {
-//                 sql_query_results[i].next_paging = next_paging;
-//             }
-//         } 
-//         return(sql_query_results);
-//     } else {
-//         let sql_select = `Select * FROM product_table;`;
-//         sql_query_results = await dbsql(sql_select);
-//         return(sql_query_results);
-//     }
-// }
-
-async function main(query_catagory, query_page) {
-    // let sql_select = '';
-    let total_pages = 0;
-    // let next_paging = 0;
-    // console.log('test-',query_page);
-    if(query_page) {
-        let sql_count = `SELECT Count(*) FROM stylish.product_table WHERE catagory = '${query_catagory}';`;
-        let sql_totalnumber = await dbsql(sql_count);
-        total_pages = parseInt(sql_totalnumber[0]['Count(*)']/6);
-        // next_paging = parseInt(query_page)+1;
-        let sqlData_start = (query_page)*6;
-        let pages_gqp = 6;
-        sql_select = `Select * FROM product_table WHERE catagory = '${query_catagory}' LIMIT ${sqlData_start} , ${pages_gqp};`;
-    } else {
-        sql_select = `Select * FROM product_table WHERE catagory = '${query_catagory}';`;
-        // console.log(sql_select);
-    }
-
-    let product_list = await dbsql(sql_select);
-    // console.log(product_list);
-    for (let i = 0; i<product_list.length; i++) {
-        // 每項product
-        let images_arr = [];
-        let sql_images = `SELECT image FROM images WHERE product_id = ${parseInt(product_list[i]['id'])};`;
-        let images = await dbsql(sql_images)
-        // console.log(images)
-        for (let i = 0; i<images.length; i++){
-            images_arr.push(images[i].image);
-        }
-        // console.log(images_arr); // 同個id
-        // product_list[i].images = images_arr
-
-        let sql_stock = `SELECT color_code, size, quantity FROM stock WHERE product_id = ${parseInt(product_list[i]['id'])};`;
-        let stock = await dbsql(sql_stock);
-        // console.log(stock); // ok
-        // product_list[i].variants = stock;
-
-        let ans = Object.keys(groupByKey(stock, 'color_code'));
-        // console.log(ans);
-        let sql_color = `SELECT * FROM colors WHERE code = `;
-        for (let i = 0; i<ans.length-1; i++){
-            sql_color += `'${ans[i]}' OR code =`;
-        }
-        sql_color += `'${ans[ans.length-1]}';`;
-        // console.log(sql_color) // ok
-        let colors = await dbsql(sql_color);
-        // console.log(colors);
-
-        stock_size = Object.keys(groupByKey(stock, 'size'));
-        // console.log(stock_size)
-        // let stock_size = [];
-        // for (let i = 0; i<ans.length; i++){
-        //     stock_size.push(ans[i]);
-        // }
-
-        // let sizes = product_list[i].sizes.split('"');
-        // console.log(sizes);
-
-        // for (let i = 0; i<product_list[i].sizes)
-        // console.log(product_list[i].sizes);
-
-        product_list[i].images = images_arr
-        product_list[i].variants = stock;
-        product_list[i].colors = colors;
-        product_list[i].sizes = stock_size;
-    }
-    // console.log(product_list);
-    let output = {};
-    output.data = product_list;
-
-    if(query_page) {
-        // 檢查是否有next page
-        let next_paging = parseInt(query_page)+1;
-        if (next_paging <= total_pages) {
-            output.next_paging = next_paging;
-            return output;
-        }
-    }
-    return output;
-}
-
-// app.get('/products/all', (req, res) => {
-//     // let query_catagory = 'women';
-//     let query_page = req.query.paging;
-//     main(query_catagory, query_page).then(result => {
-//         res.send(result);
-//     })
-// })
-
-app.get('/products/women', (req, res) => {
+app.get(`/api/${process.env["API_VERSION"]}/products/women`, (req, res) => {
     let query_catagory = 'women';
     let query_page = req.query.paging;
-    main(query_catagory, query_page).then(result => {
+    query_main(query_catagory, query_page).then(result => {
         res.send(result);
     })
 })
 
-app.get('/products/accessories', (req, res) => {
+app.get(`/api/${process.env["API_VERSION"]}/products/accessories`, (req, res) => {
     let query_catagory = 'accessories';
     let query_page = req.query.paging;
-    main(query_catagory, query_page).then(result => {
+    query_main(query_catagory, query_page).then(result => {
         res.send(result);
     })
 })
 
-app.get('/products/men', (req, res) => {
+app.get(`/api/${process.env["API_VERSION"]}/products/men`, (req, res) => {
     let query_catagory = 'men';
     let query_page = req.query.paging;
-    main(query_catagory, query_page).then(result => {
+    query_main(query_catagory, query_page).then(result => {
         res.send(result);
     })
 })
-
-// //原始
-// app.get('/products/all', (req, res) => {  
-   
-//     // sqlcount(req.query.paging).then(result => {
-//     //     res.send(result);
-//     // })
-
-//     async function main() {
-//         let sql_product = 'SELECT * FROM stylish.product_table;';
-//         let product_list = await dbsql(sql_product);
-//         // console.log(product_list)
-//         for (let i = 0; i<product_list.length; i++) {
-//             // console.log('-------')
-//             let images_arr = [];
-//             let sql_images = `SELECT image FROM images WHERE product_id = ${parseInt(product_list[i]['id'])};`;
-//             let images = await dbsql(sql_images)
-//             // console.log(images)
-//             for (let i = 0; i<images.length; i++){
-//                 images_arr.push(images[i].image);
-//             }
-//             // console.log(images_arr); // 同個id
-//             // product_list[i].images = images_arr
-
-//             let sql_stock = `SELECT color_code, size, quantity FROM stock WHERE product_id = ${parseInt(product_list[i]['id'])};`;
-//             let stock = await dbsql(sql_stock);
-//             // console.log(stock); // ok
-//             // product_list[i].variants = stock;
-
-//             let ans = Object.keys(groupByKey(stock, 'color_code'));
-//             // console.log(ans);
-//             let sql_color = `SELECT * FROM colors WHERE code = `;
-//             for (let i = 0; i<ans.length-1; i++){
-//                 sql_color += `'${ans[i]}' OR code =`;
-//             }
-//             sql_color += `'${ans[ans.length-1]}';`;
-//             // console.log(sql_color) // ok
-//             let colors = await dbsql(sql_color);
-//             // console.log(colors);
-
-//             stock_size = Object.keys(groupByKey(stock, 'size'));
-//             // console.log(stock_size)
-//             // let stock_size = [];
-//             // for (let i = 0; i<ans.length; i++){
-//             //     stock_size.push(ans[i]);
-//             // }
-
-//             // let sizes = product_list[i].sizes.split('"');
-//             // console.log(sizes);
-
-//             // for (let i = 0; i<product_list[i].sizes)
-//             // console.log(product_list[i].sizes);
-
-//             product_list[i].images = images_arr
-//             product_list[i].variants = stock;
-//             product_list[i].colors = colors;
-//             product_list[i].sizes = stock_size;
-//         }
-//         // console.log(product_list);
-//         let output = {};
-//         output.data = product_list;
-//         res.send(output);
-//     }
-//     main();
-// }) 
 
 app.get('/admin/product.html', (req, res) => {
     res.render('product'); 
