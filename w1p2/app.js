@@ -114,16 +114,12 @@ async function upload_main(upload_var) {
         let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${upload_var.id}`;
         let sql_product_table = `INSERT INTO product_table (id, catagory, title, description, price, texture, wash, place, note, story, sizes, main_image) VALUES ('${upload_var.id}', '${upload_var.catagory}', '${upload_var.title}', '${upload_var.description}', '${upload_var.price}', '${upload_var.texture}', '${upload_var.wash}', '${upload_var.place}', '${upload_var.note}', '${upload_var.story}', '${upload_var.sizes}', '${upload_var.image_files.main_image[0]['path']}');`; 
         let product = await make_sql(sql_check_product_table, sql_product_table);
-        // console.log(product);
-        // console.log(typeof(product))
         console.log("Update product.");
     } 
     if (upload_var.name && upload_var.code) {
         let sql_check_colors = `SELECT * FROM colors WHERE code = '${upload_var.code}'`;
         let sql_colors = `INSERT INTO colors (name, code) VALUES ('${upload_var.name}', '${upload_var.code}');`;
-        let colors = await make_sql(sql_check_colors, sql_colors);
-        // console.log(colors);
-        // console.log(typeof(colors))     
+        let colors = await make_sql(sql_check_colors, sql_colors);    
         console.log('Updata colors.');
     }
     if (upload_var.id && upload_var.image_files.images) {  
@@ -146,7 +142,6 @@ async function upload_main(upload_var) {
         insert_variant += `('${upload_var.variant[upload_var.variant.length-1].id}', '${upload_var.variant[upload_var.variant.length-1].color_code}', '${upload_var.variant[upload_var.variant.length-1].size}', '${upload_var.variant[upload_var.variant.length-1].stock}');`;   
         let stock = await make_multi_sql(sql_check_product_table, insert_variant); 
         console.log('Updata stock.');
-        // console.log(stock); 
     } else {
         // res.render(warning);
     }
@@ -202,33 +197,18 @@ async function query_main(sql_select, sql_count, query_page) {
         product_list[i].sizes = stock_size;
     }
     // console.log(product_list);
-    let output = {};
+
     if (sql_count !== 'none') {
+        let output = {};
         output.data = product_list;
-        if(query_page) {
-            // 檢查是否有next page
-            let next_paging = parseInt(query_page)+1;
-            if (next_paging <= total_pages) {
-                output.next_paging = next_paging;
-                return output;
-            }
-            // return output;
+        let next_paging = parseInt(query_page)+1;
+        if (next_paging <= total_pages) {
+            output.next_paging = next_paging;
         }
-
+        return output;
     } else {
-
+        return product_list;
     }
-    // output.data = product_list;
-
-    // if(query_page) {
-    //     // 檢查是否有next page
-    //     let next_paging = parseInt(query_page)+1;
-    //     if (next_paging <= total_pages) {
-    //         output.next_paging = next_paging;
-    //         return output;
-    //     }
-    // }
-    // return output;
 }
 
 app.get('/', (req, res) => {
@@ -326,10 +306,8 @@ app.get(`/api/${process.env["API_VERSION"]}/products/search`, (req, res) => {
 
 app.get(`/api/${process.env["API_VERSION"]}/products/details`, (req, res) => {
     let query_id = req.query.id;
-    // console.log(query_id)
     let query_page = req.query.paging;
     let sql_select = `SELECT * FROM product_table WHERE id = '${query_id}'`;
-    // let sql_count = `SELECT Count(*) FROM product_table WHERE title LIKE '%${keyword}%'`;
     let sql_count = 'none';
     query_main(sql_select, sql_count, query_page).then((result) => {
         res.send(result);
