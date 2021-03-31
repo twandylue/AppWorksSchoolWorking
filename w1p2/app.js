@@ -108,32 +108,42 @@ function dbsql(sql) {
     return db_result;
 }
 
+function image_url(url) {
+    let str = url.split('\\')
+    let new_str = '';
+    new_str = `${str[1]}`+'\\\\'+`${str[2]}`;
+    return new_str
+}
+
 async function upload_main(upload_var) {
     if (upload_var.id && upload_var.catagory && upload_var.title && upload_var.description && upload_var.price && upload_var.texture && upload_var.wash && upload_var.place && upload_var.note && upload_var.story && upload_var.image_files.main_image) {
         // 上方判斷氏可補上sizes(optional)
+        // insert product
         let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${upload_var.id}`;
-        let sql_product_table = `INSERT INTO product_table (id, catagory, title, description, price, texture, wash, place, note, story, sizes, main_image) VALUES ('${upload_var.id}', '${upload_var.catagory}', '${upload_var.title}', '${upload_var.description}', '${upload_var.price}', '${upload_var.texture}', '${upload_var.wash}', '${upload_var.place}', '${upload_var.note}', '${upload_var.story}', '${upload_var.sizes}', '${upload_var.image_files.main_image[0]['path']}');`; 
+        let sql_product_table = `INSERT INTO product_table (id, catagory, title, description, price, texture, wash, place, note, story, sizes, main_image) VALUES ('${upload_var.id}', '${upload_var.catagory}', '${upload_var.title}', '${upload_var.description}', '${upload_var.price}', '${upload_var.texture}', '${upload_var.wash}', '${upload_var.place}', '${upload_var.note}', '${upload_var.story}', '${upload_var.sizes}', '${image_url(upload_var.image_files.main_image[0]['path'])}');`; 
         let product = await make_sql(sql_check_product_table, sql_product_table);
         console.log("Update product.");
     } 
     if (upload_var.name && upload_var.code) {
+        // insert color
         let sql_check_colors = `SELECT * FROM colors WHERE code = '${upload_var.code}'`;
         let sql_colors = `INSERT INTO colors (name, code) VALUES ('${upload_var.name}', '${upload_var.code}');`;
         let colors = await make_sql(sql_check_colors, sql_colors);    
         console.log('Updata colors.');
     }
     if (upload_var.id && upload_var.image_files.images) {  
+        // insert images
         let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${upload_var.id}`;
         let insert_images = `INSERT INTO images VALUES `; 
         for (let i = 0; i<upload_var.image_files.images.length-1; i++) {
-            insert_images += `('${upload_var.id}', '${upload_var.image_files.images[i]['path']}'),`; 
+            insert_images += `('${upload_var.id}', '${image_url(upload_var.image_files.images[i]['path'])}'),`; 
         }
-        insert_images += `('${upload_var.id}', '${upload_var.image_files.images[upload_var.image_files.images.length-1]['path']}');`;
+        insert_images += `('${upload_var.id}', '${image_url(upload_var.image_files.images[upload_var.image_files.images.length-1]['path'])}');`;
         let images = await make_multi_sql(sql_check_product_table, insert_images);
-        // console.log(images); 
         console.log('Updata images.');
     } 
     if (upload_var.id && upload_var.variant[0].id && upload_var.variant[0].color_code && upload_var.variant[0].size && upload_var.variant[0].stock !== null) {
+        // insert variants
         let sql_check_product_table = `SELECT * FROM product_table WHERE id = ${upload_var.id}`;
         let insert_variant = `INSERT INTO stock VALUES `; 
         for (let i = 0; i<upload_var.variant.length-1; i++) {
@@ -150,15 +160,17 @@ async function upload_main(upload_var) {
 
 async function query_main(sql_select, sql_count, query_page) {
     let total_pages = 0;
+    let sql_totalcount = 0;
+    let pages_gqp = 6;
+
     if (query_page == null) {
         query_page = '0';
     }
-
     if (sql_count !== 'none') {
         let sql_totalnumber = await dbsql(sql_count);
-        total_pages = parseInt(sql_totalnumber[0]['Count(*)']/6);
-        let sqlData_start = (query_page)*6;
-        let pages_gqp = 6;
+        sql_totalcount = parseInt(sql_totalnumber[0]['Count(*)']); 
+        total_pages = sql_totalcount/pages_gqp;
+        let sqlData_start = (query_page)*pages_gqp;
         sql_select = sql_select + ` LIMIT ${sqlData_start} , ${pages_gqp};`;
         // console.log(sql_select);
     }
@@ -202,9 +214,10 @@ async function query_main(sql_select, sql_count, query_page) {
         let output = {};
         output.data = product_list;
         let next_paging = parseInt(query_page)+1;
-        if (next_paging <= total_pages) {
-            output.next_paging = next_paging;
+        if (next_paging > total_pages || sql_totalcount/((query_page+1)*pages_gqp) == 1) {
+            return output;
         }
+        output.next_paging = next_paging;
         return output;
     } else {
         return product_list;
@@ -238,7 +251,7 @@ app.post('/admin/upload', upload.fields(fields), (req, res) => {
     variant[2] = new variants(id, color_code_3, size_3, stock_3);
 
     let upload_var = {id: id, price: price, catagory: catagory, title: title, description: description, texture: texture, wash: wash, place: place, note: note, story: story, sizes: sizes, name: name, code: code, color_code: color_code, size: size, variant: variant, image_files: req.files};
-
+   
     upload_main(upload_var).then(() => {
         res.render('info'); 
     })
