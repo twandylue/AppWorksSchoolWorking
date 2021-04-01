@@ -219,7 +219,7 @@ async function query_main(sql_select, sql_count, query_page) {
         output.next_paging = next_paging;
         return output;
     } else {
-        output.data = product_list;
+        output.data = product_list[0];
         return output;
     }
 }
