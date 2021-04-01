@@ -209,9 +209,8 @@ async function query_main(sql_select, sql_count, query_page) {
         product_list[i].sizes = stock_size;
     }
     // console.log(product_list);
-
+    let output = {};
     if (sql_count !== 'none') {
-        let output = {};
         output.data = product_list;
         let next_paging = parseInt(query_page)+1;
         if (next_paging > total_pages || sql_totalcount/((query_page+1)*pages_gqp) == 1) {
@@ -220,7 +219,8 @@ async function query_main(sql_select, sql_count, query_page) {
         output.next_paging = next_paging;
         return output;
     } else {
-        return product_list;
+        output.data = product_list;
+        return output;
     }
 }
 
