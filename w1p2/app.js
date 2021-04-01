@@ -188,7 +188,7 @@ async function query_main(sql_select, sql_count, query_page) {
         }
         // console.log(images_arr); // 同個id
 
-        let sql_stock = `SELECT color_code, size, quantity FROM stock WHERE product_id = ${parseInt(product_list[i]['id'])};`;
+        let sql_stock = `SELECT color_code, size, stock FROM stock WHERE product_id = ${parseInt(product_list[i]['id'])};`;
         let stock = await dbsql(sql_stock);
         // console.log(stock); // ok
 

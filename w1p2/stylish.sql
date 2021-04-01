@@ -112,7 +112,7 @@ CREATE TABLE `stock` (
   `product_id` bigint NOT NULL,
   `color_code` varchar(255) NOT NULL,
   `size` text NOT NULL,
-  `quantity` int NOT NULL,
+  `stock` int NOT NULL,
   KEY `product_id` (`product_id`),
   KEY `color_code` (`color_code`),
   CONSTRAINT `stock_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `product_table` (`id`),
@@ -139,4 +139,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-04-01  5:29:23
+-- Dump completed on 2021-04-01 10:50:00
