@@ -1,0 +1,38 @@
+* {
+    /* font-family: "Oswald", 微軟正黑體; */
+    /* border: 1px solid black; */
+    /*測試用*/
+    box-sizing: border-box;
+    /* 讓每個bolck都佔滿全部 不要溢出來 */
+}
+
+.content {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    text-align: center;
+    vertical-align: center;
+}
+     
+.sign_up, .sign_in {
+    width: 30%;
+    border: solid 1px black;
+    vertical-align: center;
+    margin-top: 5px;
+}
+
+/* .sign_in_cont {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    border: solid 1px black;
+    vertical-align: center;
+    margin-top: 5px;
+} */
+
+/* .sign_in{
+    width: 30%;
+    border: solid 1px black;
+    vertical-align: center;
+    padding: 20px;
+} */
