@@ -1,0 +1,48 @@
+
+CREATE TABLE `colors` (
+  `name` varchar(50) DEFAULT NULL,
+  `code` varchar(255) NOT NULL,
+  PRIMARY KEY (`code`),
+  UNIQUE KEY `code` (`code`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+CREATE TABLE `images` (
+  `product_id` bigint NOT NULL,
+  `image` text NOT NULL,
+  KEY `product_id` (`product_id`),
+  CONSTRAINT `images_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `product_table` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `product_table` (
+  `id` bigint NOT NULL,
+  `title` text NOT NULL,
+  `description` text NOT NULL,
+  `price` int NOT NULL,
+  `texture` text NOT NULL,
+  `wash` text NOT NULL,
+  `place` text NOT NULL,
+  `note` text NOT NULL,
+  `story` text NOT NULL,
+  `sizes` text NOT NULL,
+  `main_image` text NOT NULL,
+  `catagory` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+
+CREATE TABLE `stock` (
+  `product_id` bigint NOT NULL,
+  `color_code` varchar(255) NOT NULL,
+  `size` text NOT NULL,
+  `quantity` int NOT NULL,
+  KEY `product_id` (`product_id`),
+  KEY `color_code` (`color_code`),
+  CONSTRAINT `stock_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `product_table` (`id`),
+  CONSTRAINT `stock_ibfk_2` FOREIGN KEY (`color_code`) REFERENCES `colors` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+

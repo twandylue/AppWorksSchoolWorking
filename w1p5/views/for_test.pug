@@ -1,0 +1,51 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  meta(name='viewport' content='width=device-width, initial-scale=1.0')
+  // title /名稱
+  title w0p3
+  link(rel='stylesheet' href='css/base.css')
+.content
+  .upload
+    //- form.upload_cont(action='/upload_main_img' method='post' enctype='multipart/form-data')
+    //-   label
+    //-     | Please enter your main_image(wrning):
+    //-     // warning: image file url
+    //-     input#main_image(type='text' name='main_image')
+    //-   br
+    //-   label
+    //-     | Please enter your images(wrning):
+    //-     // warning: images is array
+    //-     input#images(type='text' name='images')
+    //-   br
+    //- button#update_button(type='submit') UPDATE!
+    form(action='/upload_main_img' method='post' enctype='multipart/form-data')
+      //- .file-field.input-field
+      //-   .btn
+      //-       span Please choose your main image: 
+      //-       input(name='myImage' type='file')
+      //-   .file-path-wrapper
+      //-       input.file-path.validate(type='text')
+        
+      //-   .btn
+      //-       span Please choose your images: 
+      //-       input(name='image1' type='file')
+      //-       input(name='image2' type='file')
+      //-       input(name='image3' type='file')
+      label
+        | Please enter your main_image(wrning):
+        // warning: image file url
+        input#main_image(type='file' name='main_image')
+      br
+      label
+        | Please choose your images: 
+        input#images(name='image1' type='file')
+        input#images(name='image2' type='file')
+        input#images(name='image3' type='file')
+        //- | Please enter your images(wrning):
+        // warning: images is array
+        //- input#images(type='text' name='images')
+      br
+      button#update_button(type='submit') UPDATE!
+
+// <script src="../app.js"></script>

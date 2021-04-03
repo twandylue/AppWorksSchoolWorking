@@ -83,16 +83,14 @@
             send_sql.onreadystatechange = function () {
                 if (send_sql.readyState === 4) {
                     if (send_sql.status === 200) {
-                        // console.log(send_sql.response);
                         let res = JSON.parse(send_sql.response);
-                        console.log(res)
                         if ("access_token" in res.data) {
+                            let send_profile = new XMLHttpRequest();
                             document.querySelector('#message').innerHTML = res.data.access_token;
                             window.localStorage.setItem('access_token', res.data.access_token);
-                            send_sql.open("GET", `http://localhost:3000/user/profile`); // redirect to new page
-                            send_sql.setRequestHeader('Authorization', 'bearer ' + res.data.access_token); // set up header
-                            // // // location.assign('http://localhost:3000/user/profile'); // redirect to new page
-                            send_sql.send(); 
+                            send_profile.open("GET", `http://localhost:3000/user/profile`); // redirect to new page
+                            send_profile.setRequestHeader('Authorization', 'bearer ' + res.data.access_token); // set up header
+                            send_profile.send(); 
                         } else {
                             document.querySelector('#message').innerHTML = res.data.message;
                         }
@@ -109,47 +107,6 @@
             send_sql.setRequestHeader('Content-Type', "application/json");
             send_sql.send(dataString);
         };
-
-        // // addEventListener寫法
-        // let name = document.querySelector('#name');
-        // let email = document.querySelector('#email');
-        // let password = document.querySelector('#password');
-        // let input_singup = document.querySelector('#input_button_signup');
-        // let input_singin = document.querySelector('#input_button_signin');
-        // input.addEventListener('click', () => {
-        //     let data = {
-        //         name: name.value,
-        //         email: email.value,
-        //         password: password.value
-        //         };
-
-        //     let dataString = JSON.stringify(data);
-        //     let send_sql = new XMLHttpRequest();
-        //     send_sql.onreadystatechange = function () {
-        //         if (send_sql.readyState === 4) {
-        //             if (send_sql.status === 200) {
-        //                 console.log(send_sql.response);
-        //                 let res = JSON.parse(send_sql.response);    
-        //                 if ("access_token" in res.data) {
-        //                 document.querySelector('#message').innerHTML = res.data.access_token;
-        //                 window.localStorage.setItem('access_token', res.data.access_token);
-        //                 send_sql.open("GET", `http://localhost:3000/profile`); // redirect to new page
-        //                 send_sql.setRequestHeader('Authorization', 'bearer ' + res.data.access_token); // set up header
-        //                 // // // location.assign('http://localhost:3000/profile'); // redirect to new page
-        //                 send_sql.send(); 
-        //                 } else {
-        //                     document.querySelector('#message').innerHTML = res.data.message;
-        //                 }
-        //             } else {
-        //                 alert(send_sql.statusText);
-        //             };
-        //         };
-        //     };
-        //     // send_sql.open("POST", `http://localhost:3000/sign_up`); 
-        //     send_sql.open("POST", `http://localhost:3000/sign_in`); 
-        //     send_sql.setRequestHeader('Content-Type', "application/json");
-        //     send_sql.send(dataString);
-        // });
     </script>
     
     </body>

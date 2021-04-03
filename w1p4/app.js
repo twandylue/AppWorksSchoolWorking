@@ -170,8 +170,8 @@ app.post(`/api/${process.env["API_VERSION"]}/user/signin`, (req, res) => {
     }
     async function singin_main() {
         let response_result = {};
-
         if ("access_token" in singin_data) { // 通常是找header裡面的token?
+            // from postman
             function sendRequest(fb_token_url) {
                 let _req = new Promise((resolve, reject) => {
                     request(`https://graph.facebook.com/me?fields=id,name,birthday,email,picture&access_token=${fb_token_url}`, { json: true }, (err, res, body) => {
@@ -185,14 +185,15 @@ app.post(`/api/${process.env["API_VERSION"]}/user/signin`, (req, res) => {
             let user_info = await sendRequest(fb_token_url);
             // console.log(user_info)
 
-            let payload = {"name": user_info.name, "email": user_info.email}; 
+            let payload = {"name": user_info.name, "email": user_info.email, "provider": singin_data.provider, "picture": user_info.picture.data.url}; 
             let jtw = await create_jwt(payload);
 
             response_result = responseConsist(jtw.token, jtw.expired, user_info.id, singin_data.provider, user_info.name, user_info.email, user_info.picture.data.url);
+            console.log(response_result); // check out Arthur's robot info
             return JSON.stringify(response_result);
         }
         
-        let sql = `SELECT * FROM private_information.user_data WHERE email = '${singin_data.email}';`; //還沒完成check email
+        let sql = `SELECT * FROM private_information.user_data WHERE email = '${singin_data.email}';`; // haven't finshed checking email
         sqlresult = await call_sql(sql);
         // console.log(sqlresult);        
         let result = await bcrypt.compare(singin_data.password, sqlresult[0].password);
@@ -203,10 +204,15 @@ app.post(`/api/${process.env["API_VERSION"]}/user/signin`, (req, res) => {
 
             // 如果前端輸入時沒有提供provider? 會有bug
             response_result = responseConsist(jtw.token, jtw.expired, sqlresult[0].id, singin_data.provider, sqlresult[0].name, singin_data.email, "test");
+
+            // response_result = responseConsist(jtw.token, jtw.expired, sqlresult[0].id, 'test', sqlresult[0].name, singin_data.email, "test");
+            // console.log('----: ' + singin_data.provider);
+            // console.log('------------------------')
+
             return JSON.stringify(response_result);
 
         } else {
-            let message = "<h1>Password or email is wrong!</h1>"; //還沒完善check email sql指令會有問題
+            let message = "<h1>Password or email is wrong!</h1>"; // 還沒完善check email sql指令會有問題
             info.message = message;
             response_result.data = info;
             return JSON.stringify(response_result);
@@ -219,27 +225,26 @@ app.post(`/api/${process.env["API_VERSION"]}/user/signin`, (req, res) => {
 })
 
 app.get(`/api/${process.env["API_VERSION"]}/user/profile`, (req, res) => {
+    let profile_data = {};
     let response_result = {};
     let info = {};
 
-    // 解jwt
-    // let secretkey = '!*&key%^'; // 可否設為全域變數? 可以
     let uncodedtoken = req.headers.authorization;
-    // console.log(uncodedtoken)
     if (uncodedtoken) {
         uncodedtoken = (req.headers.authorization.split(' '))[1];
-        // console.log(uncodedtoken);
+        // console.log(uncodedtoken); 
         decoded_token = jwt.decode(uncodedtoken, secretkey);
-        console.log(decoded_token); 
+        console.log(decoded_token); // check out Arthur's robot info
 
-        info.provider = "facebook"; // native?
+        info.provider = decoded_token.provider;
         info.name = decoded_token.name;
         info.email = decoded_token.email;
-        info.picture = "test";
+        info.picture = decoded_token.picture;
         response_result.data = info;
-        // console.log(response_result);
-        console.log(JSON.stringify(response_result))
-        // if 過期
+        console.log(response_result); // check out Arthur's robot info
+        console.log(JSON.stringify(response_result));
+
+        // if expired
         // if (decoded_token) {
         //     // 通行 res.redirect...
 
@@ -251,7 +256,7 @@ app.get(`/api/${process.env["API_VERSION"]}/user/profile`, (req, res) => {
         // }
     } 
     console.log('in profile')
-
+    
     res.send(JSON.stringify(response_result));
 })
 

@@ -301,9 +301,6 @@ app.get(`/api/${process.env["API_VERSION"]}/products/men`, (req, res) => {
     query_main(sql_select, sql_count, query_page).then((result) => {
         res.send(result);
     });
-    // query_main(query_catagory, query_page).then(result => {
-    //     res.send(result);
-    // })
 })
 
 // ---w1p2
@@ -325,6 +322,45 @@ app.get(`/api/${process.env["API_VERSION"]}/products/details`, (req, res) => {
     query_main(sql_select, sql_count, query_page).then((result) => {
         res.send(result);
     })
+})
+
+// --w1p5
+let fields_compaign = [{name: 'main_image', maxCount: 1}, {name: 'images', maxCount: 3}];
+app.post('admin/compaign_upload', upload.fields(fields_compaign), (req, res) => {
+
+})
+
+let fields = [{name: 'main_image', maxCount: 1}, {name: 'images', maxCount: 3}];
+app.post('/admin/upload', upload.fields(fields), (req, res) => {
+    const id = parseInt(req.body.id);
+    const price = parseInt(req.body.price);
+    const {catagory, title, description, texture, wash, place, note, story, sizes, name, code, color_code, size, stock} = req.body;
+    const {color_code_1, color_code_2, color_code_3, size_1, size_2, size_3, stock_1, stock_2, stock_3} = req.body;
+
+    class variants {
+        constructor(id, color_code, size, stock){
+            this.id = parseInt(id);
+            this.color_code = color_code;
+            this.size = size;
+            this.stock = parseInt(stock);
+        }
+    }
+
+    let variant = [];
+    variant[0] = new variants(id, color_code_1, size_1, stock_1);
+    variant[1] = new variants(id, color_code_2, size_2, stock_2); 
+    variant[2] = new variants(id, color_code_3, size_3, stock_3);
+
+    let upload_var = {id: id, price: price, catagory: catagory, title: title, description: description, texture: texture, wash: wash, place: place, note: note, story: story, sizes: sizes, name: name, code: code, color_code: color_code, size: size, variant: variant, image_files: req.files};
+   
+    upload_main(upload_var).then(() => {
+        res.render('info'); 
+    })
+})
+
+app.get(`/api/${process.env["API_VERSION"]}/marketing/campaigns`, (req, res) => {
+
+
 })
 
 app.listen(3000, () => {console.log('running...')});
