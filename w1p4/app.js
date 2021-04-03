@@ -86,6 +86,23 @@ function call_sql(sql) {
     })
 }
 
+function responseConsist(token, expire, id, provider, name, email, picture) {
+    let responseResult = {};
+    let data = {};
+    let user = {};
+
+    data.access_token = token;
+    data.access_expired = expire;
+    user.id = id;
+    user.provider = provider;
+    user.name = name;
+    user.email= email;
+    user.picture = picture;
+    data.user = user;
+    responseResult.data = data;
+    return responseResult;    
+}
+
 const secretkey = '!*&key%^'; // 全域變數 hash key
 function create_jwt(payload) {
     return new Promise((resolve, reject) => {
@@ -109,41 +126,31 @@ app.post(`/api/${process.env["API_VERSION"]}/user/signup`, (req, res) => {
 
     async function signup_main() {
         let info = {};
-        let result = {};
+        let response_result = {};
         let sql = `SELECT * FROM private_information.user_data WHERE email = '${userdata.email}';`;
         let sqlresponse = await call_sql(sql);
-        // console.log(sqlresponse[0].id) // password
         if (sqlresponse) {
             sqlresponse = "<h1>Email has been registered!</h1>";
             info.message = sqlresponse;
-            result.data = info;
-            return result
+            response_result.data = info;
+            return response_result
         } else {
-            // hash
-            let user = {};
+            // hash password
             const salt = await bcrypt.genSalt();
             const hashedPassword = await bcrypt.hash(userdata.password, salt);
 
-            // token
+            // jwt token
             let payload = {"name": userdata.name, "email": userdata.email};
             let jtw = await create_jwt(payload);
-            info.access_token = jtw.token;
-            info.access_expired = jtw.expired;
 
             sql = `INSERT INTO private_information.user_data (name, email, password) VALUES ('${userdata.name}', '${userdata.email}', '${hashedPassword}');`;
             sqlresult = await call_sql(sql);
             sql = `SELECT * FROM private_information.user_data WHERE email = '${userdata.email}';`;
             sqlresult = await call_sql(sql);
-            // console.log(sqlresult[0].id)
-            user.id = sqlresult[0].id; 
-            user.provider = "facebook";
-            user.name = userdata.name; 
-            user.email = userdata.email;
-            user.picture = "test";
-            info.user = user;
-            result.data = info;
+    
+            response_result = responseConsist(jtw.token, jtw.expired, sqlresult[0].id, "facebook", userdata.name, userdata.email, "test");
 
-            return JSON.stringify(result)
+            return JSON.stringify(response_result)
         }
     }
     signup_main().then((answer) => {
@@ -152,8 +159,7 @@ app.post(`/api/${process.env["API_VERSION"]}/user/signup`, (req, res) => {
     })
 })
 
-// app.post(`/api/${process.env["API_VERSION"]}/user/signin`, (req, res) => {
-app.post(`/user/signin`, (req, res) => {
+app.post(`/api/${process.env["API_VERSION"]}/user/signin`, (req, res) => {
     let singin_data = {};
     if (typeof(req.body) == 'object') {
         // from postman
@@ -164,8 +170,6 @@ app.post(`/user/signin`, (req, res) => {
     }
     async function singin_main() {
         let response_result = {};
-        let info = {};
-        let user_data = {};
 
         if ("access_token" in singin_data) { // 通常是找header裡面的token?
             function sendRequest(fb_token_url) {
@@ -183,50 +187,30 @@ app.post(`/user/signin`, (req, res) => {
 
             let payload = {"name": user_info.name, "email": user_info.email}; 
             let jtw = await create_jwt(payload);
-            info.access_token = jtw.token;
-            info.access_expired = jtw.expired;
-            user_data.id = user_info.id;
-            user_data.provider = singin_data.provider;
-            user_data.name = user_info.name;
-            user_data.email = user_info.email;
-            user_data.picture = user_info.picture.data.url;
-            info.user = user_data;
-            response_result.data = info;
+
+            response_result = responseConsist(jtw.token, jtw.expired, user_info.id, singin_data.provider, user_info.name, user_info.email, user_info.picture.data.url);
             return JSON.stringify(response_result);
         }
         
-    //     let sql = `SELECT * FROM private_information.user_data WHERE email = '${singin_data.email}';`; //還沒完成check email
-    //     sqlresult = await call_sql(sql);
-    //     // console.log(sqlresult);
+        let sql = `SELECT * FROM private_information.user_data WHERE email = '${singin_data.email}';`; //還沒完成check email
+        sqlresult = await call_sql(sql);
+        // console.log(sqlresult);        
+        let result = await bcrypt.compare(singin_data.password, sqlresult[0].password);
+        if (result) {
+            // jwt token
+            let payload = {"name": sqlresult[0].name, "email": singin_data.email}; 
+            let jtw = await create_jwt(payload);
 
-    //     let id = sqlresult[0].id;
-    //     let provider = singin_data.provider; // 如果前端輸入時沒有提供provider? 會有bug
-    //     let name = sqlresult[0].name;
-    //     let email = singin_data.email;
-    //     let encoded_password = sqlresult[0].password
-        
-    //     let result = await bcrypt.compare(singin_data.password, encoded_password);
-    //     if (result) {
-    //         // token
-    //         let payload = {"name": name, "email": email}; 
-    //         let jtw = await create_jwt(payload);
-    //         info.access_token = jtw.token;
-    //         info.access_expired = jtw.expired;
-    //         user_data.id = id;
-    //         user_data.provider = provider;
-    //         user_data.name = name;
-    //         user_data.email = email;
-    //         user_data.picture = "test";
-    //         info.user = user_data;
-    //         response_result.data = info;
-    //         return JSON.stringify(response_result);
+            // 如果前端輸入時沒有提供provider? 會有bug
+            response_result = responseConsist(jtw.token, jtw.expired, sqlresult[0].id, singin_data.provider, sqlresult[0].name, singin_data.email, "test");
+            return JSON.stringify(response_result);
 
-    //     } else {
-    //         let message = "<h1>Password or email is wrong!</h1>"; //還沒完成check email
-    //         info.message = message;
-    //         response_result.data = info;
-    //         return JSON.stringify(response_result);
-    //     }
+        } else {
+            let message = "<h1>Password or email is wrong!</h1>"; //還沒完善check email sql指令會有問題
+            info.message = message;
+            response_result.data = info;
+            return JSON.stringify(response_result);
+        }
     }
     singin_main().then((answer) => {
         console.log("sing in")
