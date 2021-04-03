@@ -79,7 +79,6 @@ function call_sql(sql) {
                 resolve(result);
             } else {
                 // not exist
-                // console.log('2')
                 resolve(false);
             }
         })
@@ -170,7 +169,7 @@ app.post(`/api/${process.env["API_VERSION"]}/user/signin`, (req, res) => {
     }
     async function singin_main() {
         let response_result = {};
-        if ("access_token" in singin_data) { // 通常是找header裡面的token?
+        if ("access_token" in singin_data) { // 通常是找header裡面的token? req.headers.access_token
             // from postman
             function sendRequest(fb_token_url) {
                 let _req = new Promise((resolve, reject) => {
@@ -180,7 +179,7 @@ app.post(`/api/${process.env["API_VERSION"]}/user/signin`, (req, res) => {
                         resolve(body)
                     });
                 })
-                return _req;            
+                return _req
             }
             let fb_token_url = singin_data.access_token;
             let user_info = await sendRequest(fb_token_url);
@@ -190,7 +189,7 @@ app.post(`/api/${process.env["API_VERSION"]}/user/signin`, (req, res) => {
             let jtw = await create_jwt(payload);
 
             response_result = responseConsist(jtw.token, jtw.expired, user_info.id, singin_data.provider, user_info.name, user_info.email, user_info.picture.data.url);
-            console.log(response_result); // check out Arthur's robot info
+            console.log(response_result); // checkout Arthur's robot info
             return JSON.stringify(response_result);
         }
         
@@ -222,7 +221,6 @@ app.post(`/api/${process.env["API_VERSION"]}/user/signin`, (req, res) => {
 })
 
 app.get(`/api/${process.env["API_VERSION"]}/user/profile`, (req, res) => {
-    let profile_data = {};
     let response_result = {};
     let info = {};
 
@@ -231,25 +229,36 @@ app.get(`/api/${process.env["API_VERSION"]}/user/profile`, (req, res) => {
         uncodedtoken = (req.headers.authorization.split(' '))[1];
         // console.log(uncodedtoken); 
         decoded_token = jwt.decode(uncodedtoken, secretkey);
-        console.log(decoded_token); // check out Arthur's robot info
+        console.log(decoded_token); // checkout Arthur's robot info
+
+        if (Date.now() > decoded_token.exp * 1000) {  // token expired
+            console.log("Token expired!"); // redirect to signin and get new token
+            res.redirect(`/api/${process.env["API_VERSION"]}/user/signup`);
+        }
 
         info.provider = decoded_token.provider;
         info.name = decoded_token.name;
         info.email = decoded_token.email;
         info.picture = decoded_token.picture;
         response_result.data = info;
-        console.log(response_result); // check out Arthur's robot info
+        // console.log(response_result); // checkout Arthur's robot info
 
-        // if expired
-        // if (decoded_token) {
-        //     // 通行 res.redirect...
-
-        // } 
-        // else if(0) {
-        //     // 過期 
-        // } else {
-        //     // 
-        // }
+        async function save_userInfo(){
+            let sql = `SELECT * FROM private_information.user_data WHERE email = '${decoded_token.email}';`;
+            let sqlresponse = await call_sql(sql);
+            if (sqlresponse) {
+                // sqlresponse = "<h1>Email has been registered!</h1>";
+                // info.message = sqlresponse;
+                // response_result.data = info;
+                // return response_result
+                console.log('Email has been registered!'); // ready to redirect 
+            } else {
+                sql = `INSERT INTO private_information.user_data (name, email) VALUES ('${decoded_token.name}', '${decoded_token.email}');`;
+                sqlresult = await call_sql(sql);
+                console.log('Rigister success!'); // ready to redirect
+            }
+        } 
+        save_userInfo();
     } 
     console.log('in profile')
     
