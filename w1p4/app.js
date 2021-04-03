@@ -1,4 +1,4 @@
-// AppWoeksSchool w1p3
+// AppWoeksSchool w1p4
 const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
@@ -174,6 +174,7 @@ app.post(`/api/${process.env["API_VERSION"]}/user/signin`, (req, res) => {
             // from postman
             function sendRequest(fb_token_url) {
                 let _req = new Promise((resolve, reject) => {
+                    // 應該要能依照provider決定request的url(不同provider) 待改進
                     request(`https://graph.facebook.com/me?fields=id,name,birthday,email,picture&access_token=${fb_token_url}`, { json: true }, (err, res, body) => {
                         if (err) { return console.log(err); }
                         resolve(body)
@@ -204,10 +205,6 @@ app.post(`/api/${process.env["API_VERSION"]}/user/signin`, (req, res) => {
 
             // 如果前端輸入時沒有提供provider? 會有bug
             response_result = responseConsist(jtw.token, jtw.expired, sqlresult[0].id, singin_data.provider, sqlresult[0].name, singin_data.email, "test");
-
-            // response_result = responseConsist(jtw.token, jtw.expired, sqlresult[0].id, 'test', sqlresult[0].name, singin_data.email, "test");
-            // console.log('----: ' + singin_data.provider);
-            // console.log('------------------------')
 
             return JSON.stringify(response_result);
 
@@ -242,7 +239,6 @@ app.get(`/api/${process.env["API_VERSION"]}/user/profile`, (req, res) => {
         info.picture = decoded_token.picture;
         response_result.data = info;
         console.log(response_result); // check out Arthur's robot info
-        console.log(JSON.stringify(response_result));
 
         // if expired
         // if (decoded_token) {
