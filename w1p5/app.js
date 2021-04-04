@@ -386,7 +386,8 @@ app.post('/admin/campaign_upload', upload.fields(fields_campaign), (req, res) =>
     const {id, story} = req.body;
     const campaign_image_path = image_url(req.files.campaign_image[0].path);
     let upload_var = {id: id, story: story, campaign_image_path: campaign_image_path};
-    console.log('upload_var: '+upload_var); // check Arthur robot.
+    console.log('upload_var: '); // check Arthur robot.
+    console.log(upload_var); // check Arthur robot.
     upload_campaign(upload_var).then(() => {
         res.render('info_campaign'); 
     })    
