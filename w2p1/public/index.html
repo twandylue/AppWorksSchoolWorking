@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>w2p1</title>
+        <!-- 暫不需要css -->
+        <!-- <link rel='stylesheet' href="./css/style.css"> -->
+    </head>
+    <body>
+        <header>   
+                <h1>w2p1</h1>
+        </header>
+      
+        <section>
+            <h2>TapPay: </h2>
+            <label>Please enter your card-number:
+                <input class="tpfield" type="text" name="card-number" id="card-number">
+            </label>
+            <label>Please enter your card-expiration-date:
+                <input class="tpfield" type="text" name="card-expiration-date" id="card-expiration-date">
+            </label>
+            <label>Please enter your card-ccv:
+                <input class="tpfield" type="text" name="card-ccv" id="card-ccv">
+            </label>
+            
+            <br>
+            <button type="submit" onclick="sendDATA()">PAY</button>
+            <!-- onclick = "function()" 點擊按鈕後執行function() -->
+
+            <br>
+            <br>
+
+            <div class="to_show">
+                <div id="message"></div>
+            </div>
+        </section>
+
+    <!-- js -->
+    <script>
+        //function()在button中的寫法
+        function sendDATA() {
+            let card_number = document.querySelector('#card-number').value;
+            let card_expiration_data = document.querySelector('#card-expiration-date').value;
+            let ccv = document.querySelector('#card-ccv').value;
+            
+            // let data = {
+            //     name: username,
+            //     email: email,
+            //     password: password
+            // }
+            // console.log('======')
+            // let dataString = JSON.stringify(data);
+            let send_sql = new XMLHttpRequest();
+            send_sql.onreadystatechange = function () {
+                if (send_sql.readyState === 4) {
+                    if (send_sql.status === 200) {
+                        let res = JSON.parse(send_sql.response);
+                        if ("access_token" in res.data) {
+                            let send_profile = new XMLHttpRequest();
+                            // document.querySelector('#message').innerHTML = res.data.access_token;
+                            window.localStorage.setItem('access_token', res.data.access_token);
+                            send_profile.open("GET", `http://localhost:3000/user/profile`); // redirect to new page
+                            send_profile.setRequestHeader('Authorization', 'bearer ' + res.data.access_token); // set up header
+                            send_profile.send(); 
+                        } else {
+                            document.querySelector('#message').innerHTML = res.data.message;
+                        }
+                    } else {
+                        alert(send_sql.statusText);
+                    };
+                };
+            }; 
+            send_sql.open("POST", `http://localhost:3000/order/checkout`); 
+            send_sql.setRequestHeader('Content-Type', "application/json");
+            // send_sql.send(dataString);
+        };
+    </script>
+    
+    </body>
+</html>

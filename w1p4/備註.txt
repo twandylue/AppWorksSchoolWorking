@@ -1,0 +1,4 @@
+fb token:
+https://developers.facebook.com/docs/graph-api/explorer
+
+https://developers.facebook.com/tools/explorer/?method=GET&path=me%3Ffields%3Did%2Cname%2Cemail%2Cpicture&version=v10.0
