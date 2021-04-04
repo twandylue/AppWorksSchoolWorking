@@ -375,7 +375,7 @@ app.get(`/api/${process.env["API_VERSION"]}/products/details`, (req, res) => {
 })
 
 // --w1p5 campaign.html
-app.get(`/api/admin/campaign.html`, (req, res) => {
+app.get(`/admin/campaign.html`, (req, res) => {
 // app.get('/admin/campaign.html', (req, res) => {
     console.log('check campaign_upload_page'); // check Arthur robot.
     res.render('campaign_upload_page');
