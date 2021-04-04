@@ -1,0 +1,9 @@
+
+campaign_table
+
+`campaign_id` BIGINT NOT NULL AUTO_INCREMENT,
+`product_id` BIGINT NOT NULL,
+`picture` TEXT,
+`story` TEXT,
+PRIMARY KEY (`campaign_id`),
+FOREIGN KEY (`product_id`) REFERENCES `product_table` (`id`)

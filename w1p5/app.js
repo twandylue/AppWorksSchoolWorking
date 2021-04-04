@@ -1,4 +1,4 @@
-// AppWoeksSchool w1p2
+// AppWoeksSchool w1p5
 const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
@@ -101,7 +101,8 @@ function groupByKey(input, index) {
 function dbsql(sql) {
     let db_result = new Promise((resolve,reject) => {
         db.query(sql, (err, result) => {
-            if (err) throw err;
+            // if (err) throw err;
+            if (err) reject(err);
             resolve(result);
         })
     })
@@ -156,6 +157,22 @@ async function upload_main(upload_var) {
         // res.render(warning);
     }
     console.log('-----')
+}
+
+async function upload_campaign(upload_var) {
+    if (upload_var.id && upload_var.story && upload_var.campaign_image_path) {
+        let sql_check_product = `SELECT * FROM product_table WHERE id = ${upload_var.id}`;
+        let insert_campaign_table = `INSERT INTO campaign_table (product_id, story, picture) VALUES (${upload_var.id}, '${upload_var.story}', '${upload_var.campaign_image_path}');`; 
+        let check_result = await dbsql(sql_check_product);
+        // console.log(check_result.length)
+        if (check_result.length == 0) {
+            // product_id not exist.
+        } else {
+            let insert_campaign = await dbsql(insert_campaign_table);
+            // console.log(insert_campaign);
+        }
+        console.log("Update campaign.");
+    }
 }
 
 async function query_main(sql_select, sql_count, query_page) {
@@ -224,6 +241,39 @@ async function query_main(sql_select, sql_count, query_page) {
     }
 }
 
+async function qurey_campaign(sql_select, sql_count, query_page) {
+    let total_pages = 0;
+    let sql_totalcount = 0;
+    let pages_gqp = 6;
+
+    if (query_page == null) {
+        query_page = '0';
+    }
+    if (sql_count !== 'none') {
+        let sql_totalnumber = await dbsql(sql_count);
+        sql_totalcount = parseInt(sql_totalnumber[0]['Count(*)']); 
+        total_pages = sql_totalcount/pages_gqp;
+        let sqlData_start = (query_page)*pages_gqp;
+        sql_select = sql_select + ` LIMIT ${sqlData_start} , ${pages_gqp};`;
+        // console.log(sql_select);
+    }
+    let campaign_list = await dbsql(sql_select);
+    // console.log(campaign_list.length);
+    
+    let output = {};
+    if (sql_count !== 'none') {
+        output.data = campaign_list;
+        let next_paging = parseInt(query_page)+1;
+        if (next_paging > total_pages || sql_totalcount/((query_page+1)*pages_gqp) == 1) {
+            return output;
+        }
+        output.next_paging = next_paging;
+        return output;
+    } else {
+        output.data = campaign_list[0];
+        return output;
+    }
+}
 app.get('/', (req, res) => {
     res.send("Connect to EC2!");
 })
@@ -324,43 +374,33 @@ app.get(`/api/${process.env["API_VERSION"]}/products/details`, (req, res) => {
     })
 })
 
-// --w1p5
-let fields_compaign = [{name: 'main_image', maxCount: 1}, {name: 'images', maxCount: 3}];
-app.post('admin/compaign_upload', upload.fields(fields_compaign), (req, res) => {
-
+// --w1p5 campaign.html
+app.get(`/api/${process.env["API_VERSION"]}/admin/campaign.html`, (req, res) => {
+// app.get('/admin/campaign.html', (req, res) => {
+    console.log('check campaign_upload_page'); // check Arthur robot.
+    res.render('campaign_upload_page');
 })
 
-let fields = [{name: 'main_image', maxCount: 1}, {name: 'images', maxCount: 3}];
-app.post('/admin/upload', upload.fields(fields), (req, res) => {
-    const id = parseInt(req.body.id);
-    const price = parseInt(req.body.price);
-    const {catagory, title, description, texture, wash, place, note, story, sizes, name, code, color_code, size, stock} = req.body;
-    const {color_code_1, color_code_2, color_code_3, size_1, size_2, size_3, stock_1, stock_2, stock_3} = req.body;
-
-    class variants {
-        constructor(id, color_code, size, stock){
-            this.id = parseInt(id);
-            this.color_code = color_code;
-            this.size = size;
-            this.stock = parseInt(stock);
-        }
-    }
-
-    let variant = [];
-    variant[0] = new variants(id, color_code_1, size_1, stock_1);
-    variant[1] = new variants(id, color_code_2, size_2, stock_2); 
-    variant[2] = new variants(id, color_code_3, size_3, stock_3);
-
-    let upload_var = {id: id, price: price, catagory: catagory, title: title, description: description, texture: texture, wash: wash, place: place, note: note, story: story, sizes: sizes, name: name, code: code, color_code: color_code, size: size, variant: variant, image_files: req.files};
-   
-    upload_main(upload_var).then(() => {
-        res.render('info'); 
-    })
+let fields_campaign = [{name: 'campaign_image', maxCount: 1}];
+app.post('/admin/campaign_upload', upload.fields(fields_campaign), (req, res) => {
+    const {id, story} = req.body;
+    const campaign_image_path = image_url(req.files.campaign_image[0].path);
+    let upload_var = {id: id, story: story, campaign_image_path: campaign_image_path};
+    console.log('upload_var: '+upload_var); // check Arthur robot.
+    upload_campaign(upload_var).then(() => {
+        res.render('info_campaign'); 
+    })    
 })
 
 app.get(`/api/${process.env["API_VERSION"]}/marketing/campaigns`, (req, res) => {
-
-
+// app.get(`/marketing/campaigns`, (req, res) => {
+    let query_page = req.query.paging;
+    console.log('query_page: '+query_page); // check Arthur robot.
+    let sql_select = `SELECT * FROM campaign_table`;
+    let sql_count = `SELECT Count(*) FROM campaign_table;`;
+    qurey_campaign(sql_select, sql_count, query_page).then((result) => {
+        res.send(result);
+    });
 })
 
 app.listen(3000, () => {console.log('running...')});
