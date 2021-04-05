@@ -6,7 +6,9 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const TapPay = require('tappay-nodejs');
 const request = require('request');
+const { resolve } = require('path');
 require('dotenv').config({path: process.cwd() + '/DOTENV/config.env'});
 
 const app = express();
@@ -36,35 +38,8 @@ app.get('/', (req, res) => {
 });
 
 app.get('/test', (req, res) => {
-    // request 
-    async function main() {
-        function req() {
-            let _req = new Promise((resolve, reject) => {
-                request('https://graph.facebook.com/me?fields=id,name,birthday,email,picture&access_token=EAAPQfOJoAZBcBAESRkGCCDWbbbshWA3ok2RZA9wDE0kW1AiZCH16DXCprpUhz4V8hTOc3ASKjdVZCBK6wTGLKiQsYOQ9fZCvH8IFfwT9MwbWoRUEmiZAFy5sZBjBkbtZBwRJQjCpdtVZBq3fOX8mgFhkh7EVMjMJwtcTjZBWfUHtHZC1be4g5tjDaccNtiBN4pTO8LrSttdKk8lGTEYhVd4dZAhhbyKZAClrKhivMjVmB9SOyAaLpZAwrSEhSq8ANvZAyGWNxAZD', { json: true }, (err, res, body) => {
-                    if (err) { return console.log(err); }
-                    // console.log(typeof(body));
-                    // console.log(body.id);
-                    // console.log(body.name);
-                    // console.log(body.email);
-                    // return body
-                    resolve(body)
-                });
-            })
-            return _req;            
-        }
-        let result = await req();
-
-        console.log(result); 
-        console.log("=====================");
-
-        return result
-    }
-    main().then((result)=>{
-        res.send(result);
-        // console.log("=====================");
-    });
-    
-    
+    // check_jwt('test'); // return null
+    check_jwt('headers 123456');
 })
 
 function call_sql(sql) {
@@ -86,6 +61,15 @@ function call_sql(sql) {
     })
 }
 
+function db_setInsert(sql, info) {
+    return new Promise((resolve, reject) => {
+        db.query(sql, info, (err, result) => {
+            if (err) resolve(err);
+            if (result) resolve(result);
+        })
+    })
+}
+
 function responseConsist(token, expire, id, provider, name, email, picture) {
     let responseResult = {};
     let data = {};
@@ -103,7 +87,7 @@ function responseConsist(token, expire, id, provider, name, email, picture) {
     return responseResult;    
 }
 
-const secretkey = '!*&key%^'; // 全域變數 hash key
+const secretkey = process.env["HASH_KEY"] // 全域變數 hash key
 function create_jwt(payload) {
     return new Promise((resolve, reject) => {
         let info_jwt = {};
@@ -112,6 +96,21 @@ function create_jwt(payload) {
         info_jwt.expired = 3600;
         resolve(info_jwt);
     })
+}
+
+function check_jwt(encrypted_token) {
+    encrypted_token = encrypted_token.split(' ')[1];
+    let decrypt_jwt = jwt.decode(encrypted_token, secretkey);
+    if (decrypt_jwt) {
+        return (0);
+    } else if (decrypt_jwt === null) {
+        console.log('Token is wrong');
+        return (1);
+
+    } else if (Date.now() > decrypt_jwt.exp*1000) {
+        console.log('Token expired!');
+        return (2);
+    }
 }
 
 // -- w1p4
@@ -272,8 +271,113 @@ app.get('/admin/checkout.html', (req, res) => {
     res.sendFile(path.join(__dirname + '/public/index.html'));
 })
 
-app.post('/order/checkout', (req, res) => {
+app.post('/order/checkoutPrime', (req, res) => { // for test
+    console.log(req.body);
+})
 
+app.post('/order/checkout', (req, res) => {
+    // 尚未確認acess token/////////////////
+    let encrypted_token = req.headers.authorization;
+    let check_jwt_status = check_jwt(encrypted_token);
+    // let check_jwt_status = 0;
+    if (check_jwt_status == 1) {
+        res.redirect(`/api/${process.env["API_VERSION"]}/user/signup`);
+    } else if (check_jwt_status == 2) {
+        res.redirect(`/api/${process.env["API_VERSION"]}/user/signup`);
+    }
+
+    let order_data = {};
+    if (typeof(req.body) == 'object') {
+        // from postman
+        order_data = req.body;
+    } else {
+        // from front-end
+        order_data = JSON.parse(req.body);
+    }
+    // console.log(order_data);
+
+    async function orderInsertMysql() {
+        let {shipping, payment, subtotal, freight, total} = order_data.order; 
+        let {name, phone, email, address, time} = order_data.order.recipient;
+        let orderInfo = {
+            paid: 0,
+            shipping: shipping,
+            payment: payment,
+            subtotal: subtotal,
+            freight: freight,
+            total: total,
+            name: name,
+            phone: phone,
+            email: email,
+            address: address,
+            time: time
+        };
+        let order_sql =  `INSERT INTO stylish.order_table SET ?`;
+        let result = await db_setInsert(order_sql, orderInfo); // INSERT INTO order_table
+        // console.log(result);
+        let order_id = result.insertId; // order_id in mysql
+        for (let i = 0; i<order_data.order.list.length; i++) { // 注意效能 for loop
+            let {id, name, price, size, qty} = order_data.order.list[i];
+            let orderListInfo = {
+                order_id: order_id,
+                id: id,
+                name: name,
+                price: price,
+                color_code: order_data.order.list[i].color.code,
+                color_name: order_data.order.list[i].color.name,
+                size: size,
+                quantity: qty
+            }
+            let order_sql =  `INSERT INTO stylish.order_list_table SET ?`;
+            // console.log(orderListInfo); // checkout robot
+            let result = await db_setInsert(order_sql, orderListInfo); // INSERT INTO order_list_table
+            // console.log(result)
+        }
+        // console.log('1 :' + order_id); // checkout robot
+
+        return (order_id)
+    }
+    orderInsertMysql().then((order_id) => {
+        TapPay.initialize({
+        partner_key: 'partner_PHgswvYEk4QY6oy3n8X3CwiQCVQmv91ZcFoD5VrkGFXo8N7BFiLUxzeG',
+        env: 'sandbox'
+        })
+        
+        const payment_info = {
+            prime: order_data.prime,
+            merchant_id: 'AppWorksSchool_CTBC',
+            amount: 1,
+            currency: "TWD",
+            details: "An apple and a pen.",
+            cardholder: {
+                phone_number: "+886923456789",
+                name: "王小明",
+                email: "LittleMing@Wang.com" 
+            },
+            remember: true
+        }
+        // console.log(payment_info); // checkout robot
+        // Callback Style
+        TapPay.payByPrime(payment_info, (error, result) => { 
+            console.log(result.status);
+            if (result.status !== 0) {
+                console.log(result.msg);
+                res.send(result.msg);
+            } else if (result.status === 0) {
+                let update_paid_sql = `UPDATE stylish.order_table SET paid = 1 WHERE order_id = ${order_id};`; // 效能差 一次只能處理一筆
+                let update_paid = call_sql(update_paid_sql);
+                update_paid.then(() => {
+                    let response = {
+                        data: { 
+                            number: order_id
+                        }
+                    }
+                    // console.log(response); // checkout robot
+                    res.send(JSON.stringify(response))
+                })
+            }
+        })
+    })
 })
 
 // 設置port:3000的server
