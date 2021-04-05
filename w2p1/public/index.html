@@ -82,8 +82,8 @@
                         }
                     }
                 }
-                // tappy.open("POST", "http://localhost:3000/order/checkout");
-                tappy.open("POST", "http://localhost:3000/order/checkoutPrime");
+                tappy.open("POST", 'http://localhost:3000/api/1.0/order/checkout');
+                // tappy.open("POST", "http://localhost:3000/order/checkoutPrime");
                 tappy.setRequestHeader('Content-Type', "application/json");
                 tappy.send(dataString);
                 

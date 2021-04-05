@@ -1,4 +1,4 @@
-// AppWoeksSchool w1p4
+// AppWoeksSchool w2p1
 const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
@@ -87,13 +87,15 @@ function responseConsist(token, expire, id, provider, name, email, picture) {
     return responseResult;    
 }
 
-const secretkey = process.env["HASH_KEY"] // 全域變數 hash key
+const secretkey = process.env["JWT_KEY"] // 全域變數 jwt key
 function create_jwt(payload) {
     return new Promise((resolve, reject) => {
         let info_jwt = {};
-        let jwt_token = jwt.sign(payload, secretkey, {expiresIn: '3600'});
+        // let jwt_token = jwt.sign(payload, secretkey, {expiresIn: '3600'});
+        let jwt_token = jwt.sign(payload, secretkey, {expiresIn: '1d'});
         info_jwt.token = jwt_token;
-        info_jwt.expired = 3600;
+        // info_jwt.expired = 3600;
+        info_jwt.expired = '1 day';
         resolve(info_jwt);
     })
 }
@@ -102,11 +104,10 @@ function check_jwt(encrypted_token) {
     encrypted_token = encrypted_token.split(' ')[1];
     let decrypt_jwt = jwt.decode(encrypted_token, secretkey);
     if (decrypt_jwt) {
-        return (0);
+        return (decrypt_jwt);
     } else if (decrypt_jwt === null) {
         console.log('Token is wrong');
         return (1);
-
     } else if (Date.now() > decrypt_jwt.exp*1000) {
         console.log('Token expired!');
         return (2);
@@ -127,7 +128,7 @@ app.post(`/api/${process.env["API_VERSION"]}/user/signup`, (req, res) => {
     async function signup_main() {
         let info = {};
         let response_result = {};
-        let sql = `SELECT * FROM private_information.user_data WHERE email = '${userdata.email}';`;
+        let sql = `SELECT * FROM stylish.user_info_table WHERE email = '${userdata.email}';`;
         let sqlresponse = await call_sql(sql);
         if (sqlresponse) {
             sqlresponse = "<h1>Email has been registered!</h1>";
@@ -143,9 +144,9 @@ app.post(`/api/${process.env["API_VERSION"]}/user/signup`, (req, res) => {
             let payload = {"name": userdata.name, "email": userdata.email};
             let jtw = await create_jwt(payload);
 
-            sql = `INSERT INTO private_information.user_data (name, email, password) VALUES ('${userdata.name}', '${userdata.email}', '${hashedPassword}');`;
+            sql = `INSERT INTO stylish.user_info_table (name, email, password) VALUES ('${userdata.name}', '${userdata.email}', '${hashedPassword}');`;
             sqlresult = await call_sql(sql);
-            sql = `SELECT * FROM private_information.user_data WHERE email = '${userdata.email}';`;
+            sql = `SELECT * FROM stylish.user_info_table WHERE email = '${userdata.email}';`;
             sqlresult = await call_sql(sql);
     
             response_result = responseConsist(jtw.token, jtw.expired, sqlresult[0].id, "facebook", userdata.name, userdata.email, "test");
@@ -194,7 +195,7 @@ app.post(`/api/${process.env["API_VERSION"]}/user/signin`, (req, res) => {
             return JSON.stringify(response_result);
         }
         
-        let sql = `SELECT * FROM private_information.user_data WHERE email = '${singin_data.email}';`; // haven't finshed checking email
+        let sql = `SELECT * FROM stylish.user_info_table WHERE email = '${singin_data.email}';`; // haven't finshed checking email
         sqlresult = await call_sql(sql);
         // console.log(sqlresult);        
         let result = await bcrypt.compare(singin_data.password, sqlresult[0].password);
@@ -227,34 +228,36 @@ app.get(`/api/${process.env["API_VERSION"]}/user/profile`, (req, res) => {
 
     let uncodedtoken = req.headers.authorization;
     if (uncodedtoken) {
-        uncodedtoken = (req.headers.authorization.split(' '))[1];
-        // console.log(uncodedtoken); 
-        decoded_token = jwt.decode(uncodedtoken, secretkey);
-        console.log(decoded_token); // checkout Arthur's robot info
-
-        if (Date.now() > decoded_token.exp * 1000) {  // token expired
-            console.log("Token expired!"); // redirect to signin and get new token
+        let encrypted_token = req.headers.authorization;
+        let jwt_token = check_jwt(encrypted_token);
+        if (jwt_token == 1) {
+            res.redirect(`/api/${process.env["API_VERSION"]}/user/signup`);
+        } else if (jwt_token == 2) {
             res.redirect(`/api/${process.env["API_VERSION"]}/user/signup`);
         }
 
-        info.provider = decoded_token.provider;
-        info.name = decoded_token.name;
-        info.email = decoded_token.email;
-        info.picture = decoded_token.picture;
+        if (jwt_token.provider) {
+            info.provider = jwt_token.provider;
+        } else {
+            info.provider = 'native';
+        }
+        info.name = jwt_token.name;
+        info.email = jwt_token.email;
+        if (jwt_token.picture) {
+            info.picture = jwt_token.picture;
+        } else {
+            info.picture = 'not exist';
+        }
         response_result.data = info;
         // console.log(response_result); // checkout Arthur's robot info
 
         async function save_userInfo(){
-            let sql = `SELECT * FROM private_information.user_data WHERE email = '${decoded_token.email}';`;
+            let sql = `SELECT * FROM stylish.user_info_table WHERE email = '${jwt_token.email}';`;
             let sqlresponse = await call_sql(sql);
             if (sqlresponse) {
-                // sqlresponse = "<h1>Email has been registered!</h1>";
-                // info.message = sqlresponse;
-                // response_result.data = info;
-                // return response_result
                 console.log('Email has been registered!'); // ready to redirect 
             } else {
-                sql = `INSERT INTO private_information.user_data (name, email) VALUES ('${decoded_token.name}', '${decoded_token.email}');`;
+                sql = `INSERT INTO stylish.user_info_table (name, email) VALUES ('${jwt_token.name}', '${jwt_token.email}');`;
                 sqlresult = await call_sql(sql);
                 console.log('Rigister success!'); // ready to redirect
             }
@@ -266,7 +269,7 @@ app.get(`/api/${process.env["API_VERSION"]}/user/profile`, (req, res) => {
     res.send(JSON.stringify(response_result));
 })
 
-// -- w2p1
+// -- w2p1 and w2p2
 app.get('/admin/checkout.html', (req, res) => {
     res.sendFile(path.join(__dirname + '/public/index.html'));
 })
@@ -275,11 +278,9 @@ app.post('/order/checkoutPrime', (req, res) => { // for test
     console.log(req.body);
 })
 
-app.post('/order/checkout', (req, res) => {
-    // 尚未確認acess token/////////////////
+app.post(`/api/${process.env["API_VERSION"]}/order/checkout`, (req, res) => {
     let encrypted_token = req.headers.authorization;
     let check_jwt_status = check_jwt(encrypted_token);
-    // let check_jwt_status = 0;
     if (check_jwt_status == 1) {
         res.redirect(`/api/${process.env["API_VERSION"]}/user/signup`);
     } else if (check_jwt_status == 2) {
@@ -294,7 +295,6 @@ app.post('/order/checkout', (req, res) => {
         // from front-end
         order_data = JSON.parse(req.body);
     }
-    // console.log(order_data);
 
     async function orderInsertMysql() {
         let {shipping, payment, subtotal, freight, total} = order_data.order; 
@@ -329,11 +329,11 @@ app.post('/order/checkout', (req, res) => {
                 quantity: qty
             }
             let order_sql =  `INSERT INTO stylish.order_list_table SET ?`;
-            // console.log(orderListInfo); // checkout robot
+            console.log(orderListInfo); // checkout robot
             let result = await db_setInsert(order_sql, orderListInfo); // INSERT INTO order_list_table
             // console.log(result)
         }
-        // console.log('1 :' + order_id); // checkout robot
+        console.log('order_id :' + order_id); // checkout robot
 
         return (order_id)
     }
@@ -356,10 +356,10 @@ app.post('/order/checkout', (req, res) => {
             },
             remember: true
         }
-        // console.log(payment_info); // checkout robot
+        console.log(payment_info); // checkout robot
         // Callback Style
         TapPay.payByPrime(payment_info, (error, result) => { 
-            console.log(result.status);
+            // console.log(result.status);
             if (result.status !== 0) {
                 console.log(result.msg);
                 res.send(result.msg);
@@ -369,10 +369,10 @@ app.post('/order/checkout', (req, res) => {
                 update_paid.then(() => {
                     let response = {
                         data: { 
-                            number: order_id
+                            number: order_id.toString()
                         }
                     }
-                    // console.log(response); // checkout robot
+                    console.log(response); // checkout robot
                     res.send(JSON.stringify(response))
                 })
             }
