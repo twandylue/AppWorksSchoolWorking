@@ -70,23 +70,23 @@
                     // total_cost: total_cost,
                     tappay_prime: tappay_prime
                 }
-                console.log(data); // fot test
+                console.log(data); // for test
                 let dataString = JSON.stringify(data);
-                let tappy = new XMLHttpRequest();
-                tappy.onreadystatechange = function () {
-                    if (tappy.readyState === 4) {
-                        if (tappy.status === 200) {
+                let tappay = new XMLHttpRequest();
+                tappay.onreadystatechange = function () {
+                    if (tappay.readyState === 4) {
+                        if (tappay.status === 200) {
                             // do something
                         } else {
-                            alert(tappy.status);
+                            alert(tappay.status);
                         }
                     }
                 }
-                // tappy.open("POST", 'http://localhost:3000/api/1.0/order/checkout');
-                // tappy.open("POST", "http://localhost:3000/order/checkoutPrime");
-                tappy.open("POST", 'http://35.73.76.64/api/1.0/order/checkout');
-                tappy.setRequestHeader('Content-Type', "application/json");
-                tappy.send(dataString);
+                // tappay.open("POST", 'http://localhost:3000/api/1.0/order/checkout');
+                // tappay.open("POST", "http://localhost:3000/order/checkoutPrime");
+                tappay.open("POST", 'http://35.73.76.64/api/1.0/order/checkout');
+                tappay.setRequestHeader('Content-Type', "application/json");
+                tappay.send(dataString);
                 
                 document.querySelector('#result2').innerHTML = JSON.stringify(dataString, null, 4) // for test
 
