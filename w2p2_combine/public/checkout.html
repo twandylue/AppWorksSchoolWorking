@@ -129,11 +129,10 @@
                         }
                     }
                 }
-                // tappay.open("POST", 'http://localhost:3000/api/1.0/order/checkout');
-                // tappay.open("POST", "http://localhost:3000/order/checkoutPrime");
-                tappay.open("POST", 'http://35.73.76.64/api/1.0/order/checkout');
+                tappay.open("POST", 'http://localhost:3000/api/1.0/order/checkout'); // for local test
+                // tappay.open("POST", 'http://35.73.76.64/api/1.0/order/checkout'); // for EC2
                 tappay.setRequestHeader('Content-Type', "application/json");
-                let access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdDciLCJlbWFpbCI6InRlc3Q3QHRlc3QuY29tIiwiaWF0IjoxNjE3NjM1MDU1LCJleHAiOjE2MTc3MjE0NTV9.lpj58xune4lswgYlgZLoIKrv-cSeiRFpIha5U3su0h8'
+                let access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoi6Zm45a6JIiwiZW1haWwiOiJwcm90b25sdWVAZ21haWwuY29tIiwicHJvdmlkZXIiOiJmYWNlYm9vayIsInBpY3R1cmUiOiJodHRwczovL3BsYXRmb3JtLWxvb2thc2lkZS5mYnNieC5jb20vcGxhdGZvcm0vcHJvZmlsZXBpYy8_YXNpZD0zODg1OTAyMzI0ODAxMDg1JmhlaWdodD01MCZ3aWR0aD01MCZleHQ9MTYyMDI4MzcxMCZoYXNoPUFlVDlhSndLcXMtMVpqSGV2ZkUiLCJpYXQiOjE2MTc2OTE3MTAsImV4cCI6MTYxNzc3ODExMH0.FosEfpbaRqSpHynRnygNuMFyEff1ZvNun-nlHzALcrI'; 
                 tappay.setRequestHeader('Authorization', 'bearer ' + access_token); // set up header
                 tappay.send(dataString);
                 
