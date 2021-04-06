@@ -129,9 +129,9 @@
                         }
                     }
                 }
-                tappay.open("POST", 'http://localhost:3000/api/1.0/order/checkout');
+                // tappay.open("POST", 'http://localhost:3000/api/1.0/order/checkout');
                 // tappay.open("POST", "http://localhost:3000/order/checkoutPrime");
-                // tappay.open("POST", 'http://35.73.76.64/api/1.0/order/checkout');
+                tappay.open("POST", 'http://35.73.76.64/api/1.0/order/checkout');
                 tappay.setRequestHeader('Content-Type', "application/json");
                 let access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdDciLCJlbWFpbCI6InRlc3Q3QHRlc3QuY29tIiwiaWF0IjoxNjE3NjM1MDU1LCJleHAiOjE2MTc3MjE0NTV9.lpj58xune4lswgYlgZLoIKrv-cSeiRFpIha5U3su0h8'
                 tappay.setRequestHeader('Authorization', 'bearer ' + access_token); // set up header
