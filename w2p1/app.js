@@ -295,6 +295,7 @@ app.post(`/api/${process.env["API_VERSION"]}/order/checkout`, (req, res) => {
         // from front-end
         order_data = JSON.parse(req.body);
     }
+    // console.log(order_data);
 
     async function orderInsertMysql() {
         let {shipping, payment, subtotal, freight, total} = order_data.order; 

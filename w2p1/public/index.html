@@ -66,9 +66,56 @@
                 // let total_cost = document.querySelector('#total_cost').value;
                 let tappay_prime = result.card.prime;
                 let data = {
-                    // product_id: product_id,
-                    // total_cost: total_cost,
-                    tappay_prime: tappay_prime
+                    prime: tappay_prime,
+                    order: {
+                        shipping: 'delivery',
+                        payment: 'credit_card',
+                        subtotal: 1234,
+                        freight: 14,
+                        total: 1300,
+                        recipient: {
+                            name: 'Luke',
+                            phone: '0987654321',
+                            email: "luke@gmail.com",
+                            address: "市政府站",
+                            time: "morning"
+                        },
+                        list: [
+                            {
+                                id: "1",
+                                name: "牛仔褲",
+                                price: 1313,
+                                color: {
+                                    code: "DDF0FF",
+                                    name: "淺藍"
+                                },
+                                size: "M",
+                                qty: 1
+                            },
+                            {
+                                id: "2",
+                                name: "活力花紋長筒",
+                                price: 129999,
+                                color: {
+                                    code: "DDF0FF",
+                                    name: "淺藍"
+                                },
+                                size: "M",
+                                qty: 1
+                            },
+                            {
+                                id: "3",
+                                name: "活力花紋",
+                                price: 129,
+                                color: {
+                                    code: "DDF0FF",
+                                    name: "淺藍"
+                                },
+                                size: "M",
+                                qty: 1
+                            }
+                        ]
+                    }                    
                 }
                 console.log(data); // for test
                 let dataString = JSON.stringify(data);
@@ -82,10 +129,12 @@
                         }
                     }
                 }
-                // tappay.open("POST", 'http://localhost:3000/api/1.0/order/checkout');
+                tappay.open("POST", 'http://localhost:3000/api/1.0/order/checkout');
                 // tappay.open("POST", "http://localhost:3000/order/checkoutPrime");
-                tappay.open("POST", 'http://35.73.76.64/api/1.0/order/checkout');
+                // tappay.open("POST", 'http://35.73.76.64/api/1.0/order/checkout');
                 tappay.setRequestHeader('Content-Type', "application/json");
+                let access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdDciLCJlbWFpbCI6InRlc3Q3QHRlc3QuY29tIiwiaWF0IjoxNjE3NjM1MDU1LCJleHAiOjE2MTc3MjE0NTV9.lpj58xune4lswgYlgZLoIKrv-cSeiRFpIha5U3su0h8'
+                tappay.setRequestHeader('Authorization', 'bearer ' + access_token); // set up header
                 tappay.send(dataString);
                 
                 document.querySelector('#result2').innerHTML = JSON.stringify(dataString, null, 4) // for test
