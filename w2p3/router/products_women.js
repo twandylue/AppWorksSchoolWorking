@@ -1,32 +1,29 @@
 // AppWoeksSchool w1p1
-const express = require('express');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const path = require('path');
-const request = require('request');
-const { resolve } = require('path');
-require('dotenv').config({path: process.cwd() + '/DOTENV/config.env'});
+const express = require("express");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+require("dotenv").config({ path: process.cwd() + "/DOTENV/config.env" });
 
 // Router setting
 const router = express.Router();
 
-// function setting 
-const query_main = require("./function").query_main;
+// function setting
+const queryMain = require("./function").queryMain;
 
 // Middleware
-router.use(bodyParser.urlencoded({extended: false}));
+router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
 router.use(bodyParser.text());
 router.use(cookieParser());
 
-router.get(`/products/women`, (req, res) => {
-    let query_catagory = 'women';
-    let query_page = req.query.paging;
-    let sql_select = `SELECT * FROM product_table WHERE catagory = '${query_catagory}'`;
-    let sql_count = `SELECT Count(*) FROM product_table WHERE catagory = '${query_catagory}'`;
-    query_main(req, sql_select, sql_count, query_page).then((result) => {
+router.get("/products/women", (req, res) => {
+    const queryCatagory = "women";
+    const queryPage = req.query.paging;
+    const sqlSelect = `SELECT * FROM product_table WHERE catagory = '${queryCatagory}'`;
+    const sqlCount = `SELECT Count(*) FROM product_table WHERE catagory = '${queryCatagory}'`;
+    queryMain(req, sqlSelect, sqlCount, queryPage).then((result) => {
         res.send(result);
     });
-})
+});
 
-module.exports = {router: router};
+module.exports = { router: router };

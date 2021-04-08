@@ -1,3 +1,4 @@
 /node_modules
 /DOTENV
-/public/upload_pics
+/public/upload_images
+/public/images
