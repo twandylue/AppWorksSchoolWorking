@@ -81,6 +81,12 @@ app.get("/admin/checkout.html", (req, res) => {
     res.sendFile(path.join(__dirname + "/public/checkout.html")); // __dirname有問題 還未更正
 });
 
+// w2p3 index.html
+app.get(["/", "/index.html"], (req, res) => {
+    // eslint-disable-next-line node/no-path-concat
+    res.sendFile(path.join(__dirname + "/public/index.html"));
+});
+
 // ===response message===
 app.get("/response-message/products-upload-success", (req, res) => {
     res.render("info_products");
