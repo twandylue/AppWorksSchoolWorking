@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS = 0; -- 關閉外鍵限制
+TRUNCATE TABLE stylish.product_table;
+SET FOREIGN_KEY_CHECKS = 1; -- 開啟外鍵限制
+SHOW VARIABLES LIKE 'foreign_key_checks';

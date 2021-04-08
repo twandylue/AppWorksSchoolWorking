@@ -15,7 +15,8 @@ require('dotenv').config({path: process.cwd() + '/DOTENV/config.env'});
 // set storage engine
 const storage_eng = multer.diskStorage({ 
     // destination為保留字
-    destination: './public/upload_pics/',
+    // destination: './public/upload_pics/',
+    destination: './public/upload_images/',
     filename: function(req, file, callback){
         // callback(null, file.fieldname + '-' + Date.now() + '-' + path.extname(file.originalname));
         callback(null, file.fieldname + '-' + Date.now() + '-' + file.originalname);

@@ -66,8 +66,8 @@ router.post('/admin/campaign_upload', upload.fields(fields_campaign), (req, res)
     // console.log('img: ');
     // console.log(req.files)
 
-    const {id, story} = req.body;
-    const campaign_image_path = image_url(req.files.campaign_image[0].path);
+    let {id, story} = req.body;
+    let campaign_image_path = image_url(req.files.campaign_image[0].path);
 
     // console.log('img2: ');
     // console.log(campaign_image_path);
