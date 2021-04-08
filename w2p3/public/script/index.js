@@ -7,7 +7,7 @@ xhr.onreadystatechange = function () {
             const allProducts = document.getElementById("all_products");
             const { data } = response;
             for (let i = 0; i < data.length; i++) {
-                console.log(data[i]);
+                // console.log(data[i]);
                 // eslint-disable-next-line camelcase
                 const { main_image, colors, title, price } = data[i];
                 const productContent = document.createElement("div");
@@ -43,6 +43,6 @@ xhr.onreadystatechange = function () {
         };
     };
 };
-xhr.open("GET", `http://localhost:3000/api/1.0/products/all?paging=${paging}`); // for test
-// xhr.open("GET", `http://35.73.76.64/api/1.0/products/all?paging=${paging}`); // for EC2
+// xhr.open("GET", `http://localhost:3000/api/1.0/products/all?paging=${paging}`); // for test
+xhr.open("GET", `http://35.73.76.64/api/1.0/products/all?paging=${paging}`); // for EC2
 xhr.send();
