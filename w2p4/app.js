@@ -70,11 +70,19 @@ app.use(`/api/${process.env.API_VERSION}`, apiRouteCheckout);
 app.get("/admin/product.html", (req, res) => {
     res.render("product");
 });
+
+// w1p4 signin and signup
+app.get("/admin/sign.html", (req, res) => {
+    // eslint-disable-next-line node/no-path-concat
+    res.sendFile(path.join(__dirname + "/public/sign.html"));
+});
+
 // w1p5 campaign
 app.get("/admin/campaign.html", (req, res) => {
     // console.log('check campaign_upload_page'); // check Arthur robot.
     res.render("campaign_upload_page");
 });
+
 // w2p1 checkout.html
 app.get("/admin/checkout.html", (req, res) => {
     // eslint-disable-next-line node/no-path-concat
@@ -85,6 +93,12 @@ app.get("/admin/checkout.html", (req, res) => {
 app.get(["/", "/index.html"], (req, res) => {
     // eslint-disable-next-line node/no-path-concat
     res.sendFile(path.join(__dirname + "/public/index.html"));
+});
+
+// w2p4 product.html
+app.get("/product.html", (req, res) => {
+    // eslint-disable-next-line node/no-path-concat
+    res.sendFile(path.join(__dirname + "/public/pruduct.html"));
 });
 
 // ===response message===

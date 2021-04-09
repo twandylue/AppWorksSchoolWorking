@@ -10,8 +10,10 @@ xhr.onreadystatechange = function () {
                 // console.log(data[i]);
                 // eslint-disable-next-line camelcase
                 const { main_image, colors, title, price } = data[i];
-                const productContent = document.createElement("div");
+                const productContent = document.createElement("a");
                 productContent.className = "product content";
+                // console.log(data[i].id);
+                productContent.href = `/product.html?id=${data[i].id}`;
                 const img = document.createElement("img");
                 // eslint-disable-next-line camelcase
                 img.src = main_image;
@@ -43,6 +45,6 @@ xhr.onreadystatechange = function () {
         };
     };
 };
-// xhr.open("GET", `http://localhost:3000/api/1.0/products/all?paging=${paging}`); // for test
-xhr.open("GET", `http://35.73.76.64/api/1.0/products/all?paging=${paging}`); // for EC2
+xhr.open("GET", `http://localhost:3000/api/1.0/products/all?paging=${paging}`); // for test
+// xhr.open("GET", `http://35.73.76.64/api/1.0/products/all?paging=${paging}`); // for EC2
 xhr.send();
