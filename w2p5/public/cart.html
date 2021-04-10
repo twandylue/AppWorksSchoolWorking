@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>w2p5</title>
+        <link rel="stylesheet" href="css/header.css">
+        <link rel="stylesheet" href="css/cart.css">
+        <link rel="stylesheet" href="css/footer.css">
+    </head>
+    <body>
+        <header class="main-header">
+            <a href="/"><img class="nav-logo" src="images/logo.png" alt="logo" id="nav_logo"></a>
+            <div class="nav_bar_items"><a href="/">女裝</a></div>
+            <div class="nav_bar_items"><a href="/">男裝</a></div>
+            <div class="nav_bar_items"><a href="/">配件</a></div>
+            <div class="nav_right">
+                <div class="nav_search">
+                    <input type="text" name="" value="">
+                    <img src="images/search.png" alt="search">
+                </div>
+                <div class="nav_cart">
+                    <a href="#"><img src="images/cart.png" alt="cart" id="nav_cart"></a>
+                </div>
+                <div class="cart_number" id="cart_number">0</div>
+            
+                <div class="nav_member">
+                    <a href="#"><img src="images/member.png" alt="member" id="nav_member"></a>
+                </div>
+            </div>
+        </header>
+        <main>
+            <div id="cart">
+              <div class="header">
+                <div class="title" id="title">購物車(0)</div>
+                <div class="item__quantity">數量</div>
+                <div class="item__price">單價</div>
+                <div class="item__subtotal">小計</div>
+                <div class="item__remove"></div>
+              </div>
+              <div class="items" id="items"></div>
+              <div class="shipment">
+                <div class="shipment__name">配送國家</div>
+                <select class="shipment__select">
+                  <option>台灣及離島</option>
+                </select>
+                <div class="shipment__name">付款方式</div>
+                <select class="shipment__select">
+                  <option>信用卡付款</option>
+                </select>
+              </div>
+              <div class="reminder">
+                ※ 提醒您：<br>
+                ● 選擇宅配-請填寫正確收件人資訊，避免包裹配送不達<br>
+                ● 選擇超商-請填寫正確收件人姓名(與證件相符)，避免無法領取
+              </div>
+              <div class="form-header">訂購資料</div>
+              <div class="form">
+                <div class="field">
+                  <label class="field__name" for="name">收件人姓名</label>
+                  <div class="field__input"><input id="name" type="text"></div>
+                </div>
+                <div class="field">
+                  <label class="field__name" for="email">Email</label>
+                  <div class="field__input"><input id="email" type="text"></div>
+                </div>
+                <div class="field">
+                  <label class="field__name" for="phone">手機號碼</label>
+                  <div class="field__input"><input id="phone" type="text"></div>
+                </div>
+                <div class="field">
+                  <label class="field__name" for="address">收件地址</label>
+                  <div class="field__input"><input id="address" type="text"></div>
+                </div>
+                <div class="field">
+                  <div class="field__name" for="time">配送時間</div>
+                  <div class="field__input">
+                    <input type="radio" value="morning" id="morning" name="time" checked="checked">
+                    <label for="morning">08:00-12:00</label>
+                    <input type="radio" value="afternoon" id="afternoon" name="time">
+                    <label for="afternoon">14:00-18:00</label>
+                    <input type="radio" value="anytime" id="anytime" name="time">
+                    <label for="anytime">不指定</label>
+                  </div>
+                </div>
+              </div>
+              <div class="form-header">付款資料</div>
+              <div class="form">
+                <div class="field">
+                  <label class="field__name" for="card">信用卡號碼</label>
+                  <div class="field__input">
+                    <div class="tpfield" id="card-number"><iframe frameborder="0" allowtransparency="true" scrolling="no" style="border: none; width: 100%; height: 100%; float: left;" src="https://js.tappaysdk.com/tpdirect/v5.5.0/tappay-field/html?%7B%22origin%22%3A%22https%3A%2F%2Fapi.appworks-school.tw%22%2C%22type%22%3A%22card-number%22%2C%22placeholder%22%3A%22****%20****%20****%20****%22%2C%22styles%22%3A%7B%22.valid%22%3A%7B%22color%22%3A%22green%22%7D%2C%22.invalid%22%3A%7B%22color%22%3A%22red%22%7D%7D%7D"></iframe></div>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="field__name" for="expire">有效期限</label>
+                  <div class="field__input">
+                    <div class="tpfield" id="card-expiration-date"><iframe frameborder="0" allowtransparency="true" scrolling="no" style="border: none; width: 100%; height: 100%; float: left;" src="https://js.tappaysdk.com/tpdirect/v5.5.0/tappay-field/html?%7B%22origin%22%3A%22https%3A%2F%2Fapi.appworks-school.tw%22%2C%22type%22%3A%22expiration-date%22%2C%22placeholder%22%3A%22MM%20%2F%20YY%22%2C%22styles%22%3A%7B%22.valid%22%3A%7B%22color%22%3A%22green%22%7D%2C%22.invalid%22%3A%7B%22color%22%3A%22red%22%7D%7D%7D"></iframe></div>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="field__name" for="ccv">安全碼</label>
+                  <div class="field__input">
+                    <div class="tpfield" id="card-ccv"><iframe frameborder="0" allowtransparency="true" scrolling="no" style="border: none; width: 100%; height: 100%; float: left;" src="https://js.tappaysdk.com/tpdirect/v5.5.0/tappay-field/html?%7B%22origin%22%3A%22https%3A%2F%2Fapi.appworks-school.tw%22%2C%22type%22%3A%22ccv%22%2C%22placeholder%22%3A%22%E5%BE%8C%E4%B8%89%E7%A2%BC%22%2C%22styles%22%3A%7B%22.valid%22%3A%7B%22color%22%3A%22green%22%7D%2C%22.invalid%22%3A%7B%22color%22%3A%22red%22%7D%7D%7D"></iframe></div>
+                  </div>
+                </div>
+              </div>
+              <div class="summary">
+                <div class="subtotal" id="subtotal">
+                  <div class="name">總金額</div>
+                  <div class="value">NT.<span>0</span></div>
+                </div>
+                <div class="freight">
+                  <div class="name">運費</div>
+                  <div class="value">NT.<span>60</span></div>
+                </div>
+                <div class="total" id="total">
+                  <div class="name">應付金額</div>
+                  <div class="value">NT.<span>60</span></div>
+                </div>
+                <button id="checkout">確認付款</button>
+              </div>
+            </div>
+          </main>
+
+        <footer class="main-footer">
+            <nav class="footer-left">
+                <div class="footer_item">關於 Stylish</div>
+                <div class="footer_item">服務條款</div>
+                <div class="footer_item">隱私政策</div>
+                <div class="footer_item">聯絡我們</div>
+                <div class="footer_item">FAQ</div>
+            </nav>
+
+            <div class="footer-right">
+                <div class="social-media">
+                    <img src="./images/line.png" alt="line logo">
+                    <img src="./images/facebook.png" alt="facebook logo">
+                    <img src="./images/twitter.png" alt="twitter logo">
+                </div>
+                <div id="footermark">
+                    ©2021. All rights reserved.
+                </div>
+            </div>
+        </footer>
+        <script type="text/javascript" src="./script/product.js"></script>
+    </body>
+</html>

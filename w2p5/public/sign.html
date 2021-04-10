@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>w1p3</title>
+        <!-- 暫不需要css -->
+        <!-- <link rel='stylesheet' href="./css/style.css"> -->
+    </head>
+    <body>
+        <header>   
+                <h1>w1p3</h1>
+        </header>
+      
+        <section>
+            <!-- <h1>w1p3</h1> -->
+            <h2>SING UP: </h2>
+            <label>Please enter your name:
+                <input type="text" name="name" id="name_signin">
+            </label>
+            <label>Please enter your email:
+                <input type="text" name="email" id="email_signin">
+            </label>
+            <label>Please enter your password:
+                <input type="text" name="password" id="password_signin">
+            </label>
+            
+            <br>
+            <!-- <button type="submit" id="input_button_singup">Submit</button> -->
+            <!-- 配合addEventListener寫法 -->
+            <button type="submit" onclick="sendDATA('signup')">Submit</button>
+            <!-- onclick = "function()" 點擊按鈕後執行function() -->
+
+            <br>
+
+            <h2>SING IN: </h2>
+            <label>Please enter your name:
+                <input type="text" name="name" id="name_signup">
+            </label>
+            <label>Please enter your email:
+                <input type="text" name="email" id="email_signup">
+            </label>
+            <label>Please enter your password:
+                <input type="text" name="password" id="password_signup">
+            </label>
+            <br>
+            <!-- <button type="submit" id="input_button_singin">Submit</button> -->
+            <!-- 配合addEventListener寫法 -->
+            <button type="submit" onclick="sendDATA('signin')">Submit</button>
+            <!-- onclick = "function()" 點擊按鈕後執行function() -->
+
+            <br>
+
+            <div class="to_show">
+                <div id="message"></div>
+            </div>
+        </section>
+
+    <!-- js -->
+    <script>
+        //function()在button中的寫法
+        function sendDATA(click) {
+            let username = '';
+            let email = '';
+            let password = ''
+            if (click === 'signup') {
+                username = document.querySelector('#name_signin').value;
+                email = document.querySelector('#email_signin').value;
+                password = document.querySelector('#password_signin').value;
+            } else {
+                username = document.querySelector('#name_signup').value;
+                email = document.querySelector('#email_signup').value;
+                password = document.querySelector('#password_signup').value;
+            }
+            
+            let data = {
+                name: username,
+                email: email,
+                password: password
+            }
+            // console.log('======')
+            let dataString = JSON.stringify(data);
+            let send_sql = new XMLHttpRequest();
+            send_sql.onreadystatechange = function () {
+                if (send_sql.readyState === 4) {
+                    if (send_sql.status === 200) {
+                        let res = JSON.parse(send_sql.response);
+                        if ("access_token" in res.data) {
+                            let send_profile = new XMLHttpRequest();
+                            document.querySelector('#message').innerHTML = res.data.access_token;
+                            window.localStorage.setItem('access_token', res.data.access_token);
+                            send_profile.open("GET", `http://localhost:3000/user/profile`); // redirect to new page
+                            send_profile.setRequestHeader('Authorization', 'bearer ' + res.data.access_token); // set up header
+                            send_profile.send(); 
+                        } else {
+                            document.querySelector('#message').innerHTML = res.data.message;
+                        }
+                    } else {
+                        alert(send_sql.statusText);
+                    };
+                };
+            }; 
+            if (click === 'signup') {
+                send_sql.open("POST", `http://localhost:3000/user/signup`); 
+            } else {
+                send_sql.open("POST", `http://localhost:3000/user/signin`); 
+            }
+            send_sql.setRequestHeader('Content-Type', "application/json");
+            send_sql.send(dataString);
+        };
+    </script>
+    
+    </body>
+</html>

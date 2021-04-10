@@ -1,0 +1,6 @@
+1. product upload stock can't upload single stock. has sql warning 
+in upload_main()
+
+Windows
+netstat -ano | findstr :3000檢查 3000 的 port 是否被佔用
+2. taskkill /PID 5824 /F 根據 list 表中找出被佔用的 PID
