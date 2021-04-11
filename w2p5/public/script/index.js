@@ -3,6 +3,15 @@ const paging = 0;
 xhr.onreadystatechange = function () {
     if (xhr.readyState === 4) {
         if (xhr.status === 200) {
+            // reset cart number
+            const variantsNumber = JSON.parse(localStorage.getItem("cart"));
+            const cartNumber = document.querySelector("#cart_number");
+            if (variantsNumber === null) {
+                cartNumber.innerHTML = 0;
+            } else {
+                cartNumber.innerHTML = variantsNumber.length;
+            }
+
             const response = JSON.parse(xhr.responseText);
             const allProducts = document.getElementById("all_products");
             const { data } = response;

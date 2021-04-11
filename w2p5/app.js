@@ -102,6 +102,10 @@ app.get("/product.html", (req, res) => {
 });
 
 // w2p5 cart.html
+app.get("/cart.html", (req, res) => {
+    // eslint-disable-next-line node/no-path-concat
+    res.sendFile(path.join(__dirname + "/public/cart.html"));
+});
 
 // ===response message===
 app.get("/response-message/products-upload-success", (req, res) => {
