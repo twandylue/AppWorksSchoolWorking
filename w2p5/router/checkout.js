@@ -10,7 +10,6 @@ const router = express.Router();
 
 // function setting
 const dbSetInsert = require("./function").dbSetInsert;
-const checkJWT = require("./function").checkJWT;
 const callSQL = require("./function").callSQL;
 
 // Middleware
@@ -22,16 +21,6 @@ router.use(cookieParser());
 
 // -- w2p1 and w2p2
 router.post("/order/checkout", (req, res) => {
-    const encryptedToken = req.headers.authorization;
-    const checkJWTStatus = checkJWT(encryptedToken);
-    if (checkJWTStatus === 1) {
-        res.redirect(`../api/${process.env.API_VERSION}/user/signup`); // or signin
-    } else if (checkJWTStatus === 2) {
-        res.redirect(`../api/${process.env.API_VERSION}/user/signup`); // or signin
-    } else if (checkJWTStatus === 0) {
-        console.log("test");
-    }
-
     let orderData = {};
     if (typeof (req.body) === "object") {
         // from postman
@@ -40,7 +29,7 @@ router.post("/order/checkout", (req, res) => {
         // from front-end
         orderData = JSON.parse(req.body);
     }
-    // console.log(orderData);
+    console.log(orderData);
 
     async function orderInsertMysql () {
         const { shipping, payment, subtotal, freight, total } = orderData.order;

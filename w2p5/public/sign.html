@@ -25,8 +25,6 @@
             </label>
             
             <br>
-            <!-- <button type="submit" id="input_button_singup">Submit</button> -->
-            <!-- 配合addEventListener寫法 -->
             <button type="submit" onclick="sendDATA('signup')">Submit</button>
             <!-- onclick = "function()" 點擊按鈕後執行function() -->
 
@@ -43,8 +41,6 @@
                 <input type="text" name="password" id="password_signup">
             </label>
             <br>
-            <!-- <button type="submit" id="input_button_singin">Submit</button> -->
-            <!-- 配合addEventListener寫法 -->
             <button type="submit" onclick="sendDATA('signin')">Submit</button>
             <!-- onclick = "function()" 點擊按鈕後執行function() -->
 
@@ -84,13 +80,22 @@
                 if (send_sql.readyState === 4) {
                     if (send_sql.status === 200) {
                         let res = JSON.parse(send_sql.response);
+                        console.log(res)
                         if ("access_token" in res.data) {
-                            let send_profile = new XMLHttpRequest();
-                            document.querySelector('#message').innerHTML = res.data.access_token;
+                            let toNewPage = new XMLHttpRequest();
+                            toNewPage.onreadystatechange = function () { // redirect to new page
+                                if (toNewPage.readyState === 4 && toNewPage.status === 200) {
+                                        const codition = JSON.parse(toNewPage.responseText);
+                                        if (codition.userPass === 1) {
+                                            alert("登入/註冊成功! 轉跳至購物車");
+                                            window.location.href = "/cart.html";
+                                        }
+                                    }                      
+                                }
                             window.localStorage.setItem('access_token', res.data.access_token);
-                            send_profile.open("GET", `http://localhost:3000/user/profile`); // redirect to new page
-                            send_profile.setRequestHeader('Authorization', 'bearer ' + res.data.access_token); // set up header
-                            send_profile.send(); 
+                            toNewPage.open("GET", `http://localhost:3000/api/1.0/user/profile`); 
+                            toNewPage.setRequestHeader('Authorization', 'bearer ' + res.data.access_token); // set up header
+                            toNewPage.send(); 
                         } else {
                             document.querySelector('#message').innerHTML = res.data.message;
                         }
@@ -100,9 +105,9 @@
                 };
             }; 
             if (click === 'signup') {
-                send_sql.open("POST", `http://localhost:3000/user/signup`); 
+                send_sql.open("POST", `http://localhost:3000/api/1.0/user/signup`); 
             } else {
-                send_sql.open("POST", `http://localhost:3000/user/signin`); 
+                send_sql.open("POST", `http://localhost:3000/api/1.0/user/signin`); 
             }
             send_sql.setRequestHeader('Content-Type', "application/json");
             send_sql.send(dataString);

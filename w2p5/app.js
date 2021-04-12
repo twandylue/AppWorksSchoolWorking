@@ -77,6 +77,10 @@ app.get("/admin/sign.html", (req, res) => {
     res.sendFile(path.join(__dirname + "/public/sign.html"));
 });
 
+// app.get(`/api/${process.env.API_VERSION}/admin/sign.html`, (req, res) => {
+//     console.log("here!");
+// });
+
 // w1p5 campaign
 app.get("/admin/campaign.html", (req, res) => {
     // console.log('check campaign_upload_page'); // check Arthur robot.

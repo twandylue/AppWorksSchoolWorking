@@ -117,7 +117,6 @@ xhr.onreadystatechange = function () {
                         }
                     }
                     localStorage.setItem("cart", JSON.stringify(newArr));
-                    // ////////////////////////////////////////////////////
 
                     // update cart number
                     updateCartNumber();
@@ -135,125 +134,132 @@ xhr.onreadystatechange = function () {
                 signXhr.onreadystatechange = function () {
                     if (signXhr.readyState === 4) {
                         if (signXhr.status === 200) {
-                            // // do something
-                            // const data = {};
-                            // const shipping = "delivery";
-                            // const payment = "credit_card";
-                            // const subtotalArr = (document.querySelector("#subtotal .value").innerHTML).match(/[0-9]/g);
-                            // let subtotal = "";
-                            // for (const i in subtotalArr) {
-                            //     subtotal += subtotalArr[i];
-                            // }
+                            if (parseInt(signXhr.responseText) === 1) {
+                                alert("請登入後再購買");
+                                window.location.href = "/admin/sign.html";
+                            } else if (parseInt(signXhr.responseText) === 2) {
+                                alert("登入驗證過期 請重新登入");
+                                window.location.href = "/admin/sign.html";
+                            } else if (parseInt(signXhr.responseText) === 0) {
+                                alert("請註冊後再購買");
+                                window.location.href = "/admin/sign.html";
+                            } else {
+                                // do something
+                                const data = {};
+                                const shipping = "delivery";
+                                const payment = "credit_card";
+                                const subtotalArr = (document.querySelector("#subtotal .value").innerHTML).match(/[0-9]/g);
+                                let subtotal = "";
+                                for (const i in subtotalArr) {
+                                    subtotal += subtotalArr[i];
+                                }
 
-                            // const freightArr = (document.querySelector(".freight .value").innerHTML).match(/[0-9]/g);
-                            // let freight = "";
-                            // for (const i in freightArr) {
-                            //     freight += freightArr[i];
-                            // }
+                                const freightArr = (document.querySelector(".freight .value").innerHTML).match(/[0-9]/g);
+                                let freight = "";
+                                for (const i in freightArr) {
+                                    freight += freightArr[i];
+                                }
 
-                            // const totalArr = (document.querySelector("#total .value").innerHTML).match(/[0-9]/g);
-                            // let total = "";
-                            // for (const i in totalArr) {
-                            //     total += totalArr[i];
-                            // }
+                                const totalArr = (document.querySelector("#total .value").innerHTML).match(/[0-9]/g);
+                                let total = "";
+                                for (const i in totalArr) {
+                                    total += totalArr[i];
+                                }
 
-                            // const name = (document.querySelector("#name")).value;
-                            // const phone = (document.querySelector("#phone")).value;
-                            // const email = (document.querySelector("#email")).value;
-                            // const address = (document.querySelector("#address")).value;
+                                const name = (document.querySelector("#name")).value;
+                                const phone = (document.querySelector("#phone")).value;
+                                const email = (document.querySelector("#email")).value;
+                                const address = (document.querySelector("#address")).value;
 
-                            // const morning = document.querySelector("#morning").checked;
-                            // const afternoon = document.querySelector("#afternoon").checked;
-                            // const anytime = document.querySelector("#anytime").checked;
-                            // let time = "";
-                            // if (morning) {
-                            //     time = document.querySelector("#morning").value;
-                            // } else if (afternoon) {
-                            //     time = document.querySelector("#afternoon").value;
-                            // } else if (anytime) {
-                            //     time = document.querySelector("#anytime").value;
-                            // }
-                            // const recipient = {
-                            //     name: name,
-                            //     phone: phone,
-                            //     email: email,
-                            //     address: address,
-                            //     time: time
-                            // };
+                                const morning = document.querySelector("#morning").checked;
+                                const afternoon = document.querySelector("#afternoon").checked;
+                                const anytime = document.querySelector("#anytime").checked;
+                                let time = "";
+                                if (morning) {
+                                    time = document.querySelector("#morning").value;
+                                } else if (afternoon) {
+                                    time = document.querySelector("#afternoon").value;
+                                } else if (anytime) {
+                                    time = document.querySelector("#anytime").value;
+                                }
+                                const recipient = {
+                                    name: name,
+                                    phone: phone,
+                                    email: email,
+                                    address: address,
+                                    time: time
+                                };
 
-                            // const list = [];
-                            // const cartList = JSON.parse(localStorage.getItem("cart"));
-                            // for (const i in cartList) {
-                            //     delete cartList[i].image;
-                            //     delete cartList[i].stock;
-                            //     list.push(cartList[i]);
-                            // }
+                                const list = [];
+                                const cartList = JSON.parse(localStorage.getItem("cart"));
+                                for (const i in cartList) {
+                                    delete cartList[i].image;
+                                    delete cartList[i].stock;
+                                    list.push(cartList[i]);
+                                }
 
-                            // function getPrime (data) {
-                            //     return new Promise((resolve, reject) => {
-                            //         // eslint-disable-next-line no-undef
-                            //         TPDirect.card.getPrime(function (result) {
-                            //             if (result.status !== 0) {
-                            //                 alert("get prime error " + result.msg);
-                            //                 return;
-                            //             }
-                            //             // alert("get prime 成功，prime: " + result.card.prime);
-                            //             // console.log(result.card.prime);
-                            //             const tappayPrime = result.card.prime;
-                            //             data = {
-                            //                 prime: tappayPrime,
-                            //                 order: {
-                            //                     shipping: shipping,
-                            //                     payment: payment,
-                            //                     subtotal: parseInt(subtotal),
-                            //                     freight: parseInt(freight),
-                            //                     total: parseInt(total),
-                            //                     recipient: recipient,
-                            //                     list: list
-                            //                 }
-                            //             };
-                            //             resolve(data);
-                            //         });
-                            //     });
-                            // }
-                            // getPrime(data).then((data) => {
-                            //     const dataString = JSON.stringify(data);
-                            //     const checkoutXhr = new XMLHttpRequest();
-                            //     checkoutXhr.onreadystatechange = function () {
-                            //         if (xhr.readyState === 4) {
-                            //             if (xhr.status === 200) {
-                            //                 // do something
-                            //                 const response = JSON.parse(xhr.responseText);
-                            //                 // console.log("order ID: ");
-                            //                 console.log(response.data.number); // orderID
+                                function getPrime (data) {
+                                    return new Promise((resolve, reject) => {
+                                    // eslint-disable-next-line no-undef
+                                        TPDirect.card.getPrime(function (result) {
+                                            if (result.status !== 0) {
+                                                alert("get prime error " + result.msg);
+                                                return;
+                                            }
+                                            // alert("get prime 成功，prime: " + result.card.prime);
+                                            // console.log(result.card.prime);
+                                            const tappayPrime = result.card.prime;
+                                            data = {
+                                                prime: tappayPrime,
+                                                order: {
+                                                    shipping: shipping,
+                                                    payment: payment,
+                                                    subtotal: parseInt(subtotal),
+                                                    freight: parseInt(freight),
+                                                    total: parseInt(total),
+                                                    recipient: recipient,
+                                                    list: list
+                                                }
+                                            };
+                                            resolve(data);
+                                        });
+                                    });
+                                }
+                                getPrime(data).then((data) => {
+                                    const dataString = JSON.stringify(data);
+                                    const checkoutXhr = new XMLHttpRequest();
+                                    checkoutXhr.onreadystatechange = function () {
+                                        if (checkoutXhr.readyState === 4) {
+                                            if (checkoutXhr.status === 200) {
+                                                // do something
+                                                const response = JSON.parse(checkoutXhr.responseText);
+                                                console.log("order ID: ");
+                                                console.log(response.data.number); // orderID
 
-                            //                 const thankyouXhr = new XMLHttpRequest();
-                            //                 thankyouXhr.onreadystatechange = function () {
-                            //                     if (newXhr.readyState === 4) {
-                            //                         if (newXhr.status === 200) {
-                            //                             // do something
-                            //                         } else {
-                            //                             alert(newXhr.status);
-                            //                         }
-                            //                     }
-                            //                 };
-                            //                 thankyouXhr.open("GET", `http://localhost:3000/thankyou.html?number=${response.data.number}`); // for test
-                            //                 // thankyouXhr.open("GET", `http://35.73.76.64/thankyou.html?number=${response.data.number}`); // for EC2
-                            //                 thankyouXhr.send();
-                            //             } else {
-                            //                 alert(xhr.status);
-                            //             }
-                            //         }
-                            //     };
-                            //     checkoutXhr.open("POST", "http://localhost:3000/api/1.0/order/checkout"); // for test
-                            //     // xhr.open("GET", `http://35.73.76.64/api/1.0/order/checkout`); // for EC2
-
-                            //     // checkoutXhr.setRequestHeader("Content-Type", "application/json"); // signin or signup
-                            //     // const access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoi6Zm45a6JIiwiZW1haWwiOiJwcm90b25sdWVAZ21haWwuY29tIiwicHJvdmlkZXIiOiJmYWNlYm9vayIsInBpY3R1cmUiOiJodHRwczovL3BsYXRmb3JtLWxvb2thc2lkZS5mYnNieC5jb20vcGxhdGZvcm0vcHJvZmlsZXBpYy8_YXNpZD0zODg1OTAyMzI0ODAxMDg1JmhlaWdodD01MCZ3aWR0aD01MCZleHQ9MTYyMDI4MzcxMCZoYXNoPUFlVDlhSndLcXMtMVpqSGV2ZkUiLCJpYXQiOjE2MTc2OTE3MTAsImV4cCI6MTYxNzc3ODExMH0.FosEfpbaRqSpHynRnygNuMFyEff1ZvNun-nlHzALcrI";
-                            //     // checkoutXhr.setRequestHeader("Authorization", "bearer " + access_token);
-
-                            //     checkoutXhr.send(dataString);
-                            // });
+                                                const thankyouXhr = new XMLHttpRequest();
+                                                thankyouXhr.onreadystatechange = function () {
+                                                    if (thankyouXhr.readyState === 4) {
+                                                        if (thankyouXhr.status === 200) {
+                                                            // do something
+                                                            window.location.href = `/thankyou.html?number=${response.data.number}`;
+                                                        } else {
+                                                            alert(thankyouXhr.status);
+                                                        }
+                                                    }
+                                                };
+                                                thankyouXhr.open("GET", `http://localhost:3000/thankyou.html?number=${response.data.number}`); // for test
+                                                // thankyouXhr.open("GET", `http://35.73.76.64/thankyou.html?number=${response.data.number}`); // for EC2
+                                                thankyouXhr.send();
+                                            } else {
+                                                alert(xhr.status);
+                                            }
+                                        }
+                                    };
+                                    checkoutXhr.open("POST", "http://localhost:3000/api/1.0/order/checkout"); // for test
+                                    // xhr.open("GET", `http://35.73.76.64/api/1.0/order/checkout`); // for EC2
+                                    checkoutXhr.send(dataString);
+                                });
+                            }
                         } else {
                             alert(signXhr.status);
                         }
@@ -261,6 +267,9 @@ xhr.onreadystatechange = function () {
                 };
                 signXhr.open("GET", "http://localhost:3000/api/1.0/user/profile"); // for local test
                 // signXhr.open("GET", `http://35.73.76.64/api/${process.env.API_VERSION}/user/profile`); // for EC2
+                signXhr.setRequestHeader("Content-Type", "application/json"); // signin or signup
+                const accessToken = localStorage.getItem("access_token");
+                signXhr.setRequestHeader("Authorization", "bearer " + accessToken);
                 signXhr.send();
             });
         } else {
