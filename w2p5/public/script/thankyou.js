@@ -7,8 +7,8 @@ xhr.onreadystatechange = function () {
         if (xhr.status === 200) {
             // console.log("number: ");
             // console.log(number);
-            const resetCart = [""];
-            localStorage.setItem("cart", resetCart); // reset cart
+            const resetCart = [];
+            localStorage.setItem("cart", JSON.stringify(resetCart)); // reset cart
             updateCartNumber(); // reset cart number
             const orderID = document.querySelector("#number");
             orderID.innerHTML = number;
