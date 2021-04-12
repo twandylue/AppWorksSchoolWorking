@@ -255,7 +255,7 @@ xhr.onreadystatechange = function () {
                                         }
                                     };
                                     // checkoutXhr.open("POST", "http://localhost:3000/api/1.0/order/checkout"); // for test
-                                    checkoutXhr.open("GET", "http://35.73.76.64/api/1.0/order/checkout"); // for EC2
+                                    checkoutXhr.open("POST", "http://35.73.76.64/api/1.0/order/checkout"); // for EC2
                                     checkoutXhr.send(dataString);
                                 });
                             }
