@@ -78,10 +78,6 @@ app.get("/admin/sign.html", (req, res) => {
     res.sendFile(path.join(__dirname + "/public/sign.html"));
 });
 
-// app.get(`/api/${process.env.API_VERSION}/admin/sign.html`, (req, res) => {
-//     console.log("here!");
-// });
-
 // w1p5 campaign
 app.get("/admin/campaign.html", (req, res) => {
     // console.log('check campaign_upload_page'); // check Arthur robot.
@@ -111,12 +107,6 @@ app.get("/cart.html", (req, res) => {
     // eslint-disable-next-line node/no-path-concat
     res.sendFile(path.join(__dirname + "/public/cart.html"));
 });
-
-// // w2p5 profile.html
-// app.get("/profile.html", (req, res) => {
-//     // eslint-disable-next-line node/no-path-concat
-//     res.sendFile(path.join(__dirname + "/public/thankyou.html"));
-// });
 
 // w2p5 thankyou.html
 app.get("/thankyou.html", (req, res) => {
