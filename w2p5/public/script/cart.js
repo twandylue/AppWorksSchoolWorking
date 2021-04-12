@@ -2,14 +2,8 @@ const xhr = new XMLHttpRequest();
 xhr.onreadystatechange = function () {
     if (xhr.readyState === 4) {
         if (xhr.status === 200) {
-            // reset cart number
+            updateCartNumber(); // update cart number
             const cart = JSON.parse(localStorage.getItem("cart"));
-            const cartNumber = document.querySelector("#cart_number");
-            if (cart == null) {
-                cartNumber.innerHTML = 0;
-            } else {
-                cartNumber.innerHTML = cart.length;
-            }
             console.log(cart);
             const items = document.querySelector("#items");
             for (const i in cart) { // create element in main body
@@ -46,7 +40,7 @@ xhr.onreadystatechange = function () {
                     const option = document.createElement("option");
                     option.value = j + 1;
                     option.innerHTML = j + 1;
-                    if (parseInt(option.value) === cart[i].qty) {
+                    if (option.value === cart[i].qty) {
                         option.selected = "selected";
                     }
                     mobileSelect.append(option);
@@ -81,43 +75,32 @@ xhr.onreadystatechange = function () {
 
                 item.append(itemImage, itemDetail, itemQuantity, itemPrice, itemSubtotal, itemRemove);
                 items.append(item);
+
+                // update subtotal
+                updateSubtotal();
+                // update total
+                updateTotal();
             }
 
             const selectChange = document.querySelector("#items");
-            selectChange.addEventListener("change", (event) => { // uapdate subtotal
+            selectChange.addEventListener("change", (event) => { // uapdate item subtotal
                 const newNumbers = document.querySelectorAll("#items option:checked");
                 for (let i = 0; i < newNumbers.length; i++) { // i can be used cross different parent element
                     // console.log(newNumbers[i].value);
                     // console.log(cart[i].price);
-                    const newSubtotals = document.querySelectorAll("#items .item__subtotal");
+                    const newItemSubtotals = document.querySelectorAll("#items .item__subtotal");
                     // console.log(newSubtotals[i].innerHTML);
-                    newSubtotals[i].innerHTML = "NT." + (newNumbers[i].value * cart[i].price).toString();
+                    newItemSubtotals[i].innerHTML = "NT." + (newNumbers[i].value * cart[i].price).toString(); // cart[i] 危險 待改 可改成item__price
+                    const newQty = JSON.parse(localStorage.getItem("cart"));
+                    newQty[i].qty = newNumbers[i].value;
+                    localStorage.setItem("cart", JSON.stringify(newQty));
                 }
+
+                // update subtotal
+                updateSubtotal();
+                // update total
+                updateTotal();
             });
-
-            // const itemDelete = document.querySelectorAll("#items .item__remove");
-            // const newCart = JSON.parse(localStorage.getItem("cart"));
-            // for (let i = 0; i < itemDelete.length; i++) {
-            //     itemDelete[i].addEventListener("click", (event) => {
-            //         // console.log("item: " + (i));
-            //         // console.log(((event.target).parentElement).parentElement);
-            //         ((event.target).parentElement).parentElement.remove(); // remove element from HTML
-
-            //         newCart[i] = "cancled";
-            //         console.log(newCart);
-            //     });
-            // }
-
-            // const readyToPay = document.querySelector("#checkout");
-            // readyToPay.addEventListener("click", (event) => {
-            //     for (const i in newCart) {
-            //         if (newCart[i] === "cancled") { // not good enough solution
-            //             newCart.splice(i, 1);
-            //         }
-            //     }
-            //     // console.log(newCart);
-            //     // localStorage.setItem("cart", JSON.stringify(newCart));
-            // });
 
             const itemDelete = document.querySelectorAll("#items .item__remove");
             const newCart = JSON.parse(localStorage.getItem("cart"));
@@ -126,39 +109,210 @@ xhr.onreadystatechange = function () {
                 map.set(i, newCart[i]);
                 itemDelete[i].addEventListener("click", (event) => {
                     ((event.target).parentElement).parentElement.remove(); // remove element from HTML
-
-                    // newCart[i] = "cancled";
-                    // newCart.splice(i, 1);
-                    // console.log(newCart);
-                    console.log("map: ");
                     const newArr = [];
                     map.set(i, "cancel");
-                    // console.log(map);
                     for (let i = 0; i < map.size; i++) {
-                        // console.log(map.get(i));
                         if (map.get(i) !== "cancel") {
                             newArr.push(map.get(i));
                         }
                     }
-                    // console.log(newArr);
                     localStorage.setItem("cart", JSON.stringify(newArr));
+                    // ////////////////////////////////////////////////////
+
+                    // update cart number
+                    updateCartNumber();
+                    // update subtotal
+                    updateSubtotal();
+                    // update total
+                    updateTotal();
                 });
             }
 
-            // const readyToPay = document.querySelector("#checkout");
-            // readyToPay.addEventListener("click", (event) => {
-            //     for (const i in newCart) {
-            //         if (newCart[i] === "cancled") { // not good enough solution
-            //             newCart.splice(i, 1);
-            //         }
-            //     }
-            //     // console.log(newCart);
-            //     // localStorage.setItem("cart", JSON.stringify(newCart));
-            // });
+            const checkout = document.querySelector("#checkout");
+            checkout.addEventListener("click", (event) => {
+                // check if user condition first
+                const signXhr = new XMLHttpRequest();
+                signXhr.onreadystatechange = function () {
+                    if (signXhr.readyState === 4) {
+                        if (signXhr.status === 200) {
+                            // // do something
+                            // const data = {};
+                            // const shipping = "delivery";
+                            // const payment = "credit_card";
+                            // const subtotalArr = (document.querySelector("#subtotal .value").innerHTML).match(/[0-9]/g);
+                            // let subtotal = "";
+                            // for (const i in subtotalArr) {
+                            //     subtotal += subtotalArr[i];
+                            // }
+
+                            // const freightArr = (document.querySelector(".freight .value").innerHTML).match(/[0-9]/g);
+                            // let freight = "";
+                            // for (const i in freightArr) {
+                            //     freight += freightArr[i];
+                            // }
+
+                            // const totalArr = (document.querySelector("#total .value").innerHTML).match(/[0-9]/g);
+                            // let total = "";
+                            // for (const i in totalArr) {
+                            //     total += totalArr[i];
+                            // }
+
+                            // const name = (document.querySelector("#name")).value;
+                            // const phone = (document.querySelector("#phone")).value;
+                            // const email = (document.querySelector("#email")).value;
+                            // const address = (document.querySelector("#address")).value;
+
+                            // const morning = document.querySelector("#morning").checked;
+                            // const afternoon = document.querySelector("#afternoon").checked;
+                            // const anytime = document.querySelector("#anytime").checked;
+                            // let time = "";
+                            // if (morning) {
+                            //     time = document.querySelector("#morning").value;
+                            // } else if (afternoon) {
+                            //     time = document.querySelector("#afternoon").value;
+                            // } else if (anytime) {
+                            //     time = document.querySelector("#anytime").value;
+                            // }
+                            // const recipient = {
+                            //     name: name,
+                            //     phone: phone,
+                            //     email: email,
+                            //     address: address,
+                            //     time: time
+                            // };
+
+                            // const list = [];
+                            // const cartList = JSON.parse(localStorage.getItem("cart"));
+                            // for (const i in cartList) {
+                            //     delete cartList[i].image;
+                            //     delete cartList[i].stock;
+                            //     list.push(cartList[i]);
+                            // }
+
+                            // function getPrime (data) {
+                            //     return new Promise((resolve, reject) => {
+                            //         // eslint-disable-next-line no-undef
+                            //         TPDirect.card.getPrime(function (result) {
+                            //             if (result.status !== 0) {
+                            //                 alert("get prime error " + result.msg);
+                            //                 return;
+                            //             }
+                            //             // alert("get prime 成功，prime: " + result.card.prime);
+                            //             // console.log(result.card.prime);
+                            //             const tappayPrime = result.card.prime;
+                            //             data = {
+                            //                 prime: tappayPrime,
+                            //                 order: {
+                            //                     shipping: shipping,
+                            //                     payment: payment,
+                            //                     subtotal: parseInt(subtotal),
+                            //                     freight: parseInt(freight),
+                            //                     total: parseInt(total),
+                            //                     recipient: recipient,
+                            //                     list: list
+                            //                 }
+                            //             };
+                            //             resolve(data);
+                            //         });
+                            //     });
+                            // }
+                            // getPrime(data).then((data) => {
+                            //     const dataString = JSON.stringify(data);
+                            //     const checkoutXhr = new XMLHttpRequest();
+                            //     checkoutXhr.onreadystatechange = function () {
+                            //         if (xhr.readyState === 4) {
+                            //             if (xhr.status === 200) {
+                            //                 // do something
+                            //                 const response = JSON.parse(xhr.responseText);
+                            //                 // console.log("order ID: ");
+                            //                 console.log(response.data.number); // orderID
+
+                            //                 const thankyouXhr = new XMLHttpRequest();
+                            //                 thankyouXhr.onreadystatechange = function () {
+                            //                     if (newXhr.readyState === 4) {
+                            //                         if (newXhr.status === 200) {
+                            //                             // do something
+                            //                         } else {
+                            //                             alert(newXhr.status);
+                            //                         }
+                            //                     }
+                            //                 };
+                            //                 thankyouXhr.open("GET", `http://localhost:3000/thankyou.html?number=${response.data.number}`); // for test
+                            //                 // thankyouXhr.open("GET", `http://35.73.76.64/thankyou.html?number=${response.data.number}`); // for EC2
+                            //                 thankyouXhr.send();
+                            //             } else {
+                            //                 alert(xhr.status);
+                            //             }
+                            //         }
+                            //     };
+                            //     checkoutXhr.open("POST", "http://localhost:3000/api/1.0/order/checkout"); // for test
+                            //     // xhr.open("GET", `http://35.73.76.64/api/1.0/order/checkout`); // for EC2
+
+                            //     // checkoutXhr.setRequestHeader("Content-Type", "application/json"); // signin or signup
+                            //     // const access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoi6Zm45a6JIiwiZW1haWwiOiJwcm90b25sdWVAZ21haWwuY29tIiwicHJvdmlkZXIiOiJmYWNlYm9vayIsInBpY3R1cmUiOiJodHRwczovL3BsYXRmb3JtLWxvb2thc2lkZS5mYnNieC5jb20vcGxhdGZvcm0vcHJvZmlsZXBpYy8_YXNpZD0zODg1OTAyMzI0ODAxMDg1JmhlaWdodD01MCZ3aWR0aD01MCZleHQ9MTYyMDI4MzcxMCZoYXNoPUFlVDlhSndLcXMtMVpqSGV2ZkUiLCJpYXQiOjE2MTc2OTE3MTAsImV4cCI6MTYxNzc3ODExMH0.FosEfpbaRqSpHynRnygNuMFyEff1ZvNun-nlHzALcrI";
+                            //     // checkoutXhr.setRequestHeader("Authorization", "bearer " + access_token);
+
+                            //     checkoutXhr.send(dataString);
+                            // });
+                        } else {
+                            alert(signXhr.status);
+                        }
+                    }
+                };
+                signXhr.open("GET", "http://localhost:3000/api/1.0/user/profile"); // for local test
+                // signXhr.open("GET", `http://35.73.76.64/api/${process.env.API_VERSION}/user/profile`); // for EC2
+                signXhr.send();
+            });
+        } else {
+            alert(xhr.status);
         }
     };
 };
 
-xhr.open("GET", "http://localhost:3000/"); // for test
+xhr.open("GET", "http://localhost:3000/");
 // xhr.open("GET", `http://35.73.76.64/api/1.0/products/details?id=${id}`); // for EC2
 xhr.send();
+
+function updateCartNumber () {
+    const variantsNumber = JSON.parse(localStorage.getItem("cart"));
+    const cartNumber = document.querySelector("#cart_number");
+    const cartNumberTitle = document.querySelector("#title");
+    if (variantsNumber == null) {
+        cartNumber.innerHTML = 0;
+    } else {
+        cartNumber.innerHTML = variantsNumber.length;
+        if (cartNumberTitle !== null) {
+            cartNumberTitle.innerHTML = "購物車(" + variantsNumber.length + ")";
+        }
+    }
+}
+
+function updateSubtotal () {
+    const subtotal = document.querySelector("#subtotal .value");
+    const itemSubtotal = document.querySelectorAll(".item__subtotal");
+    let subtotalCost = 0;
+    for (let i = 1; i < itemSubtotal.length; i++) {
+        const cost = ((itemSubtotal[i].innerHTML).split("."))[1];
+        subtotalCost += parseInt(cost);
+    }
+    subtotal.innerHTML = "NT.<span>" + subtotalCost + "</span>";
+}
+
+function updateTotal () {
+    const freight = document.querySelector(".freight .value");
+    const subtotal = document.querySelector("#subtotal .value");
+    const freightCostArr = (freight.innerHTML).match(/[0-9]/g);
+    let freightCost = "";
+    for (const i in freightCostArr) {
+        freightCost += freightCostArr[i];
+    }
+    const subtotalCostArr = (subtotal.innerHTML).match(/[0-9]/g);
+    let subtotalCost = "";
+    for (const i in subtotalCostArr) {
+        subtotalCost += subtotalCostArr[i];
+    }
+
+    const totalCost = parseInt(freightCost) + parseInt(subtotalCost);
+    const total = document.querySelector("#total .value");
+    total.innerHTML = "NT.<span>" + totalCost + "</span>";
+}

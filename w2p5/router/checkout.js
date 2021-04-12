@@ -28,6 +28,8 @@ router.post("/order/checkout", (req, res) => {
         res.redirect(`../api/${process.env.API_VERSION}/user/signup`); // or signin
     } else if (checkJWTStatus === 2) {
         res.redirect(`../api/${process.env.API_VERSION}/user/signup`); // or signin
+    } else if (checkJWTStatus === 0) {
+        console.log("test");
     }
 
     let orderData = {};

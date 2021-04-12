@@ -53,13 +53,13 @@ app.use(`/api/${process.env.API_VERSION}`, apiRouterProductsSearch);
 const apiRouterProductsDetails = require("./router/products_details").router;
 app.use(`/api/${process.env.API_VERSION}`, apiRouterProductsDetails);
 
-// w1p5
-const apiRouterCampaign = require("./router/campaign").router;
-app.use(`/api/${process.env.API_VERSION}`, apiRouterCampaign);
-
 // w1p3 and w1p4
 const apiRouteSign = require("./router/sign").router;
 app.use(`/api/${process.env.API_VERSION}`, apiRouteSign);
+
+// w1p5
+const apiRouterCampaign = require("./router/campaign").router;
+app.use(`/api/${process.env.API_VERSION}`, apiRouterCampaign);
 
 // w2p2 checkout
 const apiRouteCheckout = require("./router/checkout").router;
@@ -105,6 +105,18 @@ app.get("/product.html", (req, res) => {
 app.get("/cart.html", (req, res) => {
     // eslint-disable-next-line node/no-path-concat
     res.sendFile(path.join(__dirname + "/public/cart.html"));
+});
+
+// // w2p5 profile.html
+// app.get("/profile.html", (req, res) => {
+//     // eslint-disable-next-line node/no-path-concat
+//     res.sendFile(path.join(__dirname + "/public/thankyou.html"));
+// });
+
+// w2p5 thankyou.html
+app.get("/thankyou.html", (req, res) => {
+    // eslint-disable-next-line node/no-path-concat
+    res.sendFile(path.join(__dirname + "/public/thankyou.html"));
 });
 
 // ===response message===

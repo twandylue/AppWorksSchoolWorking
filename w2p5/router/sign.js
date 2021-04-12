@@ -125,45 +125,48 @@ router.get("/user/profile", (req, res) => {
     const responseResult = {};
     const info = {};
 
-    const uncodedtoken = req.headers.authorization;
-    if (uncodedtoken) {
-        const encryptedToken = req.headers.authorization;
-        const JWTtoken = checkJWT(encryptedToken);
-        if (JWTtoken === 1) {
-            res.redirect(`../api/${process.env.API_VERSION}/user/signup`); // 可能會有問題 路徑上 日後須注意
-        } else if (JWTtoken === 2) {
-            res.redirect(`../api/${process.env.API_VERSION}/user/signup`); // or signin
-        }
-
-        if (JWTtoken.provider) {
-            info.provider = JWTtoken.provider;
-        } else {
-            info.provider = "native";
-        }
-        info.name = JWTtoken.name;
-        info.email = JWTtoken.email;
-        if (JWTtoken.picture) {
-            info.picture = JWTtoken.picture;
-        } else {
-            info.picture = "not exist";
-        }
-        responseResult.data = info;
-        // console.log(responseResult); // checkout Arthur's robot info
-
-        async function saveUserInfo () {
-            let sql = `SELECT * FROM stylish.user_info_table WHERE email = '${JWTtoken.email}';`;
-            const sqlresponse = await callSQL(req, sql);
-            if (sqlresponse) {
-                console.log("Email has been registered!"); // ready to redirect
-            } else {
-                sql = `INSERT INTO stylish.user_info_table (name, email) VALUES ('${JWTtoken.name}', '${JWTtoken.email}');`;
-                // eslint-disable-next-line no-unused-vars
-                const sqlresult = await callSQL(req, sql);
-                console.log("Rigister success!"); // ready to redirect
-            }
-        }
-        saveUserInfo();
+    // const uncodedtoken = req.headers.authorization;
+    // console.log("test: " + uncodedtoken);
+    const encryptedToken = req.headers.authorization;
+    const JWTtoken = checkJWT(encryptedToken);
+    if (JWTtoken === 1) {
+        res.redirect(`../api/${process.env.API_VERSION}/user/signup`); // or signin
+    } else if (JWTtoken === 2) {
+        res.redirect(`../api/${process.env.API_VERSION}/user/signup`); // or signin
+    } else if (JWTtoken === 0) {
+        console.log("undefined");
+        // res.redirect("/admin/sign.html"); // 可能會有問題 路徑上 日後須注意
     }
+
+    if (JWTtoken.provider) {
+        info.provider = JWTtoken.provider;
+    } else {
+        info.provider = "native";
+    }
+    info.name = JWTtoken.name;
+    info.email = JWTtoken.email;
+    if (JWTtoken.picture) {
+        info.picture = JWTtoken.picture;
+    } else {
+        info.picture = "not exist";
+    }
+    responseResult.data = info;
+    // console.log(responseResult); // checkout Arthur's robot info
+
+    async function saveUserInfo () {
+        let sql = `SELECT * FROM stylish.user_info_table WHERE email = '${JWTtoken.email}';`;
+        const sqlresponse = await callSQL(req, sql);
+        if (sqlresponse) {
+            console.log("Email has been registered!"); // ready to redirect
+        } else { // stange... 待改 有token表示已經註冊過
+            sql = `INSERT INTO stylish.user_info_table (name, email) VALUES ('${JWTtoken.name}', '${JWTtoken.email}');`;
+            // eslint-disable-next-line no-unused-vars
+            const sqlresult = await callSQL(req, sql);
+            console.log("Rigister success!"); // ready to redirect
+        }
+    }
+    saveUserInfo();
+
     console.log("in profile");
 
     res.send(JSON.stringify(responseResult));

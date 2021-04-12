@@ -9,7 +9,7 @@ xhr.onreadystatechange = function () {
             console.log(response);
             const { data } = response;
             async function detailUpload () {
-                // reset cart number
+                // update cart number
                 const variantsNumber = JSON.parse(localStorage.getItem("cart"));
                 const cartNumber = document.querySelector("#cart_number");
                 if (variantsNumber == null) {
@@ -134,18 +134,20 @@ xhr.onreadystatechange = function () {
                 const colorSelect = document.querySelector("#colors");
                 colorSelect.addEventListener("click", (event) => {
                     const allColors = document.querySelectorAll(".product__color"); // reset color
-                    for (const i in allColors) { // cancel selected of color last time.
+                    for (const i in allColors) { // cancel selected color last time.
                         allColors[i].className = "product__color";
                     }
                     const allSizes = document.querySelectorAll(".product__size"); // reset size
-                    for (const i in allSizes) { // cancel disable of size last time
+                    for (const i in allSizes) { // cancel disable size last time
                         allSizes[i].className = "product__size";
                     }
                     const quantity = document.querySelector("#quantity"); // reset quantity
                     quantity.innerHTML = 1;
 
                     const colorChoose = event.target;
-                    colorChoose.classList.add("product__color--selected");
+                    if (colorChoose.className === "product__color") {
+                        colorChoose.classList.add("product__color--selected");
+                    }
                     const color = colorChoose.style.backgroundColor;
                     const variantChoose = [];
                     for (const i in data.variants) {
@@ -218,16 +220,14 @@ xhr.onreadystatechange = function () {
                 const quantity = document.querySelector("#quantity");
 
                 if (color && size && quantity !== null) {
-                    let colorCart = color.style.backgroundColor;
+                    let colorToCart = color.style.backgroundColor;
                     const sizeCart = size.innerHTML;
                     const quantityCart = quantity.innerHTML;
 
-                    console.log(colorCart);
-                    const rgbArr = rgbSplit(colorCart);
+                    const rgbArr = rgbSplit(colorToCart);
+                    colorToCart = (fullcolorHex(rgbArr[0], rgbArr[1], rgbArr[2])).toUpperCase();
 
-                    colorCart = (fullcolorHex(rgbArr[0], rgbArr[1], rgbArr[2])).toUpperCase();
-
-                    let variant; // variant added to cart
+                    let variant; // variant added in cart
                     const variants = JSON.parse(localStorage.getItem("variants"));
                     for (const i in variants) {
                         if (sizeCart === variants[i].size) {
@@ -236,7 +236,7 @@ xhr.onreadystatechange = function () {
                     }
 
                     for (const i in data.colors) {
-                        if (colorCart === data.colors[i].code) {
+                        if (colorToCart === data.colors[i].code) {
                             variant.color = data.colors[i];
                         }
                     }
@@ -248,7 +248,7 @@ xhr.onreadystatechange = function () {
                         price: data.price,
                         stock: variant.stock,
                         size: variant.size,
-                        qty: parseInt(quantityCart),
+                        qty: quantityCart,
                         color: variant.color
                     };
 
@@ -313,6 +313,5 @@ function fullcolorHex (r, g, b) {
 function rgbSplit (rgbString) {
     const regexpString = rgbString.replace(/[^0-9,]*/g, "");
     const arr = regexpString.split(",");
-    console.log(arr);
     return (arr);
 }

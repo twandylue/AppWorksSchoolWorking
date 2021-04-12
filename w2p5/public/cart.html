@@ -7,6 +7,8 @@
         <link rel="stylesheet" href="css/header.css">
         <link rel="stylesheet" href="css/cart.css">
         <link rel="stylesheet" href="css/footer.css">
+        <script text="text/javascript" src="https://js.tappaysdk.com/tpdirect/v5.5.0"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     </head>
     <body>
         <header class="main-header">
@@ -91,19 +93,19 @@
                     <div class="field">
                         <label class="field__name" for="card">信用卡號碼</label>
                         <div class="field__input">
-                            <div class="tpfield" id="card-number"><iframe frameborder="0" allowtransparency="true" scrolling="no" style="border: none; width: 100%; height: 100%; float: left;" src="https://js.tappaysdk.com/tpdirect/v5.5.0/tappay-field/html?%7B%22origin%22%3A%22https%3A%2F%2Fapi.appworks-school.tw%22%2C%22type%22%3A%22card-number%22%2C%22placeholder%22%3A%22****%20****%20****%20****%22%2C%22styles%22%3A%7B%22.valid%22%3A%7B%22color%22%3A%22green%22%7D%2C%22.invalid%22%3A%7B%22color%22%3A%22red%22%7D%7D%7D"></iframe></div>
+                            <div class="tpfield" id="card-number"></div>
                         </div>
                     </div>
                     <div class="field">
                         <label class="field__name" for="expire">有效期限</label>
                         <div class="field__input">
-                            <div class="tpfield" id="card-expiration-date"><iframe frameborder="0" allowtransparency="true" scrolling="no" style="border: none; width: 100%; height: 100%; float: left;" src="https://js.tappaysdk.com/tpdirect/v5.5.0/tappay-field/html?%7B%22origin%22%3A%22https%3A%2F%2Fapi.appworks-school.tw%22%2C%22type%22%3A%22expiration-date%22%2C%22placeholder%22%3A%22MM%20%2F%20YY%22%2C%22styles%22%3A%7B%22.valid%22%3A%7B%22color%22%3A%22green%22%7D%2C%22.invalid%22%3A%7B%22color%22%3A%22red%22%7D%7D%7D"></iframe></div>
+                            <div class="tpfield" id="card-expiration-date"></div>
                         </div>
                     </div>
                     <div class="field">
                         <label class="field__name" for="ccv">安全碼</label>
                         <div class="field__input">
-                            <div class="tpfield" id="card-ccv"><iframe frameborder="0" allowtransparency="true" scrolling="no" style="border: none; width: 100%; height: 100%; float: left;" src="https://js.tappaysdk.com/tpdirect/v5.5.0/tappay-field/html?%7B%22origin%22%3A%22https%3A%2F%2Fapi.appworks-school.tw%22%2C%22type%22%3A%22ccv%22%2C%22placeholder%22%3A%22%E5%BE%8C%E4%B8%89%E7%A2%BC%22%2C%22styles%22%3A%7B%22.valid%22%3A%7B%22color%22%3A%22green%22%7D%2C%22.invalid%22%3A%7B%22color%22%3A%22red%22%7D%7D%7D"></iframe></div>
+                            <div class="tpfield" id="card-ccv"></div>
                         </div>
                     </div>
                 </div>
@@ -145,5 +147,67 @@
             </div>
         </footer>
         <script type="text/javascript" src="./script/cart.js"></script>
+        <script>
+            TPDirect.setupSDK(12348, "app_pa1pQcKoY22IlnSXq5m5WP5jFKzoRG58VEXpT7wU62ud7mMbDOGzCYIlzzLF", "sandbox");
+            // Display ccv field
+            let fields = {
+                number: {
+                        // css selector
+                        element: '#card-number',
+                        placeholder: '**** **** **** ****'
+                    },
+                    expirationDate: {
+                        // DOM object
+                        element: document.getElementById('card-expiration-date'),
+                        placeholder: 'MM / YY'
+                    },
+                    ccv: {
+                        element: '#card-ccv',
+                        placeholder: 'ccv'
+                    }
+                }        
+
+            TPDirect.card.setup({
+                fields: fields,
+                styles: {
+                    // Style all elements
+                    'input': {
+                        'color': 'gray'
+                    },
+                    // Styling ccv field
+                    'input.ccv': {
+                        // 'font-size': '16px'
+                    },
+                    // Styling expiration-date field
+                    'input.expiration-date': {
+                        // 'font-size': '16px'
+                    },
+                    // Styling card-number field
+                    'input.card-number': {
+                        // 'font-size': '16px'
+                    },
+                    // style focus state
+                    ':focus': {
+                        // 'color': 'black'
+                    },
+                    // style valid state
+                    '.valid': {
+                        'color': 'green'
+                    },
+                    // style invalid state
+                    '.invalid': {
+                        'color': 'red'
+                    },
+                    // Media queries
+                    // Note that these apply to the iframe, not the root window.
+                    '@media screen and (max-width: 400px)': {
+                        'input': {
+                            'color': 'orange'
+                        }
+                    }
+                }
+            })
+
+        </script>
     </body>
 </html>

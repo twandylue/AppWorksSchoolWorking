@@ -268,6 +268,9 @@ function createJWT (payload) {
 }
 
 function checkJWT (encryptedToken) {
+    if (encryptedToken === undefined) {
+        return (0);
+    }
     encryptedToken = encryptedToken.split(" ")[1];
     const decryptJWT = jwt.decode(encryptedToken, secretkey);
     if (decryptJWT) {
