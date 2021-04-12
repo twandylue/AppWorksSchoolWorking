@@ -8,10 +8,10 @@ xhr.onreadystatechange = function () {
             // console.log("number: ");
             // console.log(number);
             const resetCart = [];
-            // localStorage.setItem("cart", resetCart); // reset cart
+            localStorage.setItem("cart", resetCart); // reset cart
             updateCartNumber();
             const orderID = document.querySelector("#number");
-            orderID.innerHTML = number; // not finished
+            orderID.innerHTML = number;
         } else {
             alert(xhr.status);
         }
