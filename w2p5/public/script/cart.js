@@ -118,6 +118,7 @@ xhr.onreadystatechange = function () {
                     }
                     localStorage.setItem("cart", JSON.stringify(newArr));
 
+                    alert("移除該項商品!");
                     // update cart number
                     updateCartNumber();
                     // update subtotal
@@ -200,7 +201,7 @@ xhr.onreadystatechange = function () {
 
                                 function getPrime (data) {
                                     return new Promise((resolve, reject) => {
-                                    // eslint-disable-next-line no-undef
+                                        // eslint-disable-next-line no-undef
                                         TPDirect.card.getPrime(function (result) {
                                             if (result.status !== 0) {
                                                 alert("get prime error " + result.msg);
@@ -231,16 +232,14 @@ xhr.onreadystatechange = function () {
                                     checkoutXhr.onreadystatechange = function () {
                                         if (checkoutXhr.readyState === 4) {
                                             if (checkoutXhr.status === 200) {
-                                                // do something
                                                 const response = JSON.parse(checkoutXhr.responseText);
-                                                console.log("order ID: ");
-                                                console.log(response.data.number); // orderID
+                                                // console.log("order ID: ");
+                                                // console.log(response.data.number); // orderID
 
                                                 const thankyouXhr = new XMLHttpRequest();
                                                 thankyouXhr.onreadystatechange = function () {
                                                     if (thankyouXhr.readyState === 4) {
                                                         if (thankyouXhr.status === 200) {
-                                                            // do something
                                                             window.location.href = `/thankyou.html?number=${response.data.number}`;
                                                         } else {
                                                             alert(thankyouXhr.status);
@@ -267,7 +266,7 @@ xhr.onreadystatechange = function () {
                 };
                 signXhr.open("GET", "http://localhost:3000/api/1.0/user/profile"); // for local test
                 // signXhr.open("GET", `http://35.73.76.64/api/${process.env.API_VERSION}/user/profile`); // for EC2
-                signXhr.setRequestHeader("Content-Type", "application/json"); // signin or signup
+                signXhr.setRequestHeader("Content-Type", "application/json");
                 const accessToken = localStorage.getItem("access_token");
                 signXhr.setRequestHeader("Authorization", "bearer " + accessToken);
                 signXhr.send();
@@ -278,8 +277,8 @@ xhr.onreadystatechange = function () {
     };
 };
 
-xhr.open("GET", "http://localhost:3000/");
-// xhr.open("GET", `http://35.73.76.64/api/1.0/products/details?id=${id}`); // for EC2
+xhr.open("GET", "http://localhost:3000/"); // for test
+// xhr.open("GET", "http://35.73.76.64/"); // for EC2
 xhr.send();
 
 function updateCartNumber () {

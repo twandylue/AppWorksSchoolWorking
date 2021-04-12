@@ -5,13 +5,12 @@ const xhr = new XMLHttpRequest();
 xhr.onreadystatechange = function () {
     if (xhr.readyState === 4) {
         if (xhr.status === 200) {
-            console.log("number: ");
-            console.log(number);
+            // console.log("number: ");
+            // console.log(number);
             const resetCart = [];
             // localStorage.setItem("cart", resetCart); // reset cart
             updateCartNumber();
             const orderID = document.querySelector("#number");
-            console.log(orderID);
             orderID.innerHTML = number; // not finished
         } else {
             alert(xhr.status);
@@ -19,6 +18,7 @@ xhr.onreadystatechange = function () {
     }
 };
 xhr.open("GET", "http://localhost:3000/"); // for test
+// xhr.open("GET", "http://35.73.76.64/"); // for EC2
 xhr.send();
 
 function updateCartNumber () {

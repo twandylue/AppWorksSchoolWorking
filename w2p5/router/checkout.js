@@ -29,7 +29,6 @@ router.post("/order/checkout", (req, res) => {
         // from front-end
         orderData = JSON.parse(req.body);
     }
-    console.log(orderData);
 
     async function orderInsertMysql () {
         const { shipping, payment, subtotal, freight, total } = orderData.order;

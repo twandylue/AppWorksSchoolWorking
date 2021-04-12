@@ -87,8 +87,8 @@
                                 if (toNewPage.readyState === 4 && toNewPage.status === 200) {
                                         const codition = JSON.parse(toNewPage.responseText);
                                         if (codition.userPass === 1) {
-                                            alert("登入/註冊成功! 轉跳至購物車");
-                                            window.location.href = "/cart.html";
+                                            alert("登入/註冊成功! 轉跳至首頁");
+                                            window.location.href = "/";
                                         }
                                     }                      
                                 }

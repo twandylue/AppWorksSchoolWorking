@@ -21,7 +21,6 @@ router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
 router.use(bodyParser.text());
 router.use(cookieParser());
-// router.use(express.static('public')); // 可能會有問題
 
 router.post("/user/signup", (req, res) => {
     let userdata = {};
@@ -126,19 +125,14 @@ router.get("/user/profile", (req, res) => {
     const info = {};
 
     const encryptedToken = req.headers.authorization;
-    console.log(encryptedToken);
     const JWTtoken = checkJWT(encryptedToken);
     if (JWTtoken === 1) {
-        // res.redirect(`./api/${process.env.API_VERSION}/user/signup`); // or signin
         res.send(JWTtoken.toString());
         return;
     } else if (JWTtoken === 2) {
-        // res.redirect(`./api/${process.env.API_VERSION}/user/signup`); // or signin
         res.send(JWTtoken.toString());
         return;
     } else if (JWTtoken === 0) {
-        // console.log("undefined");
-        // res.redirect("/admin/sign.html"); // 可能會有問題 路徑上 日後須注意
         res.send(JWTtoken.toString());
         return;
     } else {

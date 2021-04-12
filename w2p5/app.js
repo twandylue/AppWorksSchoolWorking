@@ -25,6 +25,7 @@ function DBConnection () {
     // MySQL Connect test
     db.connect((err) => {
         if (err) throw err;
+        // eslint-disable-next-line no-console
         console.log("MySQL connected!");
     });
     return db;
@@ -123,6 +124,12 @@ app.get("/thankyou.html", (req, res) => {
     res.sendFile(path.join(__dirname + "/public/thankyou.html"));
 });
 
+// w2p5 member.html
+app.get("/member.html", (req, res) => {
+    // eslint-disable-next-line node/no-path-concat
+    res.sendFile(path.join(__dirname + "/public/member.html"));
+});
+
 // ===response message===
 app.get("/response-message/products-upload-success", (req, res) => {
     res.render("info_products");
@@ -144,5 +151,6 @@ app.get("/test", (req, res) => {
 
 // 設置port:3000的server
 app.listen(3000, () => {
+    // eslint-disable-next-line no-console
     console.log("running...");
 });

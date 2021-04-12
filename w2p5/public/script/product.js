@@ -220,6 +220,7 @@ xhr.onreadystatechange = function () {
                 const quantity = document.querySelector("#quantity");
 
                 if (color && size && quantity !== null) {
+                    alert("加入購物車!");
                     let colorToCart = color.style.backgroundColor;
                     const sizeCart = size.innerHTML;
                     const quantityCart = quantity.innerHTML;
