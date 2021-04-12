@@ -22,15 +22,19 @@ xhr.open("GET", "http://35.73.76.64/"); // for EC2
 xhr.send();
 
 function updateCartNumber () {
-    const variantsNumber = JSON.parse(localStorage.getItem("cart"));
     const cartNumber = document.querySelector("#cart_number");
     const cartNumberTitle = document.querySelector("#title");
-    if (variantsNumber == null) {
-        cartNumber.innerHTML = 0;
-    } else {
-        cartNumber.innerHTML = variantsNumber.length;
-        if (cartNumberTitle !== null) {
-            cartNumberTitle.innerHTML = "購物車(" + variantsNumber.length + ")";
+    if (localStorage.getItem("cart")) {
+        const variantsNumber = JSON.parse(localStorage.getItem("cart"));
+        if (variantsNumber == null) {
+            cartNumber.innerHTML = 0;
+        } else {
+            cartNumber.innerHTML = variantsNumber.length;
+            if (cartNumberTitle !== null) {
+                cartNumberTitle.innerHTML = "購物車(" + variantsNumber.length + ")";
+            }
         }
+    } else {
+        cartNumber.innerHTML = 0;
     }
 }
