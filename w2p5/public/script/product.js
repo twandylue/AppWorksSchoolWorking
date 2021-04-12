@@ -9,14 +9,7 @@ xhr.onreadystatechange = function () {
             console.log(response);
             const { data } = response;
             async function detailUpload () {
-                // update cart number
-                const variantsNumber = JSON.parse(localStorage.getItem("cart"));
-                const cartNumber = document.querySelector("#cart_number");
-                if (variantsNumber == null) {
-                    cartNumber.innerHTML = 0;
-                } else {
-                    cartNumber.innerHTML = variantsNumber.length;
-                }
+                updateCartNumber(); // update cart number
 
                 const Product = document.getElementById("product");
                 const mainImage = document.createElement("img");
@@ -315,4 +308,22 @@ function rgbSplit (rgbString) {
     const regexpString = rgbString.replace(/[^0-9,]*/g, "");
     const arr = regexpString.split(",");
     return (arr);
+}
+
+function updateCartNumber () {
+    const cartNumber = document.querySelector("#cart_number");
+    const cartNumberTitle = document.querySelector("#title");
+    if (localStorage.getItem("cart")) {
+        const variantsNumber = JSON.parse(localStorage.getItem("cart"));
+        if (variantsNumber == null) {
+            cartNumber.innerHTML = 0;
+        } else {
+            cartNumber.innerHTML = variantsNumber.length;
+            if (cartNumberTitle !== null) {
+                cartNumberTitle.innerHTML = "購物車(" + variantsNumber.length + ")";
+            }
+        }
+    } else {
+        cartNumber.innerHTML = 0;
+    }
 }

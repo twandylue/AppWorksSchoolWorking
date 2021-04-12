@@ -3,14 +3,7 @@ const paging = 0;
 xhr.onreadystatechange = function () {
     if (xhr.readyState === 4) {
         if (xhr.status === 200) {
-            // reset cart number
-            const variantsNumber = JSON.parse(localStorage.getItem("cart"));
-            const cartNumber = document.querySelector("#cart_number");
-            if (variantsNumber === null) {
-                cartNumber.innerHTML = 0;
-            } else {
-                cartNumber.innerHTML = variantsNumber.length;
-            }
+            updateCartNumber(); // reset cart number
 
             const response = JSON.parse(xhr.responseText);
             const allProducts = document.getElementById("all_products");
@@ -57,3 +50,21 @@ xhr.onreadystatechange = function () {
 // xhr.open("GET", `http://localhost:3000/api/1.0/products/all?paging=${paging}`); // for test
 xhr.open("GET", `http://35.73.76.64/api/1.0/products/all?paging=${paging}`); // for EC2
 xhr.send();
+
+function updateCartNumber () {
+    const cartNumber = document.querySelector("#cart_number");
+    const cartNumberTitle = document.querySelector("#title");
+    if (localStorage.getItem("cart")) {
+        const variantsNumber = JSON.parse(localStorage.getItem("cart"));
+        if (variantsNumber == null) {
+            cartNumber.innerHTML = 0;
+        } else {
+            cartNumber.innerHTML = variantsNumber.length;
+            if (cartNumberTitle !== null) {
+                cartNumberTitle.innerHTML = "購物車(" + variantsNumber.length + ")";
+            }
+        }
+    } else {
+        cartNumber.innerHTML = 0;
+    }
+}

@@ -9,7 +9,7 @@ xhr.onreadystatechange = function () {
             // console.log(number);
             const resetCart = [];
             localStorage.setItem("cart", resetCart); // reset cart
-            updateCartNumber();
+            updateCartNumber(); // reset cart number
             const orderID = document.querySelector("#number");
             orderID.innerHTML = number;
         } else {
@@ -17,8 +17,8 @@ xhr.onreadystatechange = function () {
         }
     }
 };
-// xhr.open("GET", "http://localhost:3000/"); // for test
-xhr.open("GET", "http://35.73.76.64/"); // for EC2
+xhr.open("GET", "http://localhost:3000/"); // for test
+// xhr.open("GET", "http://35.73.76.64/"); // for EC2
 xhr.send();
 
 function updateCartNumber () {
