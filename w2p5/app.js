@@ -120,6 +120,12 @@ app.get("/member.html", (req, res) => {
     res.sendFile(path.join(__dirname + "/public/member.html"));
 });
 
+// w2p5 profile.html for robot checkout
+app.get("/profile.html", (req, res) => {
+    // eslint-disable-next-line node/no-path-concat
+    res.sendFile(path.join(__dirname + "/public/member.html"));
+});
+
 // ===response message===
 app.get("/response-message/products-upload-success", (req, res) => {
     res.render("info_products");
