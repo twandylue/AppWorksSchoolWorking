@@ -3,6 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
+const redis = require("redis");
 require("dotenv").config({ path: process.cwd() + "/DOTENV/config.env" });
 
 // set storage engine
@@ -20,6 +21,12 @@ const storageEng = multer.diskStorage({
 const upload = multer({
     storage: storageEng
 });
+
+// redis port setting
+const REDISPORT = process.env.REDIS_PORT || 6379;
+
+// create redis client
+const client = redis.createClient(REDISPORT);
 
 // Router setting
 const router = express.Router();
@@ -63,6 +70,7 @@ router.post("/admin/upload", upload.fields(fields), (req, res) => {
     console.log(upload);
     console.log(req.files);
     uploadMain(req, upload).then(() => { // 應該把只用到一次的function移進此js內
+        client.flushAll(); // clear all cache
         res.redirect("/response-message/products-upload-success");
     });
 });
