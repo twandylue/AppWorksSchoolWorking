@@ -17,8 +17,8 @@ xhr.onreadystatechange = function () {
         }
     }
 };
-xhr.open("GET", "http://localhost:3000/"); // for local test
-// xhr.open("GET", "http://35.73.76.64/"); // for EC2
+// xhr.open("GET", "http://localhost:3000/"); // for local test
+xhr.open("GET", "http://35.73.76.64/"); // for EC2
 xhr.send();
 
 function updateCartNumber () {

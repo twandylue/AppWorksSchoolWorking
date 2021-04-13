@@ -80,8 +80,8 @@ router.post("/admin/campaign_upload", upload.fields(fieldsCampaign), (req, res) 
 router.get("/marketing/campaigns", (req, res) => {
     async function qureyCampaign (sqlSelect, sqlCount, queryPage) {
         const ip = getIP(req).clientIp;
-        const N = 10; // click times
-        const M = 10; // expired second
+        const N = parseInt(process.env.N); // click times
+        const M = parseInt(process.env.M); // expired second
         checkVisit(ip, M);
         const visitTimes = await getCache(ip);
         if (JSON.parse(visitTimes) > N) {

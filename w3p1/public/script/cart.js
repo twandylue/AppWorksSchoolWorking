@@ -246,16 +246,16 @@ xhr.onreadystatechange = function () {
                                                         }
                                                     }
                                                 };
-                                                thankyouXhr.open("GET", `http://localhost:3000/thankyou.html?number=${response.data.number}`); // for test
-                                                // thankyouXhr.open("GET", `http://35.73.76.64/thankyou.html?number=${response.data.number}`); // for EC2
+                                                // thankyouXhr.open("GET", `http://localhost:3000/thankyou.html?number=${response.data.number}`); // for test
+                                                thankyouXhr.open("GET", `http://35.73.76.64/thankyou.html?number=${response.data.number}`); // for EC2
                                                 thankyouXhr.send();
                                             } else {
                                                 alert(xhr.status);
                                             }
                                         }
                                     };
-                                    checkoutXhr.open("POST", "http://localhost:3000/api/1.0/order/checkout"); // for test
-                                    // checkoutXhr.open("POST", "http://35.73.76.64/api/1.0/order/checkout"); // for EC2
+                                    // checkoutXhr.open("POST", "http://localhost:3000/api/1.0/order/checkout"); // for test
+                                    checkoutXhr.open("POST", "http://35.73.76.64/api/1.0/order/checkout"); // for EC2
                                     checkoutXhr.send(dataString);
                                 });
                             }
@@ -264,8 +264,8 @@ xhr.onreadystatechange = function () {
                         }
                     }
                 };
-                signXhr.open("GET", "http://localhost:3000/api/1.0/user/profile"); // for local test
-                // signXhr.open("GET", "http://35.73.76.64/api/1.0/user/profile"); // for EC2
+                // signXhr.open("GET", "http://localhost:3000/api/1.0/user/profile"); // for local test
+                signXhr.open("GET", "http://35.73.76.64/api/1.0/user/profile"); // for EC2
                 signXhr.setRequestHeader("Content-Type", "application/json");
                 const accessToken = localStorage.getItem("access_token");
                 signXhr.setRequestHeader("Authorization", "bearer " + accessToken);
@@ -277,8 +277,8 @@ xhr.onreadystatechange = function () {
     };
 };
 
-xhr.open("GET", "http://localhost:3000/"); // for local test
-// xhr.open("GET", "http://35.73.76.64/"); // for EC2
+// xhr.open("GET", "http://localhost:3000/"); // for local test
+xhr.open("GET", "http://35.73.76.64/"); // for EC2
 xhr.send();
 
 function updateCartNumber () {
