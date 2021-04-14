@@ -1,31 +1,14 @@
 updateCartNumber();
+toProfile("請先登入");
 
-const xhr = new XMLHttpRequest();
-xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4 && xhr.status === 200) {
-        // do something
-        const userInfo = JSON.parse(xhr.responseText);
-        if (parseInt(userInfo) === 1) {
-            alert("請先登入");
-            window.location.href = "/admin/sign.html";
-        } else if (parseInt(userInfo) === 2) {
-            alert("登入驗證過期 請重新登入");
-            window.location.href = "/admin/sign.html";
-        } else if (parseInt(userInfo) === 0) {
-            alert("請註冊後再購買");
-            window.location.href = "/admin/sign.html";
-        } else {
-            const member = document.querySelector(".member__detail");
-            member.innerHTML = "<h3>姓名: " + userInfo.data.name + "</h3><br><h3>email: " + userInfo.data.email + "</h3>";
-        }
-    }
-};
-// xhr.open("GET", "http://localhost:3000/api/1.0/user/profile"); // for local test
-xhr.open("GET", "http://35.73.76.64/api/1.0/user/profile"); // for local test
-xhr.setRequestHeader("Content-Type", "application/json");
-const accessToken = localStorage.getItem("access_token");
-xhr.setRequestHeader("Authorization", "bearer " + accessToken);
-xhr.send();
+const signout = document.querySelector("#signout");
+signout.addEventListener("click", (event) => {
+    localStorage.removeItem("access_token");
+    toProfile("BYE!");
+});
+
+// const uploadProducts = document.querySelector("#upload__Products")
+// uploadProducts.addEventListener
 
 function updateCartNumber () {
     const cartNumber = document.querySelector("#cart_number");
@@ -41,6 +24,48 @@ function updateCartNumber () {
             }
         }
     } else {
+        const cartInit = [];
+        localStorage.setItem("cart", JSON.stringify(cartInit)); // initialize cart
         cartNumber.innerHTML = 0;
     }
+}
+
+function toProfile (message) {
+    const xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            const userInfo = JSON.parse(xhr.responseText);
+            console.log(userInfo.userType); //
+            if (parseInt(userInfo) === 1) {
+                alert(message);
+                window.location.href = "/admin/sign.html";
+            } else if (parseInt(userInfo) === 2) {
+                alert("登入驗證過期 請重新登入");
+                window.location.href = "/admin/sign.html";
+            } else if (parseInt(userInfo) === 0) {
+                alert("請註冊後再購買");
+                window.location.href = "/admin/sign.html";
+            } else if (userInfo.userType === "admin") {
+                const productsUpload = document.querySelector("#upload__Products");
+                productsUpload.style = "show";
+                const campaignsUpload = document.querySelector("#upload__Campaigns");
+                campaignsUpload.style = "show";
+                const member = document.querySelector(".member__detail");
+                member.innerHTML = "<h3>姓名: " + userInfo.data.name + "</h3><br><h3>email: " + userInfo.data.email + "</h3>";
+                const welcome = document.querySelector("#welcome");
+                welcome.innerHTML = "歡迎! <strong>管理者</strong>: " + userInfo.data.name;
+            } else {
+                const member = document.querySelector(".member__detail");
+                member.innerHTML = "<h3>姓名: " + userInfo.data.name + "</h3><br><h3>email: " + userInfo.data.email + "</h3>";
+                const welcome = document.querySelector("#welcome");
+                welcome.innerHTML = "歡迎! 使用者: " + userInfo.data.name;
+            }
+        }
+    };
+    xhr.open("GET", "http://localhost:3000/api/1.0/user/profile"); // for local test
+    // xhr.open("GET", "http://35.73.76.64/api/1.0/user/profile"); // for EC2
+    xhr.setRequestHeader("Content-Type", "application/json");
+    const accessToken = localStorage.getItem("access_token");
+    xhr.setRequestHeader("Authorization", "bearer " + accessToken);
+    xhr.send();
 }

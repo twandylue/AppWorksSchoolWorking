@@ -1,25 +1,11 @@
 const queryParamsString = window.location.search;
 const number = queryParamsString.split("=")[1];
 
-const xhr = new XMLHttpRequest();
-xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-            // console.log("number: ");
-            // console.log(number);
-            const resetCart = [];
-            localStorage.setItem("cart", JSON.stringify(resetCart)); // reset cart
-            updateCartNumber(); // reset cart number
-            const orderID = document.querySelector("#number");
-            orderID.innerHTML = number;
-        } else {
-            alert(xhr.status);
-        }
-    }
-};
-// xhr.open("GET", "http://localhost:3000/"); // for local test
-xhr.open("GET", "http://35.73.76.64/"); // for EC2
-xhr.send();
+const resetCart = [];
+localStorage.setItem("cart", JSON.stringify(resetCart)); // reset cart
+updateCartNumber(); // reset cart number
+const orderID = document.querySelector("#number");
+orderID.innerHTML = number;
 
 function updateCartNumber () {
     const cartNumber = document.querySelector("#cart_number");
@@ -35,6 +21,8 @@ function updateCartNumber () {
             }
         }
     } else {
+        const cartInit = [];
+        localStorage.setItem("cart", JSON.stringify(cartInit)); // initialize cart
         cartNumber.innerHTML = 0;
     }
 }

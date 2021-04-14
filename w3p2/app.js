@@ -61,6 +61,8 @@ app.use(`/api/${process.env.API_VERSION}`, apiRouteSign);
 // w1p5
 const apiRouterCampaign = require("./router/campaign").router;
 app.use(`/api/${process.env.API_VERSION}`, apiRouterCampaign);
+const apiRouterCampaignUpload = require("./router/campaign_upload").router;
+app.use(`/api/${process.env.API_VERSION}`, apiRouterCampaignUpload);
 
 // w2p2 checkout
 const apiRouteCheckout = require("./router/checkout").router;
@@ -69,7 +71,16 @@ app.use(`/api/${process.env.API_VERSION}`, apiRouteCheckout);
 // ===provide html or pug===
 // w0p3 products upload form
 app.get("/admin/product.html", (req, res) => {
-    res.render("product");
+    // res.render("product");
+    const encryptedToken = req.headers.authorization;
+    const JWTtoken = checkJWT(encryptedToken);
+    if (JWTtoken.userType === "admin") {
+        // eslint-disable-next-line node/no-path-concat
+        res.sendFile(path.join(__dirname + "/public/product_upload.html"));
+    } else {
+        // eslint-disable-next-line node/no-path-concat
+        res.sendFile(path.join(__dirname + "/public/checkUserTypeProduct.html"));
+    }
 });
 
 // w1p4 signin and signup
@@ -78,10 +89,19 @@ app.get("/admin/sign.html", (req, res) => {
     res.sendFile(path.join(__dirname + "/public/sign.html"));
 });
 
-// w1p5 campaign
+// w1p5 campaign upload form
 app.get("/admin/campaign.html", (req, res) => {
     // console.log('check campaign_upload_page'); // check Arthur robot.
-    res.render("campaign_upload_page");
+    // res.render("campaign_upload_page");
+    const encryptedToken = req.headers.authorization;
+    const JWTtoken = checkJWT(encryptedToken);
+    if (JWTtoken.userType === "admin") {
+        // eslint-disable-next-line node/no-path-concat
+        res.sendFile(path.join(__dirname + "/public/campaign_upload.html"));
+    } else {
+        // eslint-disable-next-line node/no-path-concat
+        res.sendFile(path.join(__dirname + "/public/checkUserTypeCampaign.html"));
+    }
 });
 
 // w2p1 checkout.html
@@ -143,6 +163,7 @@ app.get("/", (req, res) => {
 app.get("/test", (req, res) => {
     // check_jwt('test'); // return null
     // check_jwt('headers 123456');
+    res.send("1");
 });
 
 // 設置port:3000的server
@@ -150,3 +171,23 @@ app.listen(3000, () => {
     // eslint-disable-next-line no-console
     console.log("running...");
 });
+
+const jwt = require("jsonwebtoken");
+const secretkey = process.env.JWT_KEY;
+function checkJWT (encryptedToken) {
+    if (encryptedToken === undefined) {
+        return (0);
+    }
+    encryptedToken = encryptedToken.split(" ")[1];
+
+    const decryptJWT = jwt.decode(encryptedToken, secretkey);
+    if (decryptJWT) {
+        return (decryptJWT);
+    } else if (decryptJWT === null) {
+        console.log("Token is wrong");
+        return (1);
+    } else if (Date.now() > decryptJWT.exp * 1000) {
+        console.log("Token expired!");
+        return (2);
+    }
+}

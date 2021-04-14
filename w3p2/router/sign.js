@@ -89,7 +89,7 @@ router.post("/user/signin", (req, res) => {
             const jtw = await createJWT(payload);
 
             responseResult = responseConsist(jtw.token, jtw.expired, userInfo.id, singinData.provider, userInfo.name, userInfo.email, userInfo.picture.data.url);
-            console.log(responseResult); // checkout Arthur's robot info
+            // console.log(responseResult); // checkout Arthur's robot info
             return JSON.stringify(responseResult);
         }
 
@@ -99,7 +99,7 @@ router.post("/user/signin", (req, res) => {
         const result = await bcrypt.compare(singinData.password, sqlresult[0].password);
         if (result) {
             // jwt token
-            const payload = { name: sqlresult[0].name, email: singinData.email };
+            const payload = { name: sqlresult[0].name, email: singinData.email, userType: sqlresult[0].userType };
             const jtw = await createJWT(payload);
 
             // 如果前端輸入時沒有提供provider? 會有bug
@@ -126,13 +126,14 @@ router.get("/user/profile", (req, res) => {
 
     const encryptedToken = req.headers.authorization;
     const JWTtoken = checkJWT(encryptedToken);
-    if (JWTtoken === 1) {
+    // console.log(JWTtoken);
+    if (JWTtoken === 1) { // Token is wrong
         res.send(JWTtoken.toString());
         return;
-    } else if (JWTtoken === 2) {
+    } else if (JWTtoken === 2) { // Token expired!
         res.send(JWTtoken.toString());
         return;
-    } else if (JWTtoken === 0) {
+    } else if (JWTtoken === 0) { // undefined (not signin)
         res.send(JWTtoken.toString());
         return;
     } else {
@@ -152,16 +153,18 @@ router.get("/user/profile", (req, res) => {
         responseResult.data = info;
         // console.log(responseResult); // checkout Arthur's robot info
 
-        async function saveUserInfo () {
+        async function checkUserInfo () {
             const sql = `SELECT * FROM stylish.user_info_table WHERE email = '${JWTtoken.email}';`;
             const sqlresponse = await callSQL(req, sql);
             return (sqlresponse);
         }
-        saveUserInfo().then((result) => {
+        checkUserInfo().then((result) => {
             if (result.length >= 1) {
                 console.log("註冊/登入成功!"); // ready to redirect
                 responseResult.message = "註冊/登入成功!";
-                responseResult.userPass = 1;
+                responseResult.userType = JWTtoken.userType;
+                responseResult.userPass = "pass";
+                responseResult.token = encryptedToken.split(" ")[1];
                 // console.log(responseResult); //  check robot
                 res.send(JSON.stringify(responseResult));
             }

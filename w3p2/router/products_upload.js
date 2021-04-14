@@ -70,7 +70,7 @@ router.post("/admin/upload", upload.fields(fields), (req, res) => {
     console.log(upload);
     console.log(req.files);
     uploadMain(req, upload).then(() => { // 應該把只用到一次的function移進此js內
-        client.flushAll(); // clear all cache
+        client.flushdb(); // clear all cache
         res.redirect("/response-message/products-upload-success");
     });
 });
