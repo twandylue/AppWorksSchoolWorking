@@ -4,8 +4,6 @@ toProfile("請先登入");
 const signout = document.querySelector("#signout");
 signout.addEventListener("click", (event) => {
     localStorage.removeItem("access_token");
-    // const newCart = [];
-    // localStorage.setItem("cart", JSON.stringify(newCart));
     localStorage.removeItem("cart");
     localStorage.removeItem("variants");
     toProfile("BYE!");
