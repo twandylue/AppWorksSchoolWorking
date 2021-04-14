@@ -39,7 +39,7 @@ xhr.onreadystatechange = function () {
         }
     }
 };
-xhr.open("GET", "http://localhost:3000/api/1.0/user/profile"); // for local test
+xhr.open("GET", "/api/1.0/user/profile"); // for local test and EC2
 // xhr.open("GET", "http://35.73.76.64/api/1.0/user/profile"); // for EC2
 const accessToken = localStorage.getItem("access_token");
 xhr.setRequestHeader("Authorization", "bearer " + accessToken);

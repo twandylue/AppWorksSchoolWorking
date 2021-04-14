@@ -242,7 +242,7 @@ checkout.addEventListener("click", (event) => {
                                             }
                                         }
                                     };
-                                    thankyouXhr.open("GET", `http://localhost:3000/thankyou.html?number=${response.data.number}`); // for local test
+                                    thankyouXhr.open("GET", `/thankyou.html?number=${response.data.number}`); // for local test and EC2
                                     // thankyouXhr.open("GET", `http://35.73.76.64/thankyou.html?number=${response.data.number}`); // for EC2
                                     thankyouXhr.send();
                                 } else {
@@ -250,7 +250,7 @@ checkout.addEventListener("click", (event) => {
                                 }
                             }
                         };
-                        checkoutXhr.open("POST", "http://localhost:3000/api/1.0/order/checkout"); // for local test
+                        checkoutXhr.open("POST", "/api/1.0/order/checkout"); // // for local test and EC2
                         // checkoutXhr.open("POST", "http://35.73.76.64/api/1.0/order/checkout"); // for EC2
                         checkoutXhr.send(dataString);
                     });
@@ -260,7 +260,7 @@ checkout.addEventListener("click", (event) => {
             }
         }
     };
-    signXhr.open("GET", "http://localhost:3000/api/1.0/user/profile"); // for local test
+    signXhr.open("GET", "/api/1.0/user/profile"); // for // for local test and EC2
     // signXhr.open("GET", "http://35.73.76.64/api/1.0/user/profile"); // for EC2
     signXhr.setRequestHeader("Content-Type", "application/json");
     const accessToken = localStorage.getItem("access_token");

@@ -4,11 +4,12 @@ toProfile("請先登入");
 const signout = document.querySelector("#signout");
 signout.addEventListener("click", (event) => {
     localStorage.removeItem("access_token");
+    // const newCart = [];
+    // localStorage.setItem("cart", JSON.stringify(newCart));
+    localStorage.removeItem("cart");
+    localStorage.removeItem("variants");
     toProfile("BYE!");
 });
-
-// const uploadProducts = document.querySelector("#upload__Products")
-// uploadProducts.addEventListener
 
 function updateCartNumber () {
     const cartNumber = document.querySelector("#cart_number");
@@ -62,7 +63,7 @@ function toProfile (message) {
             }
         }
     };
-    xhr.open("GET", "http://localhost:3000/api/1.0/user/profile"); // for local test
+    xhr.open("GET", "/api/1.0/user/profile"); // for local test and EC2
     // xhr.open("GET", "http://35.73.76.64/api/1.0/user/profile"); // for EC2
     xhr.setRequestHeader("Content-Type", "application/json");
     const accessToken = localStorage.getItem("access_token");

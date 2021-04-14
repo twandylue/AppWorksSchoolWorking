@@ -266,7 +266,7 @@ xhr.onreadystatechange = function () {
         };
     };
 };
-xhr.open("GET", `http://localhost:3000/api/1.0/products/details?id=${id}`); // for local test
+xhr.open("GET", `/api/1.0/products/details?id=${id}`); // for local test and EC2
 // xhr.open("GET", `http://35.73.76.64/api/1.0/products/details?id=${id}`); // for EC2
 xhr.send();
 
