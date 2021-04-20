@@ -1,5 +1,4 @@
 const express = require("express");
-const promisify = require("util").promisify;
 
 const app = express();
 
