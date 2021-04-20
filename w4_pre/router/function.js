@@ -130,7 +130,7 @@ async function queryMain (req, sqlSelect, sqlCount, queryPage) {
     }
 }
 
-// for w0p3
+// for w0p3 // modify
 function makeSQL (req, sqlCheck, sql) {
     const sqlReturn = new Promise(function (resolve, reject) {
         req.app.get("db").query(sqlCheck, (err, result) => {
@@ -151,6 +151,7 @@ function makeSQL (req, sqlCheck, sql) {
     return sqlReturn;
 }
 
+// modify
 function makeMultiSQL (req, sqlCheck, multiSQL) {
     const sqlReturn = new Promise(function (resolve, reject) {
         req.app.get("db").query(sqlCheck, (err, result) => {
@@ -169,7 +170,7 @@ function makeMultiSQL (req, sqlCheck, multiSQL) {
     return sqlReturn;
 }
 
-// for w1p1 and w1p2 and w1p5.
+// for w1p1 and w1p2 and w1p5. // modify
 function dbsql (req, sql) {
     const dbReturn = new Promise((resolve, reject) => {
         req.app.get("db").query(sql, (err, result) => {
@@ -204,7 +205,7 @@ function imageURL (url) {
     return newStr;
 }
 
-// for w1p4 to w2p2
+// for w1p4 to w2p2 // modify
 function callSQL (req, sql) {
     return new Promise((resolve, reject) => {
         req.app.get("db").query(sql, (err, result) => {
@@ -224,7 +225,7 @@ function callSQL (req, sql) {
     });
 }
 
-// for w2p1 and w2p2
+// for w2p1 and w2p2 // modify
 function dbSetInsert (req, sql, info) {
     return new Promise((resolve, reject) => {
         req.app.get("db").query(sql, info, (err, result) => {

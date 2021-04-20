@@ -15,20 +15,41 @@ app.use(express.static("public"));
 app.set("view engine", "pug");
 
 // set DB function (global function)
+// function DBConnection () {
+//     const db = mysql.createConnection({
+//         host: process.env.DB_HOST,
+//         user: process.env.DB_USER,
+//         password: process.env.DB_PASSWORD,
+//         database: process.env.DB_DATABASE
+//     });
+//     // MySQL Connect test
+//     db.connect((err) => {
+//         if (err) throw err;
+//         // eslint-disable-next-line no-console
+//         console.log("MySQL connected!");
+//     });
+//     return db;
+// }
+// app.set("db", new DBConnection());
+
+// set DB pool
+
 function DBConnection () {
-    const db = mysql.createConnection({
+    const pool = mysql.createPool({
         host: process.env.DB_HOST,
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
-        database: process.env.DB_DATABASE
+        database: process.env.DB_DATABASE,
+        waitForConnections: true, // 無可用連線時是否等待pool連線釋放(預設為true)
+        connectionLimit: 15 // 連線池可建立的總連線數上限(預設最多為15個連線數)
     });
     // MySQL Connect test
-    db.connect((err) => {
+    pool.getConnection((err) => {
         if (err) throw err;
         // eslint-disable-next-line no-console
-        console.log("MySQL connected!");
+        console.log("MySQL(pool) connected!");
     });
-    return db;
+    return pool;
 }
 app.set("db", new DBConnection());
 
@@ -67,6 +88,10 @@ app.use(`/api/${process.env.API_VERSION}`, apiRouterCampaignUpload);
 // w2p2 checkout
 const apiRouteCheckout = require("./router/checkout").router;
 app.use(`/api/${process.env.API_VERSION}`, apiRouteCheckout);
+
+// w4_pre cal payments info
+const apiRouteCalPaymentInfo = require("./router/paymentInfo").router;
+app.use(`/api/${process.env.API_VERSION}`, apiRouteCalPaymentInfo);
 
 // ===provide html or pug===
 //= ===================================看這邊
@@ -118,6 +143,7 @@ app.get("/admin/checkout.html", (req, res) => {
 app.get(["/", "/index.html"], (req, res) => {
     // eslint-disable-next-line node/no-path-concat
     res.sendFile(path.join(__dirname + "/public/index.html"));
+    console.log("test");
 });
 
 // w2p4 product.html
@@ -160,14 +186,70 @@ app.get("/response-message/campaign-upload-success", (req, res) => {
 });
 
 // ===for test===
-app.get("/", (req, res) => {
-    res.send("<h1>Hello, My Server!</h1>");
-});
+// app.get("/", (req, res) => {
+//     res.send("<h1>Hello, My Server!</h1>");
+// });
 
 app.get("/test", (req, res) => {
-    // check_jwt('test'); // return null
-    // check_jwt('headers 123456');
-    res.send("1");
+    res.send("test");
+
+    // insert data into database
+    async function insertData () {
+        // const sql = "SELECT * FROM stylish.order_table;";
+        // const result = await dbsql(sql);
+        // console.log(result);
+
+        // for (let i = 0; i < 5; i++) {
+        //     // console.log(result[i]);
+        //     const userID = getRandomInt(1, 5);
+        //     const totalPrice = getRandomInt(100, 1000);
+        //     // const subtotal = totalPrice - 60;
+        //     const data = {
+        //         paid: 0,
+        //         shipping: "delivery",
+        //         payment: "credit_card",
+        //         subtotal: totalPrice - 60,
+        //         freight: 60,
+        //         total: totalPrice,
+        //         name: "test",
+        //         phone: "0987654321",
+        //         email: "test@gmail.com",
+        //         address: "市政府站",
+        //         time: "morning",
+        //         user_id: userID
+        //     };
+        //     dataArr.push(data);
+        // }
+        // console.log(dataArr);
+        // const sqlTest = "INSERT INTO stylish.order_table SET ?";
+        // const resultdb = await dbSetInsert(sqlTest, [dataArr]); // wrong 有問題
+        // console.log(resultdb);
+
+        const dataArr = [];
+        for (let i = 0; i < 4500; i++) {
+            const data = [];
+            const paid = getRandomInt(0, 1);
+            const userID = getRandomInt(1, 5);
+            const totalPrice = getRandomInt(100, 1000);
+            const subtotal = totalPrice - 60;
+            data.push(paid, "delivery", "credit_card", subtotal, 60, totalPrice, "test", "0987654321", "test@gmail.com", "市政府站", "morning", userID);
+            dataArr.push(data);
+        }
+        console.log(dataArr);
+        const sqlTest = "INSERT INTO stylish.order_table (paid, shipping, payment, subtotal, freight, total, name, phone, email, address, time, user_id) VALUES ?";
+        const resultdb = await dbSetInsert(sqlTest, [dataArr]);
+        console.log(resultdb);
+
+        // for (let i = 0; i < result.length; i++) {
+        //     const userID = getRandomInt(1, 5);
+        //     const totalPrice = getRandomInt(100, 1000);
+        //     // const sql = `UPDATE stylish.order_table SET user_id=${userID} WHERE order_id= ${result[i].order_id};`;
+        //     // const sql = `UPDATE stylish.order_table SET total= ${totalPrice} WHERE order_id= ${result[i].order_id};`;
+        //     // const sql = ``
+        //     dbsql(sql);
+        // }
+    }
+    insertData();
 });
 
 // 設置port:3000的server
@@ -194,4 +276,28 @@ function checkJWT (encryptedToken) {
         console.log("Token expired!");
         return (2);
     }
+}
+
+function dbsql (sql) {
+    const dbReturn = new Promise((resolve, reject) => {
+        app.get("db").query(sql, (err, result) => {
+            // if (err) throw err;
+            if (err) reject(err);
+            resolve(result);
+        });
+    });
+    return dbReturn;
+}
+
+function dbSetInsert (sql, info) {
+    return new Promise((resolve, reject) => {
+        app.get("db").query(sql, info, (err, result) => {
+            if (err) resolve(err);
+            if (result) resolve(result);
+        });
+    });
+}
+
+function getRandomInt (min, max) {
+    return min + Math.floor(Math.random() * (max - min + 1));
 }
