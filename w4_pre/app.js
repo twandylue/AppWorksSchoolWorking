@@ -252,6 +252,13 @@ app.get("/test", (req, res) => {
     insertData();
 });
 
+app.get('/deleteOrderTable', async (req, res) => {
+    const sql = "DELETE FROM order_table;";
+    // await dbsql(sql);
+    res.send('finished');
+    return;
+})
+
 // 設置port:3000的server
 app.listen(3000, () => {
     // eslint-disable-next-line no-console
