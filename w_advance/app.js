@@ -193,8 +193,9 @@ app.get("/response-message/campaign-upload-success", (req, res) => {
 app.get("/insertDB", (req, res) => {
     // insert data into database
     async function insertData () {
+        const number = parseInt(req.query.number);
         const dataArr = [];
-        for (let i = 0; i < 4500; i++) {
+        for (let i = 0; i < number; i++) {
             const data = [];
             const paid = getRandomInt(0, 1);
             const userID = getRandomInt(1, 5);
