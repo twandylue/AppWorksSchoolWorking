@@ -2,12 +2,15 @@ config:
   # target: "https://andyforfun.site"
   # target: "http://loadbalancer-appworks-24606649.ap-northeast-1.elb.amazonaws.com"
   # target: "http://localhost:3000"
-  target: "http://35.73.76.64"
+  # target: "http://35.73.76.64"
+  target: "http://test123loadbalancer-494431726.ap-northeast-1.elb.amazonaws.com"
+  # target: “http://stylish-lb-1317609264.us-east-2.elb.amazonaws.com”
+  # target: "http://stylish-1444069007.ap-southeast-1.elb.amazonaws.com"
   http:
     pool: 20
   phases:
-    - duration: 20
-      arrivalRate: 40
+    - duration: 1000
+      arrivalRate: 10
 scenarios:
   - flow:
     - get:
