@@ -93,6 +93,13 @@ app.use(`/api/${process.env.API_VERSION}`, apiRouteCheckout);
 const apiRouteCalPaymentInfo = require("./router/paymentInfo").router;
 app.use(`/api/${process.env.API_VERSION}`, apiRouteCalPaymentInfo);
 
+// midterm
+const midtermGetandSaveData = require("./router/midterm_GetandSaveData").router;
+app.use(`/api/${process.env.API_VERSION}`, midtermGetandSaveData);
+
+const midtermCalforDashboard = require("./router/midterm_CalforDashboard").router;
+app.use(`/api/${process.env.API_VERSION}`, midtermCalforDashboard);
+
 // ===provide html or pug===
 //= ===================================看這邊
 // w0p3 products upload form
@@ -174,6 +181,12 @@ app.get("/member.html", (req, res) => {
 app.get("/profile.html", (req, res) => {
     // eslint-disable-next-line node/no-path-concat
     res.sendFile(path.join(__dirname + "/public/member.html"));
+});
+
+// midterm dashboard
+app.get("/admin/dashboard.html", (req, res) => {
+    // eslint-disable-next-line node/no-path-concat
+    res.sendFile(path.join(__dirname + "/public/dashboard.html"));
 });
 
 // ===response message===

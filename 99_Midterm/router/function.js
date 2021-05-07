@@ -297,6 +297,17 @@ function sendRequest (fbTokenURL) {
     return req;
 }
 
+// for midterm
+function Request (url) {
+    const req = new Promise((resolve, reject) => {
+        request(url, { json: true }, (err, res, body) => {
+            if (err) { return console.log(err); }
+            resolve(body);
+        });
+    });
+    return req;
+}
+
 module.exports = {
     router: router,
     uploadMain: uploadMain,
@@ -309,5 +320,6 @@ module.exports = {
     responseConsist: responseConsist,
     createJWT: createJWT,
     checkJWT: checkJWT,
-    sendRequest: sendRequest
+    sendRequest: sendRequest,
+    Request: Request
 };
