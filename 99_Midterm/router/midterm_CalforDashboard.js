@@ -14,6 +14,7 @@ router.get("/midtermTest", (req, res) => {
 router.get("/TotalRevenue", async (req, res) => {
     const sql = "SELECT SUM(total) FROM midterm_order_list;";
     const resultDB = await dbsql(req, sql);
+
     const ans = {
         data: {
             "Total Revenue": resultDB[0]["SUM(total)"]
