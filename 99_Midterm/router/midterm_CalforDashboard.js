@@ -57,7 +57,6 @@ router.get("/BarChart", async (req, res) => {
     const max5Ids = max5.map(element => element.product_id);
 
     sql = "SELECT product_id, size, SUM(qty) FROM midterm_order_list WHERE product_id IN ? GROUP BY product_id, size ORDER BY product_id;";
-    // const resultDB = await dbsql(req, sql);
     const resultDB = await dbSetInsert(req, sql, [[max5Ids]]);
 
     const objectS = {
