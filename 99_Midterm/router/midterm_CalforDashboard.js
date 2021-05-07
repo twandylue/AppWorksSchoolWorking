@@ -34,17 +34,21 @@ router.get("/PieChart", async (req, res) => {
 });
 
 router.get("/Histograms", async (req, res) => {
-    const sql = "SELECT price FROM midterm_order_list";
-    // const sql = "SELECT SUM(qty) FROM midterm_order_list;";
+    const sql = "SELECT price, qty FROM midterm_order_list";
     const resultDB = await dbsql(req, sql);
     // console.log(resultDB);
     const arr = [];
+    const arrTest = [];
     for (const i in resultDB) {
+        for (let j = 0; j < resultDB[i].qty; j++) {
+            arrTest.push(resultDB[i].price);
+        }
         arr.push(resultDB[i].price);
     }
-    // console.log(arr);
-
-    res.send(arr);
+    const ans = {
+        data: arrTest
+    };
+    res.send(ans);
 });
 
 router.get("/BarChart", async (req, res) => {

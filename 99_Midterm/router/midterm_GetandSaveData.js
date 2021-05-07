@@ -33,7 +33,7 @@ router.get("/midtermPart1", async (req, res) => {
 router.get("/deleteDB", async (req, res) => {
     const sql = "DELETE FROM midterm_order_list;";
     // const resultDB = await dbsql(req, sql);
-    console.log(resultDB);
+    // console.log(resultDB);
     res.send("Clear DB finished!");
 });
 

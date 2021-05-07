@@ -185,6 +185,7 @@ app.get("/profile.html", (req, res) => {
 
 // midterm dashboard
 app.get("/admin/dashboard.html", (req, res) => {
+    console.log("MIDTERM!!!");
     // eslint-disable-next-line node/no-path-concat
     res.sendFile(path.join(__dirname + "/public/dashboard.html"));
 });
