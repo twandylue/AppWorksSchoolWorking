@@ -12,16 +12,23 @@ router.get("/midtermTest", (req, res) => {
 });
 
 router.get("/TotalRevenue", async (req, res) => {
-    const sql = "SELECT SUM(total) FROM midterm_order_list;";
+    const sql = "SELECT order_id, total FROM midterm_order_list;";
     const resultDB = await dbsql(req, sql);
+    const obj = {};
+    for (const i in resultDB) {
+        obj[resultDB[i].order_id] = resultDB[i].total;
+    }
 
+    let totalSum = 0;
+    for (const i in obj) {
+        totalSum += obj[i];
+    }
     const ans = {
         data: {
-            "Total Revenue": resultDB[0]["SUM(total)"]
+            "Total Revenue": totalSum
         }
     };
-    // console.log(ans);
-    res.send(JSON.stringify(ans));
+    res.send(ans);
 });
 
 router.get("/PieChart", async (req, res) => {
