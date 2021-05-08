@@ -68,39 +68,78 @@ router.get("/BarChart", async (req, res) => {
     // const resultDB = await dbsql(req, sql);
     const resultDB = await dbSetInsert(req, sql, [[max5Ids]]);
 
-    const objectS = {
-        idList: max5Ids,
-        count: [],
-        size: "S"
-    };
-    const objectM = {
-        idList: max5Ids,
-        count: [],
-        size: "M"
-    };
-    const objectL = {
-        idList: max5Ids,
-        count: [],
-        size: "L"
-    };
-
-    for (const i in max5Ids) {
-        for (const j in resultDB) {
-            if (max5Ids[i] === resultDB[j].product_id) {
-                if (resultDB[j].size === "S") {
-                    objectS.count.push(resultDB[j]["SUM(qty)"]);
-                } else if (resultDB[j].size === "M") {
-                    objectM.count.push(resultDB[j]["SUM(qty)"]);
-                } else if (resultDB[j].size === "L") {
-                    objectL.count.push(resultDB[j]["SUM(qty)"]);
+    const objSize = new Map();
+    for (const i in resultDB) {
+        if (objSize.has(resultDB[i].size)) {
+            const arr = objSize.get(resultDB[i].size);
+            arr.push(resultDB[i]);
+            objSize.set(resultDB[i].size, arr);
+        } else {
+            objSize.set(resultDB[i].size, [resultDB[i]]);
+        }
+    }
+    // console.log(objSize);
+    // console.log(objSize.keys());
+    const keys = objSize.keys();
+    const response = [];
+    // console.log(max5Ids);
+    for (const key of keys) {
+        const count = [];
+        for (const i in max5Ids) {
+            for (const j in objSize.get(key)) {
+                if ((objSize.get(key))[j].product_id === max5Ids[i]) {
+                    count.push((objSize.get(key))[j]["SUM(qty)"]);
                 }
             }
         }
+        // console.log(count);
+        response.push({
+            idList: max5Ids,
+            count: count,
+            size: key
+        });
     }
-    // console.log(resultDB);
-
+    // console.log(response);
     const arr = [];
-    arr.push(objectS, objectM, objectL);
+    for (const i in response) {
+        // console.log(i);
+        arr.push(response[response.length - 1 - i]);
+    }
+    // ==================
+
+    // const objectS = {
+    //     idList: max5Ids,
+    //     count: [],
+    //     size: "S"
+    // };
+    // const objectM = {
+    //     idList: max5Ids,
+    //     count: [],
+    //     size: "M"
+    // };
+    // const objectL = {
+    //     idList: max5Ids,
+    //     count: [],
+    //     size: "L"
+    // };
+
+    // for (const i in max5Ids) {
+    //     for (const j in resultDB) {
+    //         if (max5Ids[i] === resultDB[j].product_id) {
+    //             if (resultDB[j].size === "S") {
+    //                 objectS.count.push(resultDB[j]["SUM(qty)"]);
+    //             } else if (resultDB[j].size === "M") {
+    //                 objectM.count.push(resultDB[j]["SUM(qty)"]);
+    //             } else if (resultDB[j].size === "L") {
+    //                 objectL.count.push(resultDB[j]["SUM(qty)"]);
+    //             }
+    //         }
+    //     }
+    // }
+    // // console.log(resultDB);
+
+    // const arr = [];
+    // arr.push(objectS, objectM, objectL);
     const ans = {
         data: arr
     };
