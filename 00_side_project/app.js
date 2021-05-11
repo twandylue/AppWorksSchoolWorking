@@ -24,10 +24,14 @@ app.use("/api/" + API_VERSION,
 //     res.status(404).sendFile(__dirname + "/public/404.html");
 // });
 
-if (NODE_ENV !== "production") {
-    app.listen(port, () => {
-        console.log(`App listening on port: ${port}`);
-    });
-}
+// if (NODE_ENV !== "production") {
+//     app.listen(port, () => {
+//         console.log(`App listening on port: ${port}`);
+//     });
+// }
+
+app.listen(3000, () => {
+    console.log(`App listening on port: 3000`);
+});
 
 module.exports = app;

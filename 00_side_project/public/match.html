@@ -7,7 +7,7 @@
         <link rel="stylesheet" type="text/css" href="/styles/page.css" media="all">
     </head>
     <body>
-        <div class = "content">
+        <div class = "container">
             <div id = "left">
                 <select id = "music">
                     <option>Choose a music</option>
@@ -23,7 +23,7 @@
                     </div>
                 </div>
                 <div id = "chat_room">
-                    <ul id = "messages">test</ul>
+                    <ul id = "messages">chat_room</ul>
                     <div id = "sendmsg">
                         <input id="input" autocomplete="off" />
                         <button id = "send">Send</button>
@@ -38,14 +38,14 @@
             <div id = "middle">
                 <div id = "rule_setting">Rule setting</div>
                 <div id = "setting_details">
-                    <div id = 'type'>
+                    <div class = "details" id = 'type'>
                         <select>
                             <option>Type</option>
                             <option>Plus +</option>
                             <option>Multi x</option>
                         </select>
                     </div>
-                    <div id = 'number_of_cards'>
+                    <div class = "details" id = 'number_of_cards'>
                         <select>
                             <option>Number of cards</option>
                             <option>4 x 4</option>
@@ -53,7 +53,7 @@
                             <option>6 x 6</option>
                         </select>
                     </div>
-                    <div id = 'rounds'>
+                    <div class = "details" id = 'rounds'>
                         <select>
                             <option>Rounds</option>
                             <option>1</option>
@@ -61,11 +61,11 @@
                             <option>3</option>
                         </select>
                     </div>
-                    <div id = "target">
+                    <div class = "details" id = "target">
                         <input id = "round_1_target" placeholder = "Please enter the target in round 1" >
                     </div>
                 </div>
-                <div id = "start">START</div>
+                <button class = "button" id = "start">START</button>
                 <div class = "mora" id = "mora">
                     <img id = "main_mora" src = "">
                     <img id = "opposite_mora" src = "">
@@ -73,12 +73,14 @@
             </div>
             <div id = "right">
                 <div id = "user">
-                    <img class = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
-                    <div id = "opposite_user_name"></div>
+                    <div id = "opposite_user_container">
+                        <img class = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
+                        <div id = "opposite_user_name">test</div>
+                    </div>
                 </div>
-                <div id = "real_person">Play with real person</div>
-                <div id = "robot">Play with robot</div>
-                <div id = "rule">Rules: <br>
+                <button class = "button" id = "real_person">Play with real person</button>
+                <button class = "button" id = "robot">Play with robot</button>
+                <div id = "rules">Rules: <br>
                     1. 10 points for collecting each card pair.<br>
                     2. Half of cards have another pair.<br>
                     3. You can only choose two cards at once.<br>
