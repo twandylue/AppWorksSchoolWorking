@@ -1,0 +1,108 @@
+<!-- <!DOCTYPE html> -->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Match Page</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+    </head>
+    <body>
+        <div class = "container" id = "mainbody">
+            <div class = "row">
+                <div class = "col" id = "left">
+                    <div class = "row">
+                        <select class = "row" id = "music">
+                            <option>Choose a music</option>
+                            <option>music 1</option>
+                            <option>music 2</option>
+                            <option>music 3</option>
+                        </select>
+                        <div class = "row" id = "user">
+                            <div id = "user_container">
+                                <img class = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
+                                <input id = "input_name" type = "text" placeholder = "Please enter your name" name = "name">
+                                <div id = "main_user_name"></div>
+                            </div>
+                        </div>
+                        <div class = "row" id = "chat_room">
+                            <div class = "col">
+                                <ul id = "messages">test</ul>
+                                <div id = "sendmsg">
+                                    <input id="input" autocomplete="off" />
+                                    <button id = "send">Send</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class = "row" id = "paper_scissor_stone">
+                            <img class = "col-4 mora" id = "paper" src = "./images/profile.jpeg" alt = "paper">
+                            <img class = "col-4 mora" id = "scissor" src = "./images/profile.jpeg" alt = "scissor">
+                            <img class = "col-4 mora" id = "stone" src = "./images/profile.jpeg" alt = "stone">
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class = "col" id = "middle">
+                    <div class = "row text-center row">
+                        <div id = "rule_setting">Rule setting</div>
+                    </div>
+                    <!-- <div class = "row" id = "rule_setting">Rule setting</div> -->
+                    <div class = "row mb-2" id = "setting_details">
+                        <div class = "row details">
+                            <div class = "col-4" id = "type">
+                                <select>
+                                    <option>Type</option>
+                                    <option>Plus +</option>
+                                    <option>Multi x</option>
+                                </select>
+                            </div>
+                            <div class = "col-4" id = 'number_of_cards'>
+                                <select>
+                                    <option>Number of cards</option>
+                                    <option>4 x 4</option>
+                                    <option>5 x 5</option>
+                                    <option>6 x 6</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class = "row details">
+                            <div class = "col-4" id = 'rounds'>
+                                <select>
+                                    <option>Rounds</option>
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                </select>
+                            </div>
+                            <div class = "col-4" id = "target">
+                                <input id = "round_1_target" placeholder = "Please enter the target in round 1" >
+                            </div>
+                        </div>
+                    </div>
+                    <div class = "row text-center mb-5">
+                        <button class = "button" id = "start">START</button>
+                    </div>
+                    <div class = "row mora" id = "mora">
+                        <img class = "col-5" id = "main_mora" src = "">
+                        <img class = "col-5" id = "opposite_mora" src = "">
+                    </div>
+                </div>
+                <div class = "col" id = "right">
+                    <div id = "user">
+                        <img class = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
+                        <div id = "opposite_user_name"></div>
+                    </div>
+                    <div id = "real_person">Play with real person</div>
+                    <div id = "robot">Play with robot</div>
+                    <div id = "rule">Rules: <br>
+                        1. 10 points for collecting each card pair.<br>
+                        2. Half of cards have another pair.<br>
+                        3. You can only choose two cards at once.<br>
+                        4. When you choose two cards which are not in pair, they would be invisible again.<br>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <link rel="stylesheet" type="text/css" href="/styles/page.css" media="all">
+        <script></script>
+    </body>
+</html>
