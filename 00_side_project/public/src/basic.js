@@ -22,10 +22,39 @@ start.addEventListener("click", () => {
     const number = document.querySelector("#number_of_cards option:checked");
     const rounds = document.querySelector("#rounds option:checked");
     const targets = document.querySelectorAll(".target_item");
+
+    const targetList = []
     for (let i = 0; i < targets.length; i++) {
-        console.log(targets[i].value);
+        targetList.push(targets[i].value)
     }
-    const details = [type.innerHTML, number.innerHTML, rounds.innerHTML];
-    // console.log(details);
-    // const target =
+    const details = {
+        type: type.innerHTML,
+        number: number.innerHTML,
+        rounds: rounds.innerHTML,
+        targets: targetList
+    }
+    console.log(details);
 });
+
+const roundsNumber = document.querySelector("#rounds")
+roundsNumber.addEventListener('change', ()=>{
+    const number = document.querySelector("#rounds option:checked")
+    const target = document.querySelector('#target')
+    const targetList = document.querySelectorAll('.target_item')
+    for (let i = 0; i < targetList.length; i++) {
+        targetList[i].remove();
+    }
+    for (let i = 0; i < parseInt(number.innerHTML); i++){
+        const roundsItem = document.createElement('input')
+        roundsItem.className = "target_item"
+        roundsItem.id = `round_${i+1}_target` 
+        roundsItem.placeholder = `Round ${i+1} target`
+        target.append(roundsItem)
+    }
+})
+
+const sendMsg = document.querySelector('#send');
+sendMsg.addEventListener('click', () => {
+    const msg = document.querySelector("#sendmsg input")
+    console.log(msg.value)
+})
