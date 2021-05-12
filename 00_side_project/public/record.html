@@ -1,0 +1,191 @@
+<!-- <!DOCTYPE html> -->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MEMORY GAME</title>
+        <link rel="stylesheet" type="text/css" href="./styles/basic.css" media="all">
+        <link rel="stylesheet" href="./styles/game.css">
+    </head>
+    <body>
+        <div class = "container">
+            <div id = "left">
+                <select id = "music">
+                    <option>Choose a music</option>
+                    <option>music 1</option>
+                    <option>music 2</option>
+                    <option>music 3</option>
+                </select>
+                <div class = "user" id = "user_container">
+                    <img class = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
+                    <!-- <input id = "input_name" type = "text" placeholder = "Please enter your name" name = "name"> -->
+                    <div id = "main_user_name">Andy</div>
+                </div>
+                <div id = "chat_room">
+                    <ul id = "messages">chat_room</ul>
+                    <div id = "sendmsg">
+                        <input id="input" autocomplete="off" />
+                        <button id = "send">Send</button>
+                    </div>
+                </div>
+                <!-- <div id = "paper_scissor_stone">
+                    <img class = "mora" id = "paper" src = "./images/profile.jpeg" alt = "paper">
+                    <img class = "mora" id = "scissor" src = "./images/profile.jpeg" alt = "scissor">
+                    <img class = "mora" id = "stone" src = "./images/profile.jpeg" alt = "stone">
+                </div> -->
+                <div class = "points" id = "user_points">
+                    Points:
+                </div>
+            </div>
+            <div id = "middle">
+                <div class = "game_status" id = "status">OVER</div>
+                <div class = "game_status" id = "goal">Target: card1 x card2 = 144</div>
+                <div class = "game_status" id = "countdown">Countdown: 0 s</div>
+                <!-- <div id = "game">
+                    <section class="memory-game">
+                        <div class="memory-card" data-framework = "pair_1">
+                          <div class = "front-face" id = '2'>2</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                    
+                        <div class="memory-card" data-framework = "15">
+                          <div class = "front-face" id = 'none_pair'>15</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                    
+                        <div class="memory-card" data-framework = "42">
+                          <div class = "front-face" id = 'none_pair'>42</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                    
+                        <div class="memory-card" data-framework = "pair_1">
+                          <div class = "front-face" id = '72'>72</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                    
+                        <div class="memory-card" data-framework = "7">
+                          <div class = "front-face" id = 'none_pair'>7</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                    
+                        <div class="memory-card" data-framework = "pair_2">
+                          <div class = "front-face" id = '8'>8</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                    
+                        <div class="memory-card" data-framework = "10">
+                          <div class = "front-face" id = 'none_pair'>10</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                    
+                        <div class="memory-card" data-framework = "pair_3">
+                          <div class = "front-face" id = '3'>3</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                    
+                        <div class="memory-card" data-framework = "pair_3">
+                          <div class = "front-face" id = '48'>48</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                    
+                        <div class="memory-card" data-framework = "11">
+                          <div class = "front-face" id = 'none_pair'>11</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                    
+                        <div class="memory-card" data-framework = "pair_4">
+                          <div class = "front-face" id = '9'>9</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                    
+                        <div class="memory-card" data-framework = "17">
+                          <div class = "front-face" id = 'none_pair'>17</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                    
+                        <div class="memory-card" data-framework = "pair_4">
+                          <div class = "front-face" id = '16'>16</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                    
+                        <div class="memory-card" data-framework = "26">
+                          <div class = "front-face" id = 'none_pair'>26</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                    
+                        <div class="memory-card" data-framework = "20">
+                          <div class = "front-face" id = 'none_pair'>20</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                    
+                        <div class="memory-card" data-framework = "pair_2">
+                          <div class = "front-face" id = '18'>18</div>
+                          <img class="back-face" src="./images/question_mark.svg" alt="Memory Card">
+                        </div>
+                      </section>
+                </div> -->
+                <div id = "record">
+                    Record: 
+                    <!-- <div id = "title">Record</div> -->
+                    <div id = "record_border">
+                        <div class = "record_info">Correct rate: 50%</div>
+                        <div class = "record_info">Total points</div>
+                        <div class = "record_info">Each round points: 20/40/30</div>
+                        <div class = "record_info">Each round time: 13 s/ --/ 16s</div>
+                        <div class = "record_info">Winner: Andy</div>
+                    </div>
+                </div>
+                <div id = "reply">
+                    <div id = "reply_title">Reply: </div>
+                    <select id = "reply_item">
+                        <option>Choose round</option>
+                        <option>Round 1</option>
+                        <option>Round 2</option>
+                        <option>Round 3</option>
+                        <option>ALL</option>
+                    </select>
+                    <button id = "comfirm">Submit</button>
+                </div>
+                <div id = "choose">
+                    <div id = "wrap">
+                        <button id = "again">Again</button>
+                        <button id = "goodbye">Goodbye</button>
+                    </div>
+                </div>
+            </div>
+            <div id = "right">
+                <!-- <div id = "block">Let's Play!</div> -->
+                
+                <div id = "rounds_record">
+                    <div class = "round" id = "round_1">Round 1</div>
+                    <div class = "round" id = "round_1">Round 2</div>
+                    <div class = "round" id = "round_1">Round 3</div>
+                </div>
+                <div class = "user" id = "opposite_user_container">
+                    <img class = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
+                    <div id = "opposite_user_name">test</div>
+                </div>
+                <!-- <div class = "choice"></div>
+                <button class = "choice_button" id = "real_person">Play with real person</button>
+                <button class = "choice_button" id = "robot">Play with robot</button> -->
+                <div class = "points" id = "user_points">
+                    Points:
+                </div>
+                <div id = "game_info">
+                    <div class = "info">Game info: </div>
+                    <div class = "info">Type: Multi</div>
+                    <div class = "info">Cards amount: 4 x 4 </div>
+                    <div class = "info">Total rounds: 3</div>
+                </div>
+                <div id = "rules">Rules: <br>
+                    1. 10 points for collecting each card pair.<br>
+                    2. Half of cards have another pair.<br>
+                    3. You can only choose two cards at once.<br>
+                    4. When you choose two cards which are not in pair, they would be invisible again.<br>
+                </div>
+            </div>
+        </div>
+        <script></script>
+        <script src="./src/game.js"></script>
+    </body>
+</html>
