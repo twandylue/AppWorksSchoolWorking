@@ -46,15 +46,22 @@ body {
 
 .front-face,
 .back-face {
+    text-align: center;
+    font-size: 2rem;
     width: 100%;
     height: 100%;
     padding: 20px;
     position: absolute;
     border-radius: 5px;
-    background: #1C7CCC;
+    background: #81d8f3;
     backface-visibility: hidden;
 }
 
 .front-face {
     transform: rotateY(180deg)
+}
+
+.card-color {
+    border: rgb(238, 56, 56) solid 5.0px;
+    border-style: dotted;
 }
