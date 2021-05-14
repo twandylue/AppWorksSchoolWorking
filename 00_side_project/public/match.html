@@ -43,16 +43,16 @@
                     <div class = "details" id = 'type'>
                         <select>
                             <option>Type</option>
-                            <option>Plus +</option>
-                            <option>Multi x</option>
+                            <option data-type = "Plus">Plus +</option>
+                            <option data-type = "Multi">Multi x</option>
                         </select>
                     </div>
                     <div class = "details" id = 'number_of_cards'>
                         <select>
                             <option>Number of cards</option>
-                            <option>4 x 4</option>
-                            <option>5 x 5</option>
-                            <option>6 x 6</option>
+                            <option data-number = "4">4 x 4</option>
+                            <option data-number = "5">5 x 5</option>
+                            <option data-number = "6">6 x 6</option>
                         </select>
                     </div>
                     <div class = "details" id = 'rounds'>
@@ -89,6 +89,6 @@
                 </div>
             </div>
         </div>
-        <script src = "./src/basic.js"></script>
+        <script src = "./src/basic.js" type="module"></script>
     </body>
 </html>

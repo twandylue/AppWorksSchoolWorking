@@ -1,3 +1,4 @@
+import { sendSettingInfo } from "./matchFetch.js";
 // select music
 const music = document.querySelector("#music");
 music.addEventListener("change", () => {
@@ -71,31 +72,94 @@ start.addEventListener("click", () => {
     }
 
     const isDetailsOK = type.innerHTML === "Type" || number.innerHTML === "Number of cards" || rounds.innerHTML === "Rounds" || isRoundsNumberEmpty;
-    // if (isDetailsOK) {
-    //     alert("規則設定有誤！");
-    //     return;
-    // }
+    if (isDetailsOK) {
+        alert("規則設定有誤！");
+        return;
+    }
 
     const details = {
-        type: type.innerHTML,
-        number: number.innerHTML,
+        type: type.dataset.type,
+        number: number.dataset.number,
         rounds: rounds.innerHTML,
         targets: targetList
     };
-    // console.log(details);
-    refreshRoundsInfo();
-    addPoints();
-    addGameInfo();
-    const deleteItem = document.querySelector("#middle");
-    deleteItem.remove();
-    readytoStart();
+
+    sendSettingInfo(details).then((result) => {
+        refreshRoundsInfo(result.rounds);
+        addPoints();
+        addGameInfo(result.type, result.number, result.rounds);
+        addGameStatusandCards(result.number, result.targets);
+    });
 });
 
+function refreshRoundsInfo (roundsNumber) {
+    const roundsInfo = document.querySelector("#block");
+    roundsInfo.remove();
+    const rounds = document.createElement("div");
+    rounds.id = "rounds_record";
+    // number should wait for AJAX()
+    // const number = document.querySelector("#rounds option:checked"); // ajax
+    // for (let i = 0; i < parseInt(number.innerHTML); i++) { // ajax
+    for (let i = 0; i < roundsNumber; i++) { // ajax
+        const roundItem = document.createElement("div");
+        roundItem.id = `round_${i + 1}`;
+        roundItem.className = "round";
+        roundItem.innerHTML = `Round ${i + 1}`; // ajax
+        rounds.append(roundItem);
+    }
+    const right = document.querySelector("#right");
+    right.prepend(rounds);
+}
+
+function addPoints () {
+    const choiceButtons = document.querySelectorAll(".choice_button");
+    for (let i = 0; i < choiceButtons.length; i++) {
+        choiceButtons[i].remove();
+    }
+
+    const pics = document.querySelector("#paper_scissor_stone");
+    pics.remove();
+
+    const userPoints = document.createElement("div");
+    userPoints.id = "user_points";
+    userPoints.className = "points";
+    userPoints.innerHTML = "Points: 123"; // wait for server
+    const oppositeUserPoints = document.createElement("div");
+    oppositeUserPoints.id = "user_points";
+    oppositeUserPoints.className = "points";
+    oppositeUserPoints.innerHTML = "Points: 321"; // wait for server
+    const left = document.querySelector("#left");
+    left.append(userPoints);
+    const right = document.querySelector("#right");
+    // right.insertBefore(oppositeUserPoints, right.childNodes[6]);
+    right.insertBefore(oppositeUserPoints, right.children[right.children.length - 1]);
+}
+
+function addGameInfo (type, number, rounds) { /// //////
+    const gameInfo = document.createElement("div");
+    gameInfo.id = "game_info";
+    const infoTitle = document.createElement("div");
+    infoTitle.className = "info";
+    infoTitle.innerHTML = "Game info: ";
+    const infoType = document.createElement("div");
+    infoType.className = "info";
+    infoType.innerHTML = `Type: ${type}`; // ajax
+    const infoAmount = document.createElement("div");
+    infoAmount.className = "info";
+    infoAmount.innerHTML = `Cards amount: ${number} x ${number} `; // ajax
+    const infoTotal = document.createElement("div");
+    infoTotal.className = "info";
+    infoTotal.innerHTML = `Total rounds: ${rounds}`; // ajax
+    gameInfo.append(infoTitle, infoType, infoAmount, infoTotal);
+    const right = document.querySelector("#right");
+    // right.insertBefore(gameInfo, right.childNodes[8]); // beware
+    right.insertBefore(gameInfo, right.children[right.children.length - 1]);
+}
+
 // refresh page for cardgame and set cards
-// ============================ 待改
-function readytoStart () {
-    // const deleteItem = document.querySelector("#middle");
-    // deleteItem.remove();
+function addGameStatusandCards (number, targets) {
+    const deleteItem = document.querySelector("#middle");
+    deleteItem.remove();
     const middle = document.createElement("div");
     middle.id = "middle";
     const status = document.createElement("div");
@@ -105,7 +169,7 @@ function readytoStart () {
     const goal = document.createElement("div");
     goal.id = "goal";
     goal.className = "game_status";
-    goal.innerHTML = "Target: card1 x card2 = 144"; // wait for ajax()
+    goal.innerHTML = `Target: card1 x card2 = ${targets[0]}`; // wait for ajax()
     const countdown = document.createElement("div");
     countdown.id = "countdown";
     countdown.className = "game_status";
@@ -114,17 +178,26 @@ function readytoStart () {
     game.id = "game";
     const memoryGame = document.createElement("section");
     memoryGame.className = "memory-game";
-    for (let i = 0; i < 16; i++) { // i wati for ajax()
+    const condition = "ready"; // wait for server
+    for (let i = 0; i < (number * number); i++) { // i wati for ajax()
         const card = document.createElement("div");
-        card.className = "memory-card";
-        // card["data-framework"] = "pair_1";
-        card.dataset.framework = `pair_${i}`;
+        card.classList.add("memory-card", `double${number}`); // double{i} wait for ajax()
+        card.dataset.framework = `pair_${i}`; // wait for ajax()
         const frontFace = document.createElement("div");
-        frontFace.className = "front-face";
-        frontFace.id = "2";
-        frontFace.innerHTML = "2";
+        // frontFace.className = "front-face";
+        frontFace.id = `${i}`; // wait for ajax()
+        frontFace.innerHTML = `${i}`; // wait for ajax()
         const backFace = document.createElement("img");
-        backFace.className = "back-face";
+        // backFace.className = "back-face";
+
+        if (condition === "ready") {
+            frontFace.className = "front-face";
+            backFace.classList.add("back-face", "back-face_ready");
+        } else if (condition === "start") {
+            frontFace.classList.add("front-face", "front-face_start");
+            backFace.className = "back-face";
+        }
+
         backFace.src = "./images/question_mark.svg";
         backFace.alt = "Memory Card";
         card.append(frontFace, backFace);
@@ -135,10 +208,13 @@ function readytoStart () {
     // console.log(container.childNodes);
     // container.insertBefore(middle, container.childNodes[2]);
     container.insertBefore(middle, container.children[container.children.length - 1]);
-    cardGame(); // for card game
+
+    if (condition === "start") {
+        cardGame(); // for card game
+    }
 }
 
-// for cardgame
+// for cardgame operation
 function cardGame () {
     const cards = document.querySelectorAll(".memory-card");
 
@@ -191,72 +267,8 @@ function cardGame () {
     cards.forEach(card => card.addEventListener("click", flipCard));
 }
 
-function refreshRoundsInfo () {
-    const roundsInfo = document.querySelector("#block");
-    roundsInfo.remove();
-    const rounds = document.createElement("div");
-    rounds.id = "rounds_record";
-    const number = document.querySelector("#rounds option:checked");
-    // console.log(number.innerHTML);
-    for (let i = 0; i < parseInt(number.innerHTML); i++) {
-        const roundItem = document.createElement("div");
-        roundItem.id = `round_${i + 1}`;
-        roundItem.className = "round";
-        roundItem.innerHTML = `Round ${i + 1}`;
-        rounds.append(roundItem);
-    }
-    const right = document.querySelector("#right");
-    right.prepend(rounds);
-}
-
-function addPoints () {
-    const choiceButtons = document.querySelectorAll(".choice_button");
-    for (let i = 0; i < choiceButtons.length; i++) {
-        choiceButtons[i].remove();
-    }
-
-    const pics = document.querySelector("#paper_scissor_stone");
-    pics.remove();
-
-    const userPoints = document.createElement("div");
-    userPoints.id = "user_points";
-    userPoints.className = "points";
-    userPoints.innerHTML = "Points: 123";
-    const oppositeUserPoints = document.createElement("div");
-    oppositeUserPoints.id = "user_points";
-    oppositeUserPoints.className = "points";
-    oppositeUserPoints.innerHTML = "Points: 321";
-    const left = document.querySelector("#left");
-    left.append(userPoints);
-    const right = document.querySelector("#right");
-    // right.insertBefore(oppositeUserPoints, right.childNodes[6]);
-    right.insertBefore(oppositeUserPoints, right.children[right.children.length - 1]);
-}
-
-function addGameInfo () {
-    const gameInfo = document.createElement("div");
-    gameInfo.id = "game_info";
-    // wait for ajax()
-    const infoTitle = document.createElement("div");
-    infoTitle.className = "info";
-    infoTitle.innerHTML = "Game info: ";
-    const infoType = document.createElement("div");
-    infoType.className = "info";
-    infoType.innerHTML = "Type: Multi";
-    const infoAmount = document.createElement("div");
-    infoAmount.className = "info";
-    infoAmount.innerHTML = "Cards amount: 4 x 4 ";
-    const infoTotal = document.createElement("div");
-    infoTotal.className = "info";
-    infoTotal.innerHTML = "Total rounds: 3";
-    gameInfo.append(infoTitle, infoType, infoAmount, infoTotal);
-    const right = document.querySelector("#right");
-    // right.insertBefore(gameInfo, right.childNodes[8]); // beware
-    right.insertBefore(gameInfo, right.children[right.children.length - 1]);
-}
-
 // for record
-// const record = document.querySelector("#start");
+const record = document.querySelector("#start");
 // record.addEventListener("click", () => {
 //     const deleteItem = document.querySelector("#middle");
 //     deleteItem.remove();

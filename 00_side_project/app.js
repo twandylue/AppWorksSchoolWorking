@@ -19,6 +19,11 @@ app.use("/api/" + API_VERSION,
     ]
 );
 
+app.get("/test", (req, res) => {
+    // console.log("test");
+
+});
+
 // page not found
 // app.use(function (req, res, next) {
 //     res.status(404).sendFile(__dirname + "/public/404.html");
