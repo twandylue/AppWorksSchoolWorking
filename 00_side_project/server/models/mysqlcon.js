@@ -1,5 +1,4 @@
 require("dotenv").config();
-// const mysql = require("mysql");
 const mysql = require("mysql2/promise");
 const env = process.env.NODE_ENV || "production";
 const { DB_HOST, DB_USERNAME, DB_PASSWORD, DB_DATABASE } = process.env;
@@ -11,7 +10,7 @@ const mysqlConfig = {
         password: DB_PASSWORD,
         database: DB_DATABASE,
         waitForConnections: true, // 無可用連線時是否等待pool連線釋放(預設為true)
-        connectionLimit: 15 // 連線池可建立的總連線數上限(預設最多為60個連線數)
+        connectionLimit: 15 // 連線池可建立的總連線數上限(預設最多為15個連線數)
     },
     development: { // for localhost development
         host: DB_HOST,
@@ -19,7 +18,7 @@ const mysqlConfig = {
         password: DB_PASSWORD,
         database: DB_DATABASE,
         waitForConnections: true, // 無可用連線時是否等待pool連線釋放(預設為true)
-        connectionLimit: 15 // 連線池可建立的總連線數上限(預設最多為60個連線數)
+        connectionLimit: 15 // 連線池可建立的總連線數上限(預設最多為15個連線數)
     }
 };
 

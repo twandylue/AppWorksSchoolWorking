@@ -22,10 +22,9 @@
                         <input id = "input_name" type = "text" placeholder = "Please enter your name" name = "name">
                         <button id = "submit_name">Submit</button>
                     </div>
-                    <!-- <div id = "main_user_name">Andy</div> -->
                 </div>
                 <div id = "chat_room">
-                    <ul id = "messages">chat_room</ul>
+                    <ul id = "messages"></ul>
                     <div id = "sendmsg">
                         <input id="input" autocomplete="off" />
                         <button id = "send">Send</button>
@@ -89,6 +88,7 @@
                 </div>
             </div>
         </div>
+        <script src="/socket.io/socket.io.js"></script>
         <script src = "./src/basic.js" type="module"></script>
     </body>
 </html>

@@ -8,7 +8,7 @@ music.addEventListener("change", () => {
 
 // refresh user name
 const submitName = document.querySelector("#submit_name");
-submitName.addEventListener("click", () => {
+submitName.addEventListener("click", (event) => {
     const name = document.querySelector("#input_name");
     const removeItem = document.querySelector("#input");
     removeItem.remove();
@@ -48,10 +48,61 @@ roundsNumber.addEventListener("change", () => {
 });
 
 // for chat room
+const socket = io();
+// socket.on("connect", () => {
+//     console.log(socket.connected); // true
+// });
+
+const inputEnter = document.querySelector("#sendmsg #input");
 const sendMsg = document.querySelector("#send");
+const chatroom = document.querySelector("#messages");
+
 sendMsg.addEventListener("click", () => {
-    const msg = document.querySelector("#sendmsg input");
-    // console.log(msg.value);
+    let userName;
+    if (document.querySelector("#main_user_name") !== null) {
+        userName = document.querySelector("#main_user_name").innerHTML;
+    } else {
+        alert("Please enter your name!");
+        return;
+    }
+
+    if (inputEnter.value) {
+        socket.emit("chat message", userName + ": " + inputEnter.value);
+        inputEnter.value = "";
+    }
+});
+
+inputEnter.addEventListener("keyup", (event) => {
+    if (event.keyCode === 13) {
+        event.preventDefault();
+        sendMsg.click();
+    }
+});
+
+socket.on("chat message", (msg) => {
+    const item = document.createElement("li");
+    item.innerHTML = msg;
+    chatroom.appendChild(item);
+    chatroom.scrollTo(0, chatroom.scrollHeight);
+});
+
+socket.on("count_down_ready", (time) => {
+    if (document.querySelector("#countdown") === null) {
+        return;
+    }
+    // const timeInfo = document.querySelector("#countdown");
+    document.querySelector("#countdown").innerHTML = `Countdown: ${time} s`;
+});
+
+socket.on("status", (msg) => {
+    if (msg === "read_to_start") {
+        console.log("on!!");
+        socket.emit("join_game", 10);
+        // refreshRoundsInfo(result.rounds);
+        // addPoints();
+        // addGameInfo(result.type, result.number, result.rounds);
+        // addGameStatusandCards(result.number, result.targets);
+    }
 });
 
 // start to play
@@ -85,10 +136,12 @@ start.addEventListener("click", () => {
     };
 
     sendSettingInfo(details).then((result) => {
-        refreshRoundsInfo(result.rounds);
-        addPoints();
-        addGameInfo(result.type, result.number, result.rounds);
-        addGameStatusandCards(result.number, result.targets);
+        // 兩端同事變畫面
+        // refreshRoundsInfo(result.rounds);
+        // addPoints();
+        // addGameInfo(result.type, result.number, result.rounds);
+        // addGameStatusandCards(result.number, result.targets);
+        socket.emit("status", "ready to go");
     });
 });
 
