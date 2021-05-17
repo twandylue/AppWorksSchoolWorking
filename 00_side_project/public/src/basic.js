@@ -47,7 +47,6 @@ roundsNumber.addEventListener("change", () => {
     }
 });
 
-// for chat room
 const socket = io();
 // socket.on("connect", () => {
 //     console.log(socket.connected); // true
@@ -57,6 +56,7 @@ const inputEnter = document.querySelector("#sendmsg #input");
 const sendMsg = document.querySelector("#send");
 const chatroom = document.querySelector("#messages");
 
+// for chat room
 sendMsg.addEventListener("click", () => {
     let userName;
     if (document.querySelector("#main_user_name") !== null) {
@@ -86,23 +86,30 @@ socket.on("chat message", (msg) => {
     chatroom.scrollTo(0, chatroom.scrollHeight);
 });
 
-socket.on("count_down_ready", (time) => {
+socket.on("execute rules", (rules) => {
+    // console.log(rules);
+    refreshRoundsInfo(rules.rounds);
+    addPoints();
+    addGameInfo(rules.type, rules.number, rules.rounds);
+    addGameStatusandCards(rules.number, rules.targets, rules.state);
+});
+
+socket.on("countdown in ready", (time) => {
     if (document.querySelector("#countdown") === null) {
         return;
     }
-    // const timeInfo = document.querySelector("#countdown");
     document.querySelector("#countdown").innerHTML = `Countdown: ${time} s`;
 });
 
-socket.on("status", (msg) => {
-    if (msg === "read_to_start") {
-        console.log("on!!");
-        socket.emit("join_game", 10);
-        // refreshRoundsInfo(result.rounds);
-        // addPoints();
-        // addGameInfo(result.type, result.number, result.rounds);
-        // addGameStatusandCards(result.number, result.targets);
+socket.on("start game", (msg) => {
+    console.log(msg);
+});
+
+socket.on("countdown in game", (time) => {
+    if (document.querySelector("#countdown") === null) {
+        return;
     }
+    document.querySelector("#countdown").innerHTML = `Countdown: ${time} s`;
 });
 
 // start to play
@@ -128,21 +135,24 @@ start.addEventListener("click", () => {
         return;
     }
 
-    const details = {
+    const rules = {
         type: type.dataset.type,
         number: number.dataset.number,
         rounds: rounds.innerHTML,
         targets: targetList
     };
 
-    sendSettingInfo(details).then((result) => {
-        // 兩端同事變畫面
-        // refreshRoundsInfo(result.rounds);
-        // addPoints();
-        // addGameInfo(result.type, result.number, result.rounds);
-        // addGameStatusandCards(result.number, result.targets);
-        socket.emit("status", "ready to go");
-    });
+    socket.emit("rules", rules); // set rules
+    socket.emit("in ready", 10); // start to countdown
+
+    // sendSettingInfo(rules).then((result) => {
+    //     // 兩端同事變畫面
+    //     // refreshRoundsInfo(result.rounds);
+    //     // addPoints();
+    //     // addGameInfo(result.type, result.number, result.rounds);
+    //     // addGameStatusandCards(result.number, result.targets);
+    //     socket.emit("status", "ready to go");
+    // });
 });
 
 function refreshRoundsInfo (roundsNumber) {
@@ -150,9 +160,6 @@ function refreshRoundsInfo (roundsNumber) {
     roundsInfo.remove();
     const rounds = document.createElement("div");
     rounds.id = "rounds_record";
-    // number should wait for AJAX()
-    // const number = document.querySelector("#rounds option:checked"); // ajax
-    // for (let i = 0; i < parseInt(number.innerHTML); i++) { // ajax
     for (let i = 0; i < roundsNumber; i++) { // ajax
         const roundItem = document.createElement("div");
         roundItem.id = `round_${i + 1}`;
@@ -210,7 +217,7 @@ function addGameInfo (type, number, rounds) { /// //////
 }
 
 // refresh page for cardgame and set cards
-function addGameStatusandCards (number, targets) {
+function addGameStatusandCards (number, targets, state) {
     const deleteItem = document.querySelector("#middle");
     deleteItem.remove();
     const middle = document.createElement("div");
@@ -231,7 +238,6 @@ function addGameStatusandCards (number, targets) {
     game.id = "game";
     const memoryGame = document.createElement("section");
     memoryGame.className = "memory-game";
-    const condition = "ready"; // wait for server
     for (let i = 0; i < (number * number); i++) { // i wati for ajax()
         const card = document.createElement("div");
         card.classList.add("memory-card", `double${number}`); // double{i} wait for ajax()
@@ -243,10 +249,10 @@ function addGameStatusandCards (number, targets) {
         const backFace = document.createElement("img");
         // backFace.className = "back-face";
 
-        if (condition === "ready") {
+        if (state === "in ready") {
             frontFace.className = "front-face";
             backFace.classList.add("back-face", "back-face_ready");
-        } else if (condition === "start") {
+        } else if (state === "start") {
             frontFace.classList.add("front-face", "front-face_start");
             backFace.className = "back-face";
         }
@@ -262,7 +268,7 @@ function addGameStatusandCards (number, targets) {
     // container.insertBefore(middle, container.childNodes[2]);
     container.insertBefore(middle, container.children[container.children.length - 1]);
 
-    if (condition === "start") {
+    if (state === "start") {
         cardGame(); // for card game
     }
 }

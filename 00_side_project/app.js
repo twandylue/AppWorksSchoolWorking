@@ -27,14 +27,21 @@ app.get("/test", (req, res) => {
     console.log("test_app");
 });
 
-const { chat, getReady, countdownforReady } = require("./server/models/socket");
+const { chat, settingRules, countdowninReady } = require("./server/models/socket");
 io.on("connection", (socket) => {
-    socket.join("room1");
-    console.log("user connected");
-    chat(socket);
-    getReady(socket);
-    countdownforReady(socket);
+    socket.join("room1"); // 有多人配對功能時 不能寫死 待改
+    console.log(`user: ${socket.id} connected`);
     // console.log(socket.adapter.rooms.get("room1"));
+    // const users = socket.adapter.rooms.get("room1");
+    // // console.log(users.keys());
+    // for (const i of users) {
+    //     console.log(i);
+    // }
+    // console.log(socket.adapter);
+
+    chat(socket);
+    settingRules(socket);
+    countdowninReady(socket);
 });
 
 // page not found
