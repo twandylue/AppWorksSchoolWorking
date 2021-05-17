@@ -86,7 +86,7 @@ socket.on("chat message", (msg) => {
     chatroom.scrollTo(0, chatroom.scrollHeight);
 });
 
-socket.on("execute rules", (rules) => {
+socket.on("execute rules", (rules) => { // 改成set rules
     // console.log(rules);
     refreshRoundsInfo(rules.rounds);
     addPoints();
@@ -101,8 +101,24 @@ socket.on("countdown in ready", (time) => {
     document.querySelector("#countdown").innerHTML = `Countdown: ${time} s`;
 });
 
-socket.on("start game", (msg) => {
-    console.log(msg);
+socket.on("countdown in game", (time) => {
+    if (document.querySelector("#countdown") === null) {
+        return;
+    }
+    document.querySelector("#countdown").innerHTML = `Countdown: ${time} s`;
+});
+
+socket.on("start game", (rules) => {
+    if (rules.state === "start") {
+        const cardFrontFaces = document.querySelectorAll(".front-face");
+        const cardBackFaces = document.querySelectorAll(".back-face");
+        for (let i = 0; i < cardFrontFaces.length; i++) {
+            cardFrontFaces[i].classList.add("front-face_start");
+            cardBackFaces[i].classList.remove("back-face_ready");
+        }
+        cardGame(); // for card game
+        socket.emit("in game", 60); // start to countdown
+    }
 });
 
 socket.on("countdown in game", (time) => {
@@ -241,20 +257,15 @@ function addGameStatusandCards (number, targets, state) {
     for (let i = 0; i < (number * number); i++) { // i wati for ajax()
         const card = document.createElement("div");
         card.classList.add("memory-card", `double${number}`); // double{i} wait for ajax()
-        card.dataset.framework = `pair_${i}`; // wait for ajax()
+        card.dataset.framework = `pair_${i}`; // wait for ajax() pair ans
         const frontFace = document.createElement("div");
-        // frontFace.className = "front-face";
-        frontFace.id = `${i}`; // wait for ajax()
-        frontFace.innerHTML = `${i}`; // wait for ajax()
+        frontFace.id = `${i}`; // wait for ajax() pair ans
+        frontFace.innerHTML = `${i}`; // wait for ajax() pair ans
         const backFace = document.createElement("img");
-        // backFace.className = "back-face";
 
         if (state === "in ready") {
             frontFace.className = "front-face";
             backFace.classList.add("back-face", "back-face_ready");
-        } else if (state === "start") {
-            frontFace.classList.add("front-face", "front-face_start");
-            backFace.className = "back-face";
         }
 
         backFace.src = "./images/question_mark.svg";
@@ -267,10 +278,6 @@ function addGameStatusandCards (number, targets, state) {
     // console.log(container.childNodes);
     // container.insertBefore(middle, container.childNodes[2]);
     container.insertBefore(middle, container.children[container.children.length - 1]);
-
-    if (state === "start") {
-        cardGame(); // for card game
-    }
 }
 
 // for cardgame operation

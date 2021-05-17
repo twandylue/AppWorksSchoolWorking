@@ -27,7 +27,7 @@ app.get("/test", (req, res) => {
     console.log("test_app");
 });
 
-const { chat, settingRules, countdowninReady } = require("./server/models/socket");
+const { chat, settingRules, countdowninReady, countdowninGame } = require("./server/models/socket");
 io.on("connection", (socket) => {
     socket.join("room1"); // 有多人配對功能時 不能寫死 待改
     console.log(`user: ${socket.id} connected`);
@@ -42,6 +42,7 @@ io.on("connection", (socket) => {
     chat(socket);
     settingRules(socket);
     countdowninReady(socket);
+    countdowninGame(socket);
 });
 
 // page not found
