@@ -26,40 +26,48 @@ const settingRules = function (socket) {
 };
 
 const countdowninReady = function (socket) {
-    socket.on("in ready", async (time) => {
-        async function timeDecrease () {
-            if (time === 0) {
-                const rules = await getGameRules(socket);
-                // console.log(rules);
-                rules.state = "start";
-                socket.emit("start game", rules);
-                socket.to("room1").emit("start game", rules);
-                // socket.emit("start game", "start!!!");
-                // socket.to("room1").emit("start game", "start!!!");
-            } else if (time < 0) {
+    let time = 2;
+    socket.on("in ready", () => {
+        function timeDecrease (socketId) {
+            if (time < 0) {
                 return;
             }
             console.log("Ready time: " + time);
             socket.emit("countdown in ready", time);
             socket.to("room1").emit("countdown in ready", time);
+            if (time === 0) {
+                const rules = getGameRules(socket);
+                rules.state = "start";
+                socket.emit("start game", rules);
+                socket.to("room1").emit("start game", rules);
+            }
             time--;
         }
-        await setInterval(timeDecrease, 1000);
+        setInterval(timeDecrease, 1000);
     });
 };
 
 const countdowninGame = function (socket) {
-    socket.on("in game", async (time) => {
-        async function timeDecrease () {
+    let time = 6000;
+    socket.on("in game", (socketId) => { // 會有倒數延遲的問題
+        function timeDecrease () {
             if (time < 0) {
                 return;
             }
-            console.log("Game time: " + time);
+            console.log(`${socketId} Game time: ` + time); //
             socket.emit("countdown in game", time); // 對自己
             socket.to("room1").emit("countdown in game", time); // 對其他人
             time--;
         }
-        await setInterval(timeDecrease, 1000);
+        setInterval(timeDecrease, 1000);
+    });
+};
+
+const inGameClickCard = function (socket) {
+    socket.on("click card", async (cardId) => {
+        // const msg = socket.id + ": " + index;
+        socket.to("room1").emit("opposite click card", cardId); // 對其他人
+        console.log(socket.id + ": " + cardId);
     });
 };
 
@@ -67,5 +75,6 @@ module.exports = {
     chat,
     settingRules,
     countdowninReady,
-    countdowninGame
+    countdowninGame,
+    inGameClickCard
 };

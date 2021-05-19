@@ -1,12 +1,12 @@
 const { pool } = require("../models/mysqlcon");
 
 const getGameRules = async (socket) => {
-    // console.log("test");
-    const keys = [];
+    let room;
     for (const i of socket.adapter.rooms.keys()) {
-        keys.push(i);
+        if (i.length === 5) { // 待改
+            room = i;
+        }
     }
-    const room = keys[1];
     const sql = "SELECT * FROM game_setting_info WHERE game_id = ?";
     const result = await pool.query(sql, room);
     // console.log(result[0]);

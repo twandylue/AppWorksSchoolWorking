@@ -27,22 +27,22 @@ app.get("/test", (req, res) => {
     console.log("test_app");
 });
 
-const { chat, settingRules, countdowninReady, countdowninGame } = require("./server/models/socket");
+const { chat, settingRules, countdowninReady, countdowninGame, inGameClickCard } = require("./server/models/socket");
 io.on("connection", (socket) => {
     socket.join("room1"); // 有多人配對功能時 不能寫死 待改
     console.log(`user: ${socket.id} connected`);
-    // console.log(socket.adapter.rooms.get("room1"));
-    // const users = socket.adapter.rooms.get("room1");
-    // // console.log(users.keys());
-    // for (const i of users) {
-    //     console.log(i);
-    // }
-    // console.log(socket.adapter);
 
     chat(socket);
     settingRules(socket);
     countdowninReady(socket);
+    inGameClickCard(socket);
     countdowninGame(socket);
+
+    socket.on("disconnect", () => {
+        console.log(`user: ${socket.id} 
+        disconnected`);
+        // console.log(socket.adapter.rooms.get("room1"));
+    });
 });
 
 // page not found

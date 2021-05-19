@@ -1,4 +1,11 @@
 import { sendSettingInfo } from "./matchFetch.js";
+
+const socket = io();
+socket.on("connect", () => {
+    // 講整段code放入此處 表示連線後才能執行
+    console.log(socket.id);
+});
+
 // select music
 const music = document.querySelector("#music");
 music.addEventListener("change", () => {
@@ -46,11 +53,6 @@ roundsNumber.addEventListener("change", () => {
         target.append(roundsItem);
     }
 });
-
-const socket = io();
-// socket.on("connect", () => {
-//     console.log(socket.connected); // true
-// });
 
 const inputEnter = document.querySelector("#sendmsg #input");
 const sendMsg = document.querySelector("#send");
@@ -117,9 +119,100 @@ socket.on("start game", (rules) => {
             cardBackFaces[i].classList.remove("back-face_ready");
         }
         cardGame(); // for card game
-        socket.emit("in game", 60); // start to countdown
+        socket.emit("in game", socket.id); // start to countdown
     }
 });
+
+// for cardgame operation
+let isFlippedfromOther = false;
+socket.on("opposite click card", (cardId) => {
+    const cards = document.querySelectorAll(".memory-card");
+    isFlippedfromOther = true;
+    cards[cardId].click();
+    isFlippedfromOther = false;
+});
+
+function cardGame () {
+    const cards = document.querySelectorAll(".memory-card");
+
+    let hasFlippedCard = false;
+    let lockBoard = false;
+    let firstCard, secondCard;
+    let oppoFirstCard, oppoSecondCard;
+
+    function flipCard () {
+        if (isFlippedfromOther) {
+            console.log("from other: " + this.children[0].id);
+            if (!oppoFirstCard) {
+                console.log("test1");
+                oppoFirstCard = this;
+                this.classList.add("flip", "card-color");
+            } else {
+                console.log("test2");
+                oppoSecondCard = this;
+                this.classList.add("flip", "card-color");
+                unflipCards();
+                return;
+            }
+            return;
+        } else if (!lockBoard && firstCard !== this) {
+            socket.emit("click card", this.children[0].id);
+        }
+
+        if (lockBoard) return;
+        if (this === firstCard) return;
+        this.classList.add("flip", "card-color");
+
+        if (!hasFlippedCard) {
+            hasFlippedCard = true;
+            firstCard = this;
+            return;
+        }
+
+        secondCard = this;
+        checkForMatch();
+    }
+
+    function checkForMatch () {
+        // do cards match?
+        const isMatch = firstCard.dataset.framework === secondCard.dataset.framework;
+        isMatch ? disableCards() : unflipCards();
+    }
+
+    function disableCards () {
+        firstCard.removeEventListener("click", flipCard);
+        secondCard.removeEventListener("click", flipCard);
+        resetBoard();
+    }
+
+    function unflipCards () {
+        if (isFlippedfromOther) {
+            setTimeout(() => {
+                console.log("unflipCards isFlippedfromOther");
+                oppoFirstCard.classList.remove("flip", "card-color");
+                oppoSecondCard.classList.remove("flip", "card-color");
+                [oppoFirstCard, oppoSecondCard] = [null, null];
+            }, 6000);
+            // [oppoFirstCard, oppoSecondCard] = [null, null];
+            return;
+        }
+
+        lockBoard = true;
+        setTimeout(() => {
+            firstCard.classList.remove("flip", "card-color");
+            secondCard.classList.remove("flip", "card-color");
+            lockBoard = false;
+            resetBoard();
+        }, 6000);
+    }
+
+    function resetBoard () {
+        [firstCard, secondCard] = [null, null];
+        [hasFlippedCard, lockBoard] = [false, false];
+    }
+
+    cards.forEach(card => card.addEventListener("click", flipCard));
+}
 
 socket.on("countdown in game", (time) => {
     if (document.querySelector("#countdown") === null) {
@@ -159,7 +252,7 @@ start.addEventListener("click", () => {
     };
 
     socket.emit("rules", rules); // set rules
-    socket.emit("in ready", 10); // start to countdown
+    socket.emit("in ready", socket.id); // start to countdown
 
     // sendSettingInfo(rules).then((result) => {
     //     // 兩端同事變畫面
@@ -211,7 +304,7 @@ function addPoints () {
     right.insertBefore(oppositeUserPoints, right.children[right.children.length - 1]);
 }
 
-function addGameInfo (type, number, rounds) { /// //////
+function addGameInfo (type, number, rounds) {
     const gameInfo = document.createElement("div");
     gameInfo.id = "game_info";
     const infoTitle = document.createElement("div");
@@ -249,7 +342,8 @@ function addGameStatusandCards (number, targets, state) {
     const countdown = document.createElement("div");
     countdown.id = "countdown";
     countdown.className = "game_status";
-    countdown.innerHTML = "Countdown: 10 s"; // wait for ajax()
+    countdown.innerHTML = "Countdown: 5 s"; // wait for ajax()
+    // countdown.innerHTML = ""; // wait for ajax()
     const game = document.createElement("div");
     game.id = "game";
     const memoryGame = document.createElement("section");
@@ -279,58 +373,9 @@ function addGameStatusandCards (number, targets, state) {
     // container.insertBefore(middle, container.childNodes[2]);
     container.insertBefore(middle, container.children[container.children.length - 1]);
 }
+// for card game in socket
+function cardGameSocket (index) {
 
-// for cardgame operation
-function cardGame () {
-    const cards = document.querySelectorAll(".memory-card");
-
-    let hasFlippedCard = false;
-    let lockBoard = false;
-    let firstCard, secondCard;
-
-    function flipCard () {
-        if (lockBoard) return;
-        if (this === firstCard) return;
-        this.classList.add("flip", "card-color");
-
-        if (!hasFlippedCard) {
-            hasFlippedCard = true;
-            firstCard = this;
-            return;
-        }
-
-        secondCard = this;
-        checkForMatch();
-    }
-
-    function checkForMatch () {
-    // do cards match?
-        const isMatch = firstCard.dataset.framework === secondCard.dataset.framework;
-        isMatch ? disableCards() : unflipCards();
-    }
-
-    function disableCards () {
-        firstCard.removeEventListener("click", flipCard);
-        secondCard.removeEventListener("click", flipCard);
-        resetBoard();
-    }
-
-    function unflipCards () {
-        lockBoard = true;
-        setTimeout(() => {
-            firstCard.classList.remove("flip", "card-color");
-            secondCard.classList.remove("flip", "card-color");
-            lockBoard = false;
-            resetBoard();
-        }, 500);
-    }
-
-    function resetBoard () {
-        [firstCard, secondCard] = [null, null];
-        [hasFlippedCard, lockBoard] = [false, false];
-    }
-
-    cards.forEach(card => card.addEventListener("click", flipCard));
 }
 
 // for record
