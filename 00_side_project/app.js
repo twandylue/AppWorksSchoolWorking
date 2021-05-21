@@ -18,22 +18,28 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/" + API_VERSION,
     [
         require("./server/routes/match_route"),
-        require("./server/routes/chatroom_route")
-        // require("./server/routes/countdown_route")
+        require("./server/routes/chatroom_route"),
+        require("./server/routes/pairAns_route")
     ]
 );
 
-app.get("/test", (req, res) => {
-    console.log("test_app");
+const { genMultiCardsNumber } = require("./server/models/genMultiCardsNumber");
+app.post("/test", (req, res) => {
+    const target = req.body.data.target;
+    const totalCards = req.body.data.number;
+    const cardsObj = genMultiCardsNumber(target, totalCards);
+    // console.log(cardsObj);
+    res.send(cardsObj);
 });
 
-const { chat, settingRules, countdowninReady, countdowninGame, inGameClickCard } = require("./server/models/socket");
+const { chat, getOpponentName, setRules, countdowninReady, countdowninGame, inGameClickCard } = require("./server/models/socket");
 io.on("connection", (socket) => {
     socket.join("room1"); // 有多人配對功能時 不能寫死 待改
     console.log(`user: ${socket.id} connected`);
 
     chat(socket);
-    settingRules(socket);
+    getOpponentName(socket);
+    setRules(socket);
     countdowninReady(socket);
     inGameClickCard(socket);
     countdowninGame(socket);

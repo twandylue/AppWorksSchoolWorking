@@ -98,3 +98,8 @@ body {
     border: rgb(238, 56, 56) solid 5.0px;
     border-style: dotted;
 }
+
+.card-color-opponent {
+    border: rgb(41, 44, 233) solid 5.0px;
+    border-style: dotted;
+}
