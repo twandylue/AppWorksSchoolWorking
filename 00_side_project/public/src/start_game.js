@@ -26,8 +26,7 @@ function startGame (socket) {
         targets: targetList
     };
 
-    socket.emit("rules", rules); // set rules
-    socket.emit("in ready", socket.id); // start to countdown
+    socket.emit("start game loop", rules);
 }
 
 export { startGame };

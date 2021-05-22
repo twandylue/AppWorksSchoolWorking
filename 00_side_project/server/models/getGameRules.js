@@ -9,7 +9,6 @@ const getGameRules = async (socket) => {
     }
     const sql = "SELECT * FROM game_setting_info WHERE game_id = ?";
     const result = await pool.query(sql, room);
-    // console.log(result[0]);
     const rawTargets = [result[0][0].targets_1, result[0][0].targets_2, result[0][0].targets_3];
     const targets = [];
     for (const i in rawTargets) {
@@ -17,6 +16,8 @@ const getGameRules = async (socket) => {
             targets.push(rawTargets[i]);
         }
     }
+
+    // console.log(result[0][0]);
 
     const rules = {
         type: result[0][0].type,

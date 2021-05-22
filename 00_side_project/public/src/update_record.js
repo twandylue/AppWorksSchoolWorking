@@ -1,4 +1,4 @@
-// for record
+// for record page
 function updateRecord () {
     const deleteItem = document.querySelector("#middle");
     deleteItem.remove();

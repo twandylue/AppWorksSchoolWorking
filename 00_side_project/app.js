@@ -32,17 +32,16 @@ app.post("/test", (req, res) => {
     res.send(cardsObj);
 });
 
-const { chat, getOpponentName, setRules, countdowninReady, countdowninGame, inGameClickCard } = require("./server/models/socket");
+const socketModule = require("./server/models/socket_model");
+
 io.on("connection", (socket) => {
     socket.join("room1"); // 有多人配對功能時 不能寫死 待改
     console.log(`user: ${socket.id} connected`);
 
-    chat(socket);
-    getOpponentName(socket);
-    setRules(socket);
-    countdowninReady(socket);
-    inGameClickCard(socket);
-    countdowninGame(socket);
+    socketModule.chat(socket);
+    socketModule.getOpponentName(socket);
+    socketModule.inGameClickCard(socket);
+    socketModule.startGameLoop(socket);
 
     socket.on("disconnect", () => {
         console.log(`user: ${socket.id} 

@@ -1,5 +1,5 @@
 // refresh page for cardgame and set cards
-function addGameStatusandCards (number, targets, state, cardsSetting) {
+function addGameStatusandCards (round, number, target, state, cardsSetting) {
     const deleteItem = document.querySelector("#middle");
     deleteItem.remove();
     const middle = document.createElement("div");
@@ -7,11 +7,11 @@ function addGameStatusandCards (number, targets, state, cardsSetting) {
     const status = document.createElement("div");
     status.id = "status";
     status.className = "game_status";
-    status.innerHTML = "Ready";
+    status.innerHTML = `Rodun ${round} Ready`;
     const goal = document.createElement("div");
     goal.id = "goal";
     goal.className = "game_status";
-    goal.innerHTML = `Target: card1 x card2 = ${targets[0]}`; // wait for ajax()
+    goal.innerHTML = `Target: card1 x card2 = ${target}`; // wait for ajax() // 待改
     const countdown = document.createElement("div");
     countdown.id = "countdown";
     countdown.className = "game_status";
@@ -23,7 +23,7 @@ function addGameStatusandCards (number, targets, state, cardsSetting) {
     for (let i = 0; i < (number * number); i++) { // i wati for ajax()
         const card = document.createElement("div");
         card.classList.add("memory-card", `double${number}`); // double{i} wait for ajax()
-        card.dataset.framework = `pair_${i}`; // wait for ajax() pair ans 待改
+        card.dataset.framework = `pair_${i}`; // wait for ajax() pair ans
         const frontFace = document.createElement("div");
         frontFace.id = `${i}`; // wait for ajax() pair ans
         frontFace.innerHTML = `${cardsSetting[i]}`; // wait for ajax() pair ans

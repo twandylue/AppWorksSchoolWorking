@@ -2,7 +2,7 @@
 import { refreshRoundsInfo } from "./refresh_rounds_info.js";
 import { addGameInfo } from "./add_game_info.js";
 import { addGameStatusandCards } from "./add_game_status_cards.js";
-import { updateRecord } from "./updare_record.js";
+import { updateRecord } from "./update_record.js";
 import { updatePoints } from "./update_points.js";
 import { startGame } from "./start_game.js";
 import { cardGame } from "./card_game.js";
@@ -114,11 +114,11 @@ socket.on("opponent name", (name) => {
 });
 
 socket.on("execute rules", (info) => {
-    console.log(info.rules);
+    // console.log(info.rules);
     refreshRoundsInfo(info.rules.rounds);
-    updatePoints();
+    updatePoints(); // 待改
     addGameInfo(info.rules.type, info.rules.number, info.rules.rounds);
-    addGameStatusandCards(info.rules.number, info.rules.targets, info.rules.state, info.cardsSetting);
+    addGameStatusandCards(info.round, info.rules.number, info.target, info.rules.state, info.cardsSetting);
 });
 
 socket.on("countdown in ready", (time) => {
@@ -135,16 +135,34 @@ socket.on("countdown in game", (time) => {
     document.querySelector("#countdown").innerHTML = `Countdown: ${time} s`;
 });
 
-socket.on("start game", (rules) => {
-    if (rules.state === "start") {
+socket.on("start game", (info) => {
+    if (info.msg === "start") {
         const cardFrontFaces = document.querySelectorAll(".front-face");
         const cardBackFaces = document.querySelectorAll(".back-face");
+        const status = document.querySelector("#status");
+        // status.innerHTML += " Round Start!"; // 待改
         for (let i = 0; i < cardFrontFaces.length; i++) {
             cardFrontFaces[i].innerHTML = "??? 由後端控制"; /// / 待改
             cardFrontFaces[i].classList.add("front-face_start");
             cardBackFaces[i].classList.remove("back-face_ready");
         }
-        cardGame(socket);
-        socket.emit("in game", socket.id); // start to countdown
+
+        cardGame(socket); /// 初始化 卡牌不能刪除 只需要更新 eventlistener 會被刪除
+
+        // socket.emit("in game", socket.id); // start to countdown // 會有問題 重複送出
     }
+});
+
+// socket.on("time out", (msg) => {
+//     socket.emit("next round set rules", socket.id); // 有問題 不能兩個玩家都送出請求
+//     socket.emit("standby", socket.id); // 可能會有問題
+// });
+
+socket.on("next round execute rules", (info) => {
+    addGameStatusandCards(info.round, info.rules.number, info.target, info.rules.state, info.cardsSetting);
+});
+
+socket.on("game over", (msg) => {
+    alert(msg);
+    updateRecord();
 });

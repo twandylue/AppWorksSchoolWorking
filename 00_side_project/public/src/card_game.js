@@ -65,7 +65,7 @@ function cardGame (socket) {
                 opponentFirstCard.classList.remove("flip", "card-color-opponent");
                 opponentSecondCard.classList.remove("flip", "card-color-opponent");
                 [opponentFirstCard, opponentSecondCard] = [null, null];
-            }, 6000);
+            }, 1500);
             return;
         }
 
@@ -75,7 +75,7 @@ function cardGame (socket) {
             secondCard.classList.remove("flip", "card-color");
             lockBoard = false;
             resetBoard();
-        }, 6000);
+        }, 1500);
     }
 
     function resetBoard () {
