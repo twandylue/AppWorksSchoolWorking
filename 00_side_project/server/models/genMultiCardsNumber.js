@@ -1,4 +1,3 @@
-const { pool } = require("./mysqlcon");
 const { getMultiPairs } = require("./getPairNumber");
 const genMultiCardsNumber = (target, totalCards) => {
     const multiPairs = getMultiPairs(target);

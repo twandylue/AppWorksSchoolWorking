@@ -3,7 +3,7 @@ const { pool } = require("../models/mysqlcon");
 const getGameRules = async (socket) => {
     let room;
     for (const i of socket.adapter.rooms.keys()) {
-        if (i.length === 5) { // 待改
+        if (i.length === 7) { // room名稱待改
             room = i;
         }
     }
@@ -16,8 +16,6 @@ const getGameRules = async (socket) => {
             targets.push(rawTargets[i]);
         }
     }
-
-    // console.log(result[0][0]);
 
     const rules = {
         type: result[0][0].type,

@@ -4,7 +4,7 @@ const setGameRules = async (rules, socket) => {
     const socketId = socket.id;
     let room;
     for (const i of socket.adapter.rooms.keys()) {
-        if (i.length === 5) { // room名稱待改
+        if (i.length === 7) { // room名稱待改
             room = i;
         }
     }

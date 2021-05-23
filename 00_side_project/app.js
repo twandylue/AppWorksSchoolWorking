@@ -1,6 +1,8 @@
 require("dotenv").config();
 const { PORT_TEST, PORT, NODE_ENV, API_VERSION } = process.env;
 const port = PORT;
+const { ROOM_TEST } = process.env;
+// console.log(ROOM_TEST);
 
 // Express initialization
 const express = require("express");
@@ -24,7 +26,7 @@ app.use("/api/" + API_VERSION,
 );
 
 const { genMultiCardsNumber } = require("./server/models/genMultiCardsNumber");
-app.post("/test", (req, res) => {
+app.post("/test1", (req, res) => {
     const target = req.body.data.target;
     const totalCards = req.body.data.number;
     const cardsObj = genMultiCardsNumber(target, totalCards);
@@ -32,21 +34,32 @@ app.post("/test", (req, res) => {
     res.send(cardsObj);
 });
 
+const { saveCardsSetting } = require("./server/models/saveCardsSetting_model");
+app.post("/test2", (req, res) => {
+    const cardsSetting = req.body.data.cardsSetting;
+    const room = req.body.data.game_id;
+    const round = req.body.data.round;
+    // console.log(cardsSetting);
+    const cardsObj = saveCardsSetting(cardsSetting, room, round);
+    // console.log(cardsObj);
+    res.send("cardsObj");
+});
+
 const socketModule = require("./server/models/socket_model");
-
 io.on("connection", (socket) => {
-    socket.join("room1"); // 有多人配對功能時 不能寫死 待改
+    socket.join(ROOM_TEST); // 有多人配對功能時 不能寫死 待改
     console.log(`user: ${socket.id} connected`);
-
+    // console.log(socket.adapter.rooms);
     socketModule.chat(socket);
     socketModule.getOpponentName(socket);
-    socketModule.inGameClickCard(socket);
+    socketModule.ClickCardinGame(socket);
     socketModule.startGameLoop(socket);
+    socketModule.checkMatch(socket);
 
     socket.on("disconnect", () => {
         console.log(`user: ${socket.id} 
         disconnected`);
-        // console.log(socket.adapter.rooms.get("room1"));
+        // console.log(socket.adapter.rooms.get(ROOM_TEST));
     });
 });
 
@@ -69,4 +82,6 @@ server.listen(port, () => {
 //     console.log("App listening on port: 3000");
 // });
 
-module.exports = app;
+// module.exports = {
+//     app
+// };
