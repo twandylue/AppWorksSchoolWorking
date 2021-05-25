@@ -1,11 +1,12 @@
 import { refreshRoundsInfo } from "./refresh_rounds_info.js";
 import { addGameInfo } from "./add_game_info.js";
 import { addGameStatusandCards } from "./add_game_status_cards.js";
-import { updateRecord } from "./update_record.js";
+import { gameStat } from "./game_stat.js";
 import { initPointsInfo } from "./points_info_init.js";
 import { startGame } from "./start_game.js";
 import { cardGame } from "./card_game.js";
 import { refreshCardsSetting } from "./refresh_cards_setting.js";
+import { updatePoints } from "./update_points.js";
 
 const socket = io();
 socket.on("connect", () => {
@@ -108,10 +109,8 @@ socket.on("opponent name", (name) => {
 });
 
 socket.on("execute rules", (info) => {
-    // console.log(info.rules);
     refreshRoundsInfo(info.rules.rounds);
     initPointsInfo();
-    // updatePoints(); // 待改
     addGameInfo(info.rules.type, info.rules.number, info.rules.rounds);
     addGameStatusandCards(info.round, info.rules.number, info.target, info.rules.state, info.cardsSetting);
 });
@@ -142,7 +141,7 @@ socket.on("start game", (info) => {
             cardBackFaces[i].classList.remove("back-face_ready");
         }
 
-        cardGame(socket, info.round, info.target); /// 需要將target送到前端這邊嗎？ 有沒有更好的方法
+        cardGame(socket, info.round, info.target);
     }
 });
 
@@ -151,11 +150,31 @@ socket.on("fill card number", (cardfilledInfo) => {
     cardFrontFaces[cardfilledInfo.cardID].innerHTML = cardfilledInfo.number; /// / 待改
 });
 
-socket.on("next round execute rules", (info) => { // 不能刪除卡片 game() 會壞掉
+socket.on("next round execute rules", (info) => { // 要刪除game()
     addGameStatusandCards(info.round, info.rules.number, info.target, info.rules.state, info.cardsSetting);
 });
 
-socket.on("game over", (msg) => {
-    alert(msg);
-    updateRecord();
+socket.on("update points", (pointsInfo) => {
+    updatePoints(socket, pointsInfo);
+});
+
+socket.on("game over", (gameStatInfo) => {
+    alert("GAME OVER!");
+    let hitRate, roundsPoints, totalPoints, winnerStatus;
+    for (const i in gameStatInfo.results) {
+        if (socket.id === gameStatInfo.results[i].playerID) {
+            hitRate = gameStatInfo.results[i].hitRate;
+            roundsPoints = gameStatInfo.results[i].roundsPoints.map((element) => { return element; });
+            totalPoints = gameStatInfo.results[i].totalPoints;
+        }
+    }
+    if (gameStatInfo.winner[0] === socket.id) {
+        winnerStatus = "You win";
+    } else {
+        winnerStatus = "You lose";
+    }
+    if (gameStatInfo.winner.length === 2) {
+        winnerStatus = "Tie";
+    }
+    gameStat(hitRate, totalPoints, roundsPoints, winnerStatus);
 });

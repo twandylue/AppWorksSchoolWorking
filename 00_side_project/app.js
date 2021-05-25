@@ -49,12 +49,18 @@ const socketModule = require("./server/models/socket_model");
 io.on("connection", (socket) => {
     socket.join(ROOM_TEST); // 有多人配對功能時 不能寫死 待改
     console.log(`user: ${socket.id} connected`);
+
+    // console.log("==================");
+    // console.log(io.sockets.adapter.sids.get(socket.id)); // 可以找到room
+    // console.log("==================");
+
     // console.log(socket.adapter.rooms);
+    // socketModule.joinRomm(socket);
     socketModule.chat(socket);
     socketModule.getOpponentName(socket);
     socketModule.ClickCardinGame(socket);
     socketModule.startGameLoop(socket);
-    socketModule.checkMatch(socket);
+    // socketModule.checkMatch(socket);
 
     socket.on("disconnect", () => {
         console.log(`user: ${socket.id} 

@@ -7,7 +7,7 @@ const updateNowRound = async (socket) => {
             room = i;
         }
     }
-    let sql = "SELECT * FROM round_count WHERE game_id = ?";
+    let sql = "SELECT * FROM round_count WHERE game_ID = ?";
     const data = [room];
     const result = await pool.query(sql, [[data]]);
     // console.log("=======update round=============================");
@@ -16,22 +16,22 @@ const updateNowRound = async (socket) => {
     const conn = await pool.getConnection();
     try {
         await conn.query("START TRANSACTION");
-        sql = "DELETE FROM round_count WHERE game_id = ?";
+        sql = "DELETE FROM round_count WHERE game_ID = ?";
         const deleteInfo = await conn.query(sql, [[data]]);
         // console.log("delete info: ");
         // console.log(deleteInfo);
         // console.log("------end");
 
-        sql = "INSERT INTO round_count (game_id, total_rounds, now_round) VALUES ?";
+        sql = "INSERT INTO round_count (game_ID, total_rounds, now_round) VALUES ?";
         const nextRound = result[0][0].now_round + 1;
-        const newdata = [result[0][0].game_id, result[0][0].total_rounds, nextRound];
+        const newdata = [result[0][0].game_ID, result[0][0].total_rounds, nextRound];
         const test2 = await conn.query(sql, [[newdata]]);
         // console.log(test2);
         // console.log("--------end");
         // console.log("next round: " + nextRound);
         await conn.query("COMMIT");
-        console.log("new data: ");
-        console.log(newdata);
+        // console.log("new data: ");
+        // console.log(newdata);
         return nextRound;
     } catch (err) {
         await conn.query("ROLLBACK");

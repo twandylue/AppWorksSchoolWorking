@@ -1,5 +1,6 @@
-function cardGame (socket, round, target) {
-    let hasEmitCheckMatch = false;
+function cardGame (socket, round, target) { // 第一回合有選中 第二回合會出現問題
+    // let hasEmitCheckMatch = false;
+    let hasEmitedTwice = false;
     let lockBoard = false;
     let firstCard, secondCard;
     let opponentFirstCard, opponentSecondCard;
@@ -27,30 +28,43 @@ function cardGame (socket, round, target) {
                 secondCard = this;
                 lockBoard = true; // be able to flip only two card
             }
+            const countdownTime = document.querySelector("#countdown").innerHTML;
+            const time = countdownTime.split(" ")[1];
             const info = {
                 source: socket.id,
                 cardID: this.children[0].id,
                 round: round,
-                target: target
+                target: target,
+                time: time
             };
-            socket.emit("click card", info);
 
-            if (secondCard && !hasEmitCheckMatch) {
-                const checkMatchInfo = {
-                    source: socket.id,
-                    number1: [firstCard.children[0].id, firstCard.children[0].innerHTML],
-                    number2: [secondCard.children[0].id, secondCard.children[0].innerHTML],
-                    round: round,
-                    target: target
-                };
-                socket.emit("ckeck match", checkMatchInfo); // check if match
-                hasEmitCheckMatch = true;
+            if (!hasEmitedTwice) {
+                if (secondCard) {
+                    hasEmitedTwice = true;
+                }
+                socket.emit("click card", info);
             }
+            // socket.emit("click card", info);
+
+            // if (secondCard && !hasEmitCheckMatch) {
+            //     const checkMatchInfo = {
+            //         source: socket.id,
+            //         number1: [firstCard.children[0].id, firstCard.children[0].innerHTML],
+            //         number2: [secondCard.children[0].id, secondCard.children[0].innerHTML],
+            //         round: round,
+            //         target: target
+            //     };
+            //     socket.emit("ckeck match", checkMatchInfo); // check if match
+            //     hasEmitCheckMatch = true;
+            // }
         }
     }
 
     socket.on("card number match", (cardMatchInfo) => {
         if (cardMatchInfo.selecterID === socket.id) { // fliped by local
+            firstCard = cards[cardMatchInfo.cardIDs[0]];
+            secondCard = cards[cardMatchInfo.cardIDs[1]];
+            console.log("test===============");
             firstCard.removeEventListener("click", flipCard);
             secondCard.removeEventListener("click", flipCard);
             resetBoard();
@@ -66,6 +80,8 @@ function cardGame (socket, round, target) {
         // console.log("=====================LOCAL ID: " + socket.id);
 
         if (cardMatchInfo.selecterID === socket.id) {
+            firstCard = cards[cardMatchInfo.cardIDs[0]]; // 指定element
+            secondCard = cards[cardMatchInfo.cardIDs[1]];
             lockBoard = true;
             setTimeout(() => {
                 firstCard.classList.remove("flip", "card-color");
@@ -74,9 +90,11 @@ function cardGame (socket, round, target) {
                 resetBoard();
             }, 800);
         } else {
+            opponentFirstCard = cards[cardMatchInfo.cardIDs[0]]; // 指定element
+            opponentSecondCard = cards[cardMatchInfo.cardIDs[1]];
             setTimeout(() => {
-                opponentFirstCard.classList.remove("flip", "card-color-opponent");
-                opponentSecondCard.classList.remove("flip", "card-color-opponent");
+                opponentFirstCard.classList.remove("flip", "card-color-opponent"); //
+                opponentSecondCard.classList.remove("flip", "card-color-opponent"); //
                 [opponentFirstCard.children[0].innerHTML, opponentSecondCard.children[0].innerHTML] = ["", ""];
                 [opponentFirstCard, opponentSecondCard] = [null, null];
             }, 800);
@@ -85,7 +103,7 @@ function cardGame (socket, round, target) {
 
     function resetBoard () {
         [firstCard, secondCard] = [null, null];
-        [hasEmitCheckMatch, lockBoard] = [false, false];
+        [hasEmitedTwice, lockBoard] = [false, false];
     }
 
     cards.forEach(card => card.addEventListener("click", flipCard));

@@ -7,7 +7,7 @@ const getGameRules = async (socket) => {
             room = i;
         }
     }
-    const sql = "SELECT * FROM game_setting_info WHERE game_id = ?";
+    const sql = "SELECT * FROM game_setting_info WHERE game_ID = ?";
     const result = await pool.query(sql, room);
     const rawTargets = [result[0][0].targets_1, result[0][0].targets_2, result[0][0].targets_3];
     const targets = [];

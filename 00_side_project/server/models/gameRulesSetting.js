@@ -13,11 +13,11 @@ const setGameRules = async (rules, socket) => {
     for (let i = 0; i < 3; i++) {
         data.push(rules.targets[i]);
     }
-    let sql = "INSERT INTO game_setting_info (game_id, rule_setter, type, number, rounds, targets_1, targets_2, targets_3) VALUES ?";
+    let sql = "INSERT INTO game_setting_info (game_ID, rule_setter, type, number, rounds, targets_1, targets_2, targets_3) VALUES ?";
     pool.query(sql, [[data]]);
 
     const roundCountInfo = [room, rules.rounds, 1];
-    sql = "INSERT INTO round_count (game_id, total_rounds, now_round) VALUES ?";
+    sql = "INSERT INTO round_count (game_ID, total_rounds, now_round) VALUES ?";
     pool.query(sql, [[roundCountInfo]]);
 };
 

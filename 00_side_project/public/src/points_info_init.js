@@ -8,11 +8,11 @@ function initPointsInfo () {
     pics.remove();
 
     const userPoints = document.createElement("div");
-    userPoints.id = "user_points";
+    userPoints.id = "player_points";
     userPoints.className = "points";
     userPoints.innerHTML = "Points: 0"; // wait for server
     const oppositeUserPoints = document.createElement("div");
-    oppositeUserPoints.id = "user_points";
+    oppositeUserPoints.id = "oppo_player_points"; // oppo_user_points
     oppositeUserPoints.className = "points";
     oppositeUserPoints.innerHTML = "Points: 0"; // wait for server
     const left = document.querySelector("#left");

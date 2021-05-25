@@ -13,8 +13,8 @@ const saveCardsSetting = async (cardsSetting, socket, round) => {
     for (const id in cardIds) {
         data.push([room, round, id, cardsSetting[id]]);
     }
-    console.log(data);
-    const sql = "INSERT INTO cards_setting_info (game_id, round, card_id, number) VALUES ?";
+    // console.log(data);
+    const sql = "INSERT INTO cards_setting_info (game_ID, round, card_ID, number) VALUES ?";
     const result = await pool.query(sql, [data]);
     // console.log(result);
 };
@@ -26,7 +26,7 @@ const saveCardsSetting = async (cardsSetting, socket, round) => {
 //         data.push([room, round, id, cardsSetting[id]]);
 //     }
 //     console.log(data);
-//     const sql = "INSERT INTO cards_setting_info (game_id, round, card_id, number) VALUES ?";
+//     const sql = "INSERT INTO cards_setting_info (game_ID, round, card_ID, number) VALUES ?";
 //     const result = await pool.query(sql, [data]);
 //     // console.log(result)
 // };
