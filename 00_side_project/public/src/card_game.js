@@ -30,12 +30,16 @@ function cardGame (socket, round, target) { // 第一回合有選中 第二回�
             }
             const countdownTime = document.querySelector("#countdown").innerHTML;
             const time = countdownTime.split(" ")[1];
+            const token = localStorage.getItem("access_token");
+            const gameID = localStorage.getItem("gameID");
             const info = {
                 source: socket.id,
                 cardID: this.children[0].id,
                 round: round,
                 target: target,
-                time: time
+                time: time,
+                token: token,
+                gameID: gameID
             };
 
             if (!hasEmitedTwice) {
@@ -44,19 +48,6 @@ function cardGame (socket, round, target) { // 第一回合有選中 第二回�
                 }
                 socket.emit("click card", info);
             }
-            // socket.emit("click card", info);
-
-            // if (secondCard && !hasEmitCheckMatch) {
-            //     const checkMatchInfo = {
-            //         source: socket.id,
-            //         number1: [firstCard.children[0].id, firstCard.children[0].innerHTML],
-            //         number2: [secondCard.children[0].id, secondCard.children[0].innerHTML],
-            //         round: round,
-            //         target: target
-            //     };
-            //     socket.emit("ckeck match", checkMatchInfo); // check if match
-            //     hasEmitCheckMatch = true;
-            // }
         }
     }
 
@@ -64,7 +55,6 @@ function cardGame (socket, round, target) { // 第一回合有選中 第二回�
         if (cardMatchInfo.selecterID === socket.id) { // fliped by local
             firstCard = cards[cardMatchInfo.cardIDs[0]];
             secondCard = cards[cardMatchInfo.cardIDs[1]];
-            console.log("test===============");
             firstCard.removeEventListener("click", flipCard);
             secondCard.removeEventListener("click", flipCard);
             resetBoard();

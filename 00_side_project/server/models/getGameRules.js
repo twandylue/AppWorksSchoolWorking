@@ -1,14 +1,19 @@
 const { pool } = require("../models/mysqlcon");
 
-const getGameRules = async (socket) => {
-    let room;
-    for (const i of socket.adapter.rooms.keys()) {
-        if (i.length === 7) { // room名稱待改
-            room = i;
-        }
+const getGameRules = async (socket, io) => {
+    // let room;
+    // for (const i of socket.adapter.rooms.keys()) {
+    //     if (i.length === 7) { // room名稱待改
+    //         room = i;
+    //     }
+    // }
+    const room = [];
+    for (const i of io.sockets.adapter.sids.get(socket.id)) { // room[1]: room
+        room.push(i);
     }
-    const sql = "SELECT * FROM game_setting_info WHERE game_ID = ?";
-    const result = await pool.query(sql, room);
+
+    const sql = "SELECT * FROM game_setting_info WHERE room_id = ?";
+    const result = await pool.query(sql, room[1]);
     const rawTargets = [result[0][0].targets_1, result[0][0].targets_2, result[0][0].targets_3];
     const targets = [];
     for (const i in rawTargets) {

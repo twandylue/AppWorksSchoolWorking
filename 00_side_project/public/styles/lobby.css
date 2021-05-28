@@ -1,0 +1,95 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 5.0% 2% 5%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#header {
+    width: 95%;
+    background-color: red;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+#user_profile {
+    display: flex;
+    flex-direction: column;
+}
+
+img {
+    height: 90px;
+    width: 90px;
+}
+
+#container {
+    display: flex;
+    flex-direction: row;
+    /* justify-content: space-evenly; */
+    justify-content: space-between;
+    width: 95%;
+    height: 90%;
+}
+
+#left {
+    width: 50%;
+    background-color: aqua;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+#rule-info {
+    background-color: seagreen;
+    height: 80%;
+}
+
+#title {
+    background-color: rgb(172, 209, 9);
+    height: 2.8rem;
+    font-size: 2rem;
+}
+
+#right {
+    width: 40%;
+    background-color: blueviolet;
+}
+
+#romm-list {
+    height: 100%;
+    background-color: rgb(222, 224, 101);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.room {
+    border: solid 2.0px red;
+    height: 16%;
+    margin-left: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.room-state {
+    font-size: 1.2rem;
+}
+
+.room-name {
+    font-size: 1.6rem;
+}
+
+.button {
+    width: 100px;
+    height: 1.6rem;
+    font-size: 1.0rem;
+}

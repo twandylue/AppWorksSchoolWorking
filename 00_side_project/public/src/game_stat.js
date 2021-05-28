@@ -38,7 +38,6 @@ function gameStat (hitRate, totalPointsNumber, roundsPoints, winnerStatus) {
     eachRoundPoint.className = "record_info";
     eachRoundPoint.id = "each_round_point";
     const strRoundsPoints = roundsPoints.toString().replace(/,/g, "/");
-    // eachRoundPoint.innerHTML = "Each round points: 20/40/30";
     eachRoundPoint.innerHTML = "Each round points: " + strRoundsPoints;
     console.log(roundsPoints);
     console.log(strRoundsPoints);
@@ -51,8 +50,6 @@ function gameStat (hitRate, totalPointsNumber, roundsPoints, winnerStatus) {
     winner.className = "record_info";
     winner.id = "winner";
     winner.innerHTML = `Final: ${winnerStatus}`;
-    // winner.innerHTML = "Winner: Andy"; //
-    // recordBorder.append(correctRate, totalPoints, eachRoundPoint, eachRoundTime, winner);
     recordBorder.append(correctRate, totalPoints, eachRoundPoint, winner);
 
     recordTitle.append(recordBorder);

@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MEMORY GAME</title>
+        <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link rel="stylesheet" type="text/css" href="/styles/basic.css" media="all">
         <link rel="stylesheet" href="./styles/game.css">
     </head>
@@ -18,10 +19,7 @@
                 </select>
                 <div class = "user" id = "user_container">
                     <img class = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
-                    <div id = "input">
-                        <input id = "input_name" type = "text" placeholder = "Please enter your name" name = "name">
-                        <button id = "submit_name">Submit</button>
-                    </div>
+                    <div id = "name"></div>
                 </div>
                 <div id = "chat_room">
                     <ul id = "messages"></ul>

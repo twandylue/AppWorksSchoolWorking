@@ -10,8 +10,8 @@ async function recordEveryRound (gameID, socket, round) {
     // console.log(IDs);
     // console.log("round: " + round);
     for (const i in IDs) {
-        const sql = "SELECT player_ID, SUM(points) FROM game_history GROUP BY roundSELECT player_ID, round, SUM(points) FROM game_history WHERE player_ID = ? GROUP BY round;";
-        // const sql = "SELECT player_ID, round, SUM(points) FROM game_history WHERE player_ID = ? AND round = ? GROUP BY round";
+        const sql = "SELECT player_email, SUM(points) FROM game_history GROUP BY roundSELECT player_email, round, SUM(points) FROM game_history WHERE player_email = ? GROUP BY round;";
+        // const sql = "SELECT player_email, round, SUM(points) FROM  WHERE player_email = ? AND round = ? GROUP BY round";
         // console.log(pool.format(sql, [IDs[i]]));
         await pool.query(sql, [IDs[i]]);
     }

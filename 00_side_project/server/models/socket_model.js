@@ -1,124 +1,145 @@
 require("dotenv").config();
 const { STANDBYTIME, ROUNDTIME } = process.env;
-const { ROOM_TEST } = process.env;
+const { TOKEN_SECRET } = process.env;
 console.log({ STANDBYTIME, ROUNDTIME });
-console.log({ ROOM_TEST });
 
-const { pool } = require("./mysqlcon");
+const jwt = require("jsonwebtoken");
 const { setGameRules } = require("./gameRulesSetting");
-// const { getGameRules } = require("./getGameRules");
 const { genMultiCardsNumber } = require("./genMultiCardsNumber");
-// const { updateNowRound } = require("./updateNowRound");
 const { saveCardsSetting } = require("./saveCardsSetting_model");
 const { getCardNumber } = require("./getCardNumber");
 const { recordEveryStep } = require("./step_record_model");
-// const { recordEveryRound } = require("./round_record_model");
 const { sumRecord } = require("./record_summary_model");
+const roomModule = require("./Room_model");
 
-const chat = function (socket) {
+const updateRoominfo = function (socket, io) {
+    socket.on("update room info", async () => {
+        const roomInfo = await roomModule.getRoomLobbyInfo();
+        io.emit("room info", roomInfo);
+    });
+};
+
+const Room = function (socket, io) {
+    // console.log(socket.handshake.auth); // socket token
+    socket.on("join room", async (info) => {
+        try {
+            const user = jwt.verify(info.token, TOKEN_SECRET);
+            const pass = await roomModule.joinRoom(info.roomID, user.email);
+            if (pass) {
+                socket.join(info.roomID);
+                socket.emit("join success", info.roomID);
+            } else {
+                socket.emit("join failed", { error: "Forbidden" });
+            }
+        } catch (err) {
+            socket.emit("join failed", { error: "Forbidden" });
+        }
+
+        const roomInfo = await roomModule.getRoomLobbyInfo();
+        io.emit("room info", roomInfo); // show rooms info on lobby
+    });
+
+    socket.on("in room", async (info) => {
+        try {
+            const { token } = socket.handshake.auth;
+            const user = jwt.verify(token, TOKEN_SECRET);
+            const result = await roomModule.findRoom(user.email);
+            const roomID = result[0].room_id;
+            if (result) {
+                console.log(`join room: ${roomID}`);
+                socket.join(result[0].room_id); // join room
+                const members = await roomModule.findRoonMember(roomID);
+                for (const i in members) {
+                    if (members[i].email === user.email) {
+                        socket.emit("fill name", members[i].name);
+                        socket.to(roomID).emit("fill opponent name", members[i].name);
+                        // socket.emit("fill opponent name", result[i].name); // 測試使用 因為一個瀏覽器只能儲存一組token 所以jtw justify後email會重複
+                    } else {
+                        socket.emit("fill opponent name", members[i].name);
+                    }
+                }
+            } else {
+                socket.emit("join failed", { error: "Forbidden" });
+            }
+        } catch (err) {
+            console.log(err);
+            socket.emit("join failed", { error: "Forbidden" });
+        }
+    });
+};
+
+const chat = function (socket, io) {
     socket.on("chat message", (msg) => {
-        console.log("message " + msg);
-        socket.emit("chat message", msg);
-        socket.to(ROOM_TEST).emit("chat message", msg);
+        console.log(`FROM ${socket.id} | message ${msg}`);
+        const room = [];
+        for (const i of io.sockets.adapter.sids.get(socket.id)) { // room[1]: room
+            room.push(i);
+        }
+        io.to(room[1]).emit("chat message", msg);
     });
 };
 
-const getOpponentName = function (socket) {
-    socket.on("name decided", (name) => {
-        socket.to(ROOM_TEST).emit("opponent name", name);
+const startGameLoop = function (socket, io) {
+    socket.on("start game loop", (info) => {
+        const user = jwt.verify(info.token, TOKEN_SECRET);
+        gameloop(socket, info, io, user.email);
     });
 };
 
-const startGameLoop = function (socket) {
-    socket.on("start game loop", (rules) => {
-        gameloop(socket, rules);
-    });
-};
+const gameloop = async function (socket, rules, io, eamil) {
+    // 以下不能用socket中的資訊找room_id 必須透過query mysql 找出對應房間(條件 透過token中的email資訊 在room table中找出room_id)
 
-const gameloop = async function (socket, rules) { // 整理成loop
-    let round = 1; // init
-    // 設置卡片
-    console.log(rules);
-    await setGameRules(rules, socket);
-    rules.state = "in ready";
-    let target = rules.targets[0]; // 初始化
-    const cardsSetting = genMultiCardsNumber(target, (rules.number) * (rules.number)); // 需要await 考量非同步的延遲
-    const info = {
-        round: round,
-        target: target,
-        rules: rules,
-        cardsSetting: cardsSetting
-    };
-    // --- save cardsSetting into mysql
-    await saveCardsSetting(cardsSetting, socket, round); /// 可簡化成一個loop？
-    socket.emit("execute rules", info); // init
-    socket.to(ROOM_TEST).emit("execute rules", info);
+    const result = await roomModule.findRoom(eamil);
+    const room = result[0].room_id;
 
-    for (let i = 0; i < 3; i++) {
+    const gameID = await setGameRules(room, eamil, rules);
+    console.log(`GameID: ${gameID}`);
+    console.log(rules); // 遊戲規則
+
+    for (let i = 0; i < rules.rounds; i++) {
+        const round = i + 1; // init
+        const target = rules.targets[i];
+        rules.state = "in ready";
+        const cardsSetting = genMultiCardsNumber(target, (rules.number) * (rules.number)); // 需要await 考量非同步的延遲
+        await saveCardsSetting(gameID, room, cardsSetting, round);
+        const info = {
+            round: round,
+            target: target,
+            rules: rules,
+            cardsSetting: cardsSetting,
+            gameID: gameID
+        };
+        if (round === 1) {
+            io.to(room).emit("execute rules", info);
+        }
+        io.to(room).emit("next round execute rules", info);
+
         let standbyTime = parseInt(STANDBYTIME);
         while (standbyTime >= 0) { // countdown in ready
-            socket.emit("countdown in ready", standbyTime);
-            socket.to(ROOM_TEST).emit("countdown in ready", standbyTime);
+            io.to(room).emit("countdown in ready", standbyTime);
             await delay(1000);
             standbyTime--;
         }
 
-        const info = {
+        const startGameInfo = {
             msg: "start",
             round: round,
             target: target
         };
-        socket.emit("start game", info); // start game 翻牌遮住數字
-        socket.to(ROOM_TEST).emit("start game", info);
+        io.to(room).emit("start game", startGameInfo);
 
         let roundTime = parseInt(ROUNDTIME);
         while (roundTime >= 0) { // countdown in game
-            socket.emit("countdown in game", roundTime); // 對自己
-            socket.to(ROOM_TEST).emit("countdown in game", roundTime); // 對其他人
+            io.to(room).emit("countdown in game", roundTime);
             await delay(1000);
             roundTime--;
         }
-        // round record
-        // recordEveryRound(ROOM_TEST, socket, round); //不需要？ 可以game over 後一起統計
-
         // round結束
-        round = round + 1;
-        // const rules = await getGameRules(socket); // rules 中的 rounds 也不需要從db中拿出來 已經有現成的
-        // const nowRound = await updateNowRound(socket); // 似乎不需要存在db中 不需要利用db記錄round
-
-        console.log("now round: " + round);
-
-        if (round > rules.rounds) {
-            // console.log("break i: " + i);
-            // console.log(`rounds limit: ${rules.rounds}`);
-            // console.log("break round: " + round);
-            break; //  注意
-        }
-
-        target = rules.targets[round - 1]; // get target of round
-        const cardsSetting = genMultiCardsNumber(target, (rules.number) * (rules.number)); // 需要await 考量非同步的延遲
-
-        // --- save cardsSetting into mysql
-        await saveCardsSetting(cardsSetting, socket, round); /// 可簡化成loop？
-
-        rules.state = "in ready";
-        const nextRoundInfo = { // 此資訊用於設定下個round
-            round: round,
-            target: target,
-            rules: rules,
-            cardsSetting: cardsSetting
-        };
-        socket.emit("next round execute rules", nextRoundInfo);
-        socket.to(ROOM_TEST).emit("next round execute rules", nextRoundInfo);
     }
-
     console.log("========game over========");
-    // 統計遊玩資訊
-    const rounds = round - 1; // round - 1 因為搭配上發寫法
-    const gameStat = await sumRecord(ROOM_TEST, socket, rounds);
-    socket.emit("game over", gameStat);
-    socket.to(ROOM_TEST).emit("game over", gameStat);
-    // console.log(gameStat);
+    const rounds = rules.rounds; // round 因為搭配上發寫法
+    const gameStat = await sumRecord(gameID, room, socket, rounds); // 統計遊玩資訊
+    io.to(room).emit("game over", gameStat);
 };
 
 function delay (delayTime) {
@@ -127,7 +148,7 @@ function delay (delayTime) {
     });
 }
 
-const ClickCardinGame = function (socket) {
+const ClickCardinGame = function (socket, io) {
     const numberMap = new Map();
 
     socket.on("click init", () => { // 待改
@@ -136,22 +157,22 @@ const ClickCardinGame = function (socket) {
 
     socket.on("click card", async (info) => { // race condition
         // select card value from sql and check if they are in pair.
+        const { gameID, round, source, cardID, time } = info; // for record time: countdown time
+        const user = jwt.verify(info.token, TOKEN_SECRET);
+        const result = await roomModule.findRoom(user.email);
+        const room = result[0].room_id;
+        console.log("===========in click card============");
         const oppoInfo = { source: info.source, cardID: info.cardID };
-        socket.to(ROOM_TEST).emit("opposite click card", oppoInfo); // 對其他人
+        socket.to(room).emit("opposite click card", oppoInfo); // 對其他人 此處效能待改 送出卡片和數字分離了
 
-        const number = await getCardNumber(ROOM_TEST, info.round, info.cardID); // fill card number
+        const number = await getCardNumber(gameID, room, info.round, info.cardID); // fill card number
+        console.log(result[0]);
+        console.log(`socketID: ${socket.id} click: ${number}`);
         const CardfilledInfo = { cardID: info.cardID, number: number };
-        socket.emit("fill card number", CardfilledInfo);
-        socket.to(ROOM_TEST).emit("fill card number", CardfilledInfo);
+        io.to(room).emit("fill card number", CardfilledInfo);
 
-        // console.log(socket.id + ` in Round: ${info.round} click cardID: ` + info.cardID);
-        // console.log(socket.id + ` select number: ${number}`);
-
-        const { round, source, cardID, time } = info; // for record time: countdown time
         const utsOrder = new Date().getTime();
-        const gameID = ROOM_TEST;
-        const stepInfo = { gameID: gameID, round: round, source: source, cardID: parseInt(cardID), number: number, addPoints: 0, time: parseInt(time), utsOrder: utsOrder };
-        // number, order(用接收到的unittimestemp？), accumulated points(count in mysql)
+        const stepInfo = { gameID: gameID, room: room, round: round, source: source, email: user.email, cardID: parseInt(cardID), number: number, addPoints: 0, time: parseInt(time), utsOrder: utsOrder };
 
         // check if match
         if (numberMap.has(socket.id)) { // click twice
@@ -163,55 +184,25 @@ const ClickCardinGame = function (socket) {
             const MatchInfo = { selecterID: socket.id, cardIDs: [selectedHis.cardID, info.cardID] }; // 點擊兩次後送出的資料封包
 
             if (parseInt(info.target) === ans) {
-                // console.log("MATCH!");
-                socket.emit("card number match", MatchInfo);
-                socket.to(ROOM_TEST).emit("card number match", MatchInfo);
+                io.to(room).emit("card number match", MatchInfo);
                 // 計分
-                socket.emit("update points", { playerID: socket.id, point: 10 });
-                socket.to(ROOM_TEST).emit("update points", { playerID: socket.id, point: 10 });
-                stepInfo.addPoints = 10;
+                io.to(room).emit("update points", { playerID: socket.id, point: 10 }); // 配對成功 +10分
+                stepInfo.addPoints = 10; // 得分
             } else {
-                // console.log("NOT MATCH!");
-                socket.emit("card number not match", MatchInfo);
-                socket.to(ROOM_TEST).emit("card number not match", MatchInfo);
+                io.to(room).emit("card number not match", MatchInfo);
             }
-            // console.log("=======2=======");
-            // console.log(numberMap);
             numberMap.delete(socket.id);
         } else {
             numberMap.set(socket.id, { cardID: info.cardID, number: number });
         }
-        // console.log("=======1=======");
-        // console.log(numberMap);
-        // 記錄每一步進sql and 即時更新分數 回合結束後再統一記錄？
-        await recordEveryStep(stepInfo);
+        await recordEveryStep(stepInfo); // 可否改為遊戲結束後一次insert? 待改
     });
 };
 
-// const checkMatch = function (socket) { // check if match
-//     socket.on("ckeck match", async (checkMatchInfo) => {
-//         const target = parseInt(checkMatchInfo.target);
-//         const number1 = await getCardNumber(ROOM_TEST, checkMatchInfo.round, checkMatchInfo.number1[0]); // 可否簡化成一次query?
-//         const number2 = await getCardNumber(ROOM_TEST, checkMatchInfo.round, checkMatchInfo.number2[0]);
-//         const info = {
-//             selecterID: checkMatchInfo.source,
-//             firstCardID: checkMatchInfo.number1[0],
-//             secondCardID: checkMatchInfo.number2[0]
-//         };
-//         if (target === number1 * number2) { // 計分系統
-//             socket.emit("card number match", info);
-//             socket.to(ROOM_TEST).emit("card number match", info);
-//         } else {
-//             socket.emit("card number not match", info);
-//             socket.to(ROOM_TEST).emit("card number not match", info);
-//         }
-//     });
-// };
-
 module.exports = {
+    updateRoominfo,
+    Room,
     chat,
-    getOpponentName,
-    ClickCardinGame,
-    startGameLoop
-    // checkMatch
+    startGameLoop,
+    ClickCardinGame
 };

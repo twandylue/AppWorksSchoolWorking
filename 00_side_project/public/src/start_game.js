@@ -19,14 +19,16 @@ function startGame (socket) {
         return;
     }
 
-    const rules = {
+    const token = localStorage.getItem("access_token");
+    const info = {
         type: type.dataset.type,
         number: number.dataset.number,
         rounds: rounds.innerHTML,
-        targets: targetList
+        targets: targetList,
+        token: token
     };
 
-    socket.emit("start game loop", rules);
+    socket.emit("start game loop", info);
 }
 
 export { startGame };

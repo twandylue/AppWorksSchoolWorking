@@ -1,0 +1,87 @@
+<!-- <!DOCTYPE html> -->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MEMORY GAME LOBBY</title>
+        <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <link rel="stylesheet" href="./styles/lobby.css">
+    </head>
+    <body>
+        <div id = "header" class = "header">
+            <img id = "logo" src = "./images/profile.jpeg" alt = "logo">
+            <div id = "user_profile">
+                <img id = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
+                <div id = "user_name">Hi! Andy</div>
+            </div>
+        </div>
+        <div class = "container" id = "container">
+            <div id = "left">
+                <div id = "title">規則介紹</div>
+                <div id = "rule-info">
+                    rule info:
+                    卡牌配對遊戲，兩張卡牌為一個配對，當卡牌配對成功時，可以得到10分
+                </div>
+                <div id = "mode-select">
+                    <button class = "button" type = "button">單人模式</button>
+                </div>
+            </div>
+            <div id = "right">
+                <div id = "romm-list">
+                    <div id = "room1" class = "room">
+                        <div class = "upper">
+                            <div class = "room-name"></div>
+                            <div class = "room-state"></div>
+                        </div>
+                        <div class = "down">
+                            <button class = "button join" type = "button">加入</button>
+                            <button class = "button watch" type = "button">觀戰</button>
+                        </div>
+                    </div>
+                    <div id = "room2" class = "room">
+                        <div class = "upper">
+                            <div class = "room-name"> </div>
+                            <div class = "room-state"> </div>
+                        </div>
+                        <div class = "down">
+                            <button class = "button join" type = "button">加入</button>
+                            <button class = "button watch" type = "button">觀戰</button>
+                        </div>
+                    </div>
+                    <div id = "room3" class = "room">
+                        <div class = "upper">
+                            <div class = "room-name"> </div>
+                            <div class = "room-state"> </div>
+                        </div>
+                        <div class = "down">
+                            <button class = "button join" type = "button">加入</button>
+                            <button class = "button watch" type = "button">觀戰</button>
+                        </div>
+                    </div>
+                    <div id = "room4" class = "room">
+                        <div class = "upper">
+                            <div class = "room-name"> </div>
+                            <div class = "room-state"> </div>
+                        </div>
+                        <div class = "down">
+                            <button class = "button join" type = "button">加入</button>
+                            <button class = "button watch" type = "button">觀戰</button>
+                        </div>
+                    </div>
+                    <div id = "room5" class = "room">
+                        <div class = "upper">
+                            <div class = "room-name"> </div>
+                            <div class = "room-state"> </div>
+                        </div>
+                        <div class = "down">
+                            <button class = "button join" type = "button">加入</button>
+                            <button class = "button watch" type = "button">觀戰</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src = "/socket.io/socket.io.js"></script>
+        <script src = "./src/lobby.js" type="module"></script>
+    </body>
+</html>

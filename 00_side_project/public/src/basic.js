@@ -1,38 +1,79 @@
-import { refreshRoundsInfo } from "./refresh_rounds_info.js";
 import { addGameInfo } from "./add_game_info.js";
 import { addGameStatusandCards } from "./add_game_status_cards.js";
+import { cardGame } from "./card_game.js";
 import { gameStat } from "./game_stat.js";
 import { initPointsInfo } from "./points_info_init.js";
+import { refreshRoundsInfo } from "./refresh_rounds_info.js";
 import { startGame } from "./start_game.js";
-import { cardGame } from "./card_game.js";
-import { refreshCardsSetting } from "./refresh_cards_setting.js";
 import { updatePoints } from "./update_points.js";
 
-const socket = io();
+const token = localStorage.getItem("access_token");
+const socket = io({
+    auth: {
+        token: token
+    }
+});
+
 socket.on("connect", () => {
-    // 講整段code放入此處 表示連線後才能執行
+    // 講整段code放入此處 表示連線後才能執行?
     console.log(socket.id);
 });
+
+socket.on("leave room", (msg) => {
+    console.log(msg);
+    Swal.fire({
+        icon: "warning",
+        title: "你斷線囉",
+        text: "回到遊戲大廳!",
+        confirmButtonText: "確認"
+    }).then(() => {
+        window.location.href = "./gamelobby.html";
+    });
+});
+
+socket.on("opponent leave room", (msg) => {
+    console.log(msg);
+    Swal.fire({
+        icon: "warning",
+        title: "對手斷線了",
+        text: "回到遊戲大廳!",
+        confirmButtonText: "確認"
+    }).then(() => {
+        window.location.href = "./gamelobby.html";
+    });
+});
+
+socket.on("join failed", (msg) => {
+    Swal.fire({
+        icon: "error",
+        title: "加入房間失敗",
+        text: "請重新加入房加!",
+        confirmButtonText: "好的"
+    }).then(() => {
+        window.location.href = "/gamelobby.html";
+    });
+});
+
+// Swal.fire({ // sweet alert寫法 不同體驗 先保留
+//     icon: "warning",
+//     title: "準備好了嗎？",
+//     text: "要開始了唷!",
+//     confirmButtonText: "確認"
+// }).then((result) => {
+//     const urlParams = new URLSearchParams(window.location.search);
+//     const roomID = urlParams.get("roomID");
+//     socket.emit("in room", { roomID: roomID, token: token });
+// });
+
+const urlParams = new URLSearchParams(window.location.search);
+const roomID = urlParams.get("roomID");
+socket.emit("in room", { roomID: roomID, token: token });
 
 // select music
 const music = document.querySelector("#music");
 music.addEventListener("change", () => {
     const song = document.querySelector("#music option:checked");
     console.log(song);
-});
-
-// refresh user name
-const submitName = document.querySelector("#submit_name");
-submitName.addEventListener("click", () => {
-    const name = document.querySelector("#input_name");
-    const removeItem = document.querySelector("#input");
-    removeItem.remove();
-    const userName = document.createElement("div");
-    userName.id = "main_user_name";
-    userName.innerHTML = name.value;
-    const userContainer = document.querySelector("#user_container");
-    userContainer.append(userName);
-    socket.emit("name decided", name.value);
 });
 
 // for changing rounds input block number in settting rules
@@ -63,20 +104,20 @@ roundsNumber.addEventListener("change", () => {
     }
 });
 
+socket.on("fill name", (name) => {
+    document.querySelector("#user_container #name").innerHTML = name;
+});
+socket.on("fill opponent name", (oppoName) => {
+    document.querySelector("#opposite_user_name").innerHTML = oppoName;
+});
+
 // for chat room
 const inputEnter = document.querySelector("#sendmsg #input");
 const sendMsg = document.querySelector("#send");
 const chatroom = document.querySelector("#messages");
 
 sendMsg.addEventListener("click", () => {
-    let userName;
-    if (document.querySelector("#main_user_name") !== null) {
-        userName = document.querySelector("#main_user_name").innerHTML;
-    } else {
-        alert("Please enter your name!");
-        return;
-    }
-
+    const userName = document.querySelector("#user_container #name").innerHTML;
     if (inputEnter.value) {
         socket.emit("chat message", userName + ": " + inputEnter.value);
         inputEnter.value = "";
@@ -103,12 +144,9 @@ socket.on("chat message", (msg) => {
     chatroom.scrollTo(0, chatroom.scrollHeight);
 });
 
-socket.on("opponent name", (name) => {
-    const opponentName = document.querySelector("#opposite_user_name");
-    opponentName.innerHTML = name;
-});
-
 socket.on("execute rules", (info) => {
+    const gameID = info.gameID;
+    localStorage.setItem("gameID", gameID);
     refreshRoundsInfo(info.rules.rounds);
     initPointsInfo();
     addGameInfo(info.rules.type, info.rules.number, info.rules.rounds);
@@ -147,7 +185,7 @@ socket.on("start game", (info) => {
 
 socket.on("fill card number", (cardfilledInfo) => {
     const cardFrontFaces = document.querySelectorAll(".front-face");
-    cardFrontFaces[cardfilledInfo.cardID].innerHTML = cardfilledInfo.number; /// / 待改
+    cardFrontFaces[cardfilledInfo.cardID].innerHTML = cardfilledInfo.number;
 });
 
 socket.on("next round execute rules", (info) => { // 要刪除game()

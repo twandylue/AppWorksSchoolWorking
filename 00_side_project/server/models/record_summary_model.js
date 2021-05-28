@@ -1,19 +1,18 @@
 const { pool } = require("./mysqlcon");
 
-async function sumRecord (gameID, socket, rounds) {
+async function sumRecord (gameID, room, socket, rounds) {
     const results = [];
     const IDs = [];
     for (const i of socket.adapter.sids.keys()) {
         IDs.push(i);
     }
     for (const i in IDs) {
-        const sql = "SELECT game_id, player_ID, round, SUM(points), COUNT(*) FROM game_history WHERE player_ID = ? AND game_id = ? GROUP BY round;";
-        // console.log(pool.format(sql, [IDs[i], gameID]));
-        const result = await pool.query(sql, [IDs[i], gameID]);
+        const sql = "SELECT room_id, player_ID, round, SUM(points), COUNT(*) FROM game_history WHERE player_ID = ? AND room_id = ? GROUP BY round;";
+        const result = await pool.query(sql, [IDs[i], room]);
         let totalPoints = 0;
         let totalClick = 0;
 
-        const roundsPointsMap = new Map(); // 暫時
+        const roundsPointsMap = new Map();
         for (const i in result[0]) {
             roundsPointsMap.set(result[0][i].round - 1, parseInt(result[0][i]["SUM(points)"]));
             totalPoints += parseInt(result[0][i]["SUM(points)"]);
@@ -27,16 +26,6 @@ async function sumRecord (gameID, socket, rounds) {
                 roundsPoints[i] = 0;
             }
         }
-
-        // console.log("totalPoints: ");
-        // console.log(totalPoints);
-        // console.log("==============");
-        // console.log("totalClick: ");
-        // console.log(totalClick);
-        // console.log("==============");
-        // console.log("roundsPoints: ");
-        // console.log(roundsPoints);
-        // console.log("==============");
 
         // 統計命中率 hit rate
         let hitRate;
@@ -61,10 +50,6 @@ async function sumRecord (gameID, socket, rounds) {
             }
         }
     }
-    // console.log("results");
-    // console.log(results);
-    // console.log("arrResults");
-    // console.log(arrResults);
 
     const winner = [];
     if (arrResults[0].totalPoints === arrResults[1].totalPoints) {
