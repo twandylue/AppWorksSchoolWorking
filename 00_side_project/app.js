@@ -16,6 +16,13 @@ app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// const { genRandomRulesSetting } = require("./server/models/genRandomRulesSetting");
+// const { getRandomRules } = require("./server/models/getRandomRules");
+// app.get("/test", async (req, res) => {
+//     await getRandomRules();
+//     res.send("test");
+// });
+
 // API routes
 app.use("/api/" + API_VERSION,
     [
@@ -30,10 +37,10 @@ const socketModule = require("./server/models/socket_model");
 io.on("connection", async (socket) => {
     // console.log(`user: ${socket.id} connected`);
 
-    socketModule.updateRoominfo(socket, io);
+    socketModule.processinRoom(socket, io);
+    socketModule.updateRoomLobbyinfo(socket, io);
     socketModule.Room(socket, io);
     socketModule.chat(socket, io);
-    socketModule.startGameLoop(socket, io);
     socketModule.ClickCardinGame(socket, io);
 
     socket.on("disconnect", async () => {
@@ -43,7 +50,7 @@ io.on("connection", async (socket) => {
         const roomID = await roomModule.leaveRoom(user.email);
         if (roomID) {
             socket.emit("leave room", "you leave the room"); // 無用 因為重新連線後找不到原始socket id
-            socket.leave(roomID);
+            // socket.leave(roomID);
             socket.to(roomID).emit("opponent leave room", "oppo leave the room");
         }
     });

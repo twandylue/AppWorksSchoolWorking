@@ -2,7 +2,7 @@ const { pool } = require("./mysqlcon");
 
 async function sumRecord (gameID, room, socket, rounds) {
     const results = [];
-    const IDs = [];
+    const IDs = []; // 此處要改 改成用email
     for (const i of socket.adapter.sids.keys()) {
         IDs.push(i);
     }
@@ -50,6 +50,8 @@ async function sumRecord (gameID, room, socket, rounds) {
             }
         }
     }
+
+    console.log(arrResults);
 
     const winner = [];
     if (arrResults[0].totalPoints === arrResults[1].totalPoints) {

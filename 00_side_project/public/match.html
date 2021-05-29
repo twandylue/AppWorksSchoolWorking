@@ -6,17 +6,11 @@
         <title>MEMORY GAME</title>
         <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link rel="stylesheet" type="text/css" href="/styles/basic.css" media="all">
-        <link rel="stylesheet" href="./styles/game.css">
+        <link rel="stylesheet" type="text/css" href="./styles/game.css">
     </head>
     <body>
         <div class = "container" id = "container">
             <div id = "left">
-                <select id = "music">
-                    <option>Choose a music</option>
-                    <option>music 1</option>
-                    <option>music 2</option>
-                    <option>music 3</option>
-                </select>
                 <div class = "user" id = "user_container">
                     <img class = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
                     <div id = "name"></div>
@@ -28,47 +22,47 @@
                         <button id = "send">Send</button>
                     </div>
                 </div>
-                <div id = "paper_scissor_stone">
+                <!-- <div id = "paper_scissor_stone">
                     <img class = "mora" id = "paper" src = "./images/profile.jpeg" alt = "paper">
                     <img class = "mora" id = "scissor" src = "./images/profile.jpeg" alt = "scissor">
                     <img class = "mora" id = "stone" src = "./images/profile.jpeg" alt = "stone">
-                </div>
+                </div> -->
             </div>
             <div id = "middle">
                 <div id = "rule_setting">Rules setting</div>
                 <div id = "setting_details">
                     <div class = "details" id = 'type'>
-                        <select>
+                        <!-- <select>
                             <option>Type</option>
                             <option data-type = "Plus">Plus +</option>
                             <option data-type = "Multi">Multi x</option>
-                        </select>
+                        </select> -->
                     </div>
                     <div class = "details" id = 'number_of_cards'>
-                        <select>
+                        <!-- <select>
                             <option>Number of cards</option>
                             <option data-number = "4">4 x 4</option>
                             <option data-number = "5">5 x 5</option>
                             <option data-number = "6">6 x 6</option>
-                        </select>
+                        </select> -->
                     </div>
                     <div class = "details" id = 'rounds'>
-                        <select>
+                        <!-- <select>
                             <option>Rounds</option>
                             <option>1</option>
                             <option>2</option>
                             <option>3</option>
-                        </select>
+                        </select> -->
                     </div>
                     <div class = "details" id = "target">
-                        <input class = "target_item" id = "round_1_target" placeholder = "Please select round number" >
+                        <!-- <input class = "target_item" id = "round_1_target" placeholder = "Please select round number" > -->
                     </div>
                 </div>
-                <button class = "button" id = "start">START</button>
-                <div class = "mora" id = "mora">
+                <button class = "button" id = "start">我準備好了！</button>
+                <!-- <div class = "mora" id = "mora">
                     <img id = "main_mora" src = "">
                     <img id = "opposite_mora" src = "">
-                </div>
+                </div> -->
             </div>
             <div id = "right">
                 <div id = "block">Let's Play!</div>
@@ -76,14 +70,12 @@
                     <img class = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
                     <div id = "opposite_user_name">Waiting...</div>
                 </div>
-                <button class = "choice_button" id = "real_person">Play with real person</button>
-                <button class = "choice_button" id = "robot">Play with robot</button>
-                <div id = "rules">Rules: <br>
+                <!-- <div id = "rules">Rules: <br>
                     1. 10 points for collecting each card pair.<br>
                     2. Half of cards have another pair.<br>
                     3. You can only choose two cards at once.<br>
                     4. When you choose two cards which are not in pair, they would be invisible again.<br>
-                </div>
+                </div> -->
             </div>
         </div>
         <script src="/socket.io/socket.io.js"></script>

@@ -4,13 +4,16 @@ import { cardGame } from "./card_game.js";
 import { gameStat } from "./game_stat.js";
 import { initPointsInfo } from "./points_info_init.js";
 import { refreshRoundsInfo } from "./refresh_rounds_info.js";
-import { startGame } from "./start_game.js";
 import { updatePoints } from "./update_points.js";
+import { showGameRules } from "./showGameRules.js";
+import { combineMatchPageforAgain } from "./combMatchPage.js";
 
 const token = localStorage.getItem("access_token");
+const roomID = localStorage.getItem("roomID");
 const socket = io({
     auth: {
-        token: token
+        token: token,
+        roomID: roomID
     }
 });
 
@@ -65,44 +68,7 @@ socket.on("join failed", (msg) => {
 //     socket.emit("in room", { roomID: roomID, token: token });
 // });
 
-const urlParams = new URLSearchParams(window.location.search);
-const roomID = urlParams.get("roomID");
 socket.emit("in room", { roomID: roomID, token: token });
-
-// select music
-const music = document.querySelector("#music");
-music.addEventListener("change", () => {
-    const song = document.querySelector("#music option:checked");
-    console.log(song);
-});
-
-// for changing rounds input block number in settting rules
-const roundsNumber = document.querySelector("#rounds");
-roundsNumber.addEventListener("change", () => {
-    const number = document.querySelector("#rounds option:checked");
-    const target = document.querySelector("#target");
-    const targetList = document.querySelectorAll(".target_item");
-    for (let i = 0; i < targetList.length; i++) {
-        targetList[i].remove();
-    }
-
-    if (number.innerHTML === "Rounds") {
-        const roundsItem = document.createElement("input");
-        roundsItem.className = "target_item";
-        roundsItem.id = "round_1_target";
-        roundsItem.placeholder = "Please select round number";
-        target.append(roundsItem);
-        return;
-    }
-
-    for (let i = 0; i < parseInt(number.innerHTML); i++) {
-        const roundsItem = document.createElement("input");
-        roundsItem.className = "target_item";
-        roundsItem.id = `round_${i + 1}_target`;
-        roundsItem.placeholder = `Round ${i + 1} target`;
-        target.append(roundsItem);
-    }
-});
 
 socket.on("fill name", (name) => {
     document.querySelector("#user_container #name").innerHTML = name;
@@ -131,10 +97,44 @@ inputEnter.addEventListener("keyup", (event) => {
     }
 });
 
-// finish rules setting and start to play
+socket.on("wait for opponent", () => { // 目前應該為等待畫面 不會顯示規則
+    Swal.fire({
+        icon: "warning",
+        title: "尚未配對成功",
+        text: "等一下對手出現",
+        confirmButtonText: "確認"
+    });
+    const startButton = document.querySelector("#start");
+    startButton.disabled = true;
+    startButton.innerHTML = "等待對手中";
+});
+
+socket.on("both of you in ready", (info) => { // gameID 第一次出現 在info中
+    const { gameID } = info;
+    localStorage.setItem("gameID", gameID);
+    localStorage.setItem("rules", JSON.stringify(info.rules));
+    showGameRules(info.rules);
+
+    const startButton = document.querySelector("#start");
+    startButton.disabled = false;
+    startButton.innerHTML = "我準備好了！";
+});
+
 const start = document.querySelector("#start");
 start.addEventListener("click", () => {
-    startGame(socket);
+    start.disabled = "disabled";
+    Swal.fire({
+        icon: "warning",
+        title: "準備完成！",
+        text: "等待對手準備...",
+        confirmButtonText: "確認"
+    }).then(() => {
+        const gameID = localStorage.getItem("gameID");
+        const rules = localStorage.getItem("rules");
+        const gameRules = JSON.parse(rules);
+        gameRules.gameID = gameID;
+        socket.emit("I am ready", (gameRules));
+    });
 });
 
 socket.on("chat message", (msg) => {
@@ -145,8 +145,6 @@ socket.on("chat message", (msg) => {
 });
 
 socket.on("execute rules", (info) => {
-    const gameID = info.gameID;
-    localStorage.setItem("gameID", gameID);
     refreshRoundsInfo(info.rules.rounds);
     initPointsInfo();
     addGameInfo(info.rules.type, info.rules.number, info.rules.rounds);
@@ -167,7 +165,7 @@ socket.on("countdown in game", (time) => {
     document.querySelector("#countdown").innerHTML = `Countdown: ${time} s`;
 });
 
-socket.on("start game", (info) => {
+socket.on("start game", (info) => { // 翻牌
     if (info.msg === "start") {
         const cardFrontFaces = document.querySelectorAll(".front-face");
         const cardBackFaces = document.querySelectorAll(".back-face");
@@ -197,7 +195,13 @@ socket.on("update points", (pointsInfo) => {
 });
 
 socket.on("game over", (gameStatInfo) => {
-    alert("GAME OVER!");
+    Swal.fire({
+        icon: "success",
+        title: "遊戲結束！",
+        text: "看看自己的成績吧",
+        confirmButtonText: "確認"
+    });
+
     let hitRate, roundsPoints, totalPoints, winnerStatus;
     for (const i in gameStatInfo.results) {
         if (socket.id === gameStatInfo.results[i].playerID) {
@@ -215,4 +219,66 @@ socket.on("game over", (gameStatInfo) => {
         winnerStatus = "Tie";
     }
     gameStat(hitRate, totalPoints, roundsPoints, winnerStatus);
+
+    const again = document.querySelector("#again");
+    again.addEventListener("click", () => {
+        const roomID = localStorage.getItem("roomID");
+        const gameID = localStorage.getItem("gameID");
+        const info = { gameID: gameID, roomID: roomID };
+        socket.emit("want to play again", info);
+        Swal.fire({
+            icon: "info",
+            title: "已送出再玩一次的邀請",
+            text: "請等待對手回應",
+            confirmButtonText: "好的"
+        }).then(() => {
+            again.disabled = true;
+            again.innerHTML = "等待對手回應中";
+        });
+    });
+
+    const goodbye = document.querySelector("#goodbye");
+    goodbye.addEventListener("click", () => {
+        Swal.fire({
+            icon: "warning",
+            title: "離開遊戲房間",
+            text: "再見",
+            confirmButtonText: "Bye"
+        }).then(() => {
+            window.location.href = "/gamelobby.html";
+        });
+    });
+});
+
+socket.on("again", (info) => {
+    // console.log(info);
+    // console.log(`gameID: ${info.gameID}`);
+    localStorage.setItem("gameID", info.gameID);
+    localStorage.setItem("rules", JSON.stringify(info.rules)); // 更新規則 危險 會有被前端串改的風險 機制待改
+    combineMatchPageforAgain(socket);
+    showGameRules(info.rules);
+
+    const startButton = document.querySelector("#start");
+    startButton.addEventListener("click", () => {
+        startButton.disabled = "disabled";
+        Swal.fire({
+            icon: "warning",
+            title: "準備完成！",
+            text: "等待對手準備...",
+            confirmButtonText: "確認"
+        }).then(() => {
+            const gameID = localStorage.getItem("gameID");
+            const rules = localStorage.getItem("rules");
+            const gameRules = JSON.parse(rules);
+            gameRules.gameID = gameID;
+            socket.emit("I am ready", (gameRules));
+        });
+    });
+
+    Swal.fire({
+        icon: "warning",
+        title: "對手也想再玩一局！",
+        text: "轉跳至準備頁面",
+        confirmButtonText: "確認"
+    });
 });

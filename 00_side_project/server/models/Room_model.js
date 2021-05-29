@@ -103,6 +103,52 @@ const getRoomLobbyInfo = async () => {
     return results[0];
 };
 
+const isReadyNumberOK = async (gameID) => {
+    const conn = await pool.getConnection();
+    try {
+        await conn.query("START TRANSACTION");
+        await conn.query("UPDATE game_setting_info SET ready_number = ready_number + 1 WHERE id = ?", gameID);
+        const result = await conn.query("SELECT ready_number FROM game_setting_info WHERE id = ?", gameID);
+        const readyNumber = result[0][0].ready_number; //
+        console.log("===readyNumber===");
+        console.log(readyNumber);
+        if (readyNumber >= 2) { // 遊戲中只有兩人 2人遊戲
+            await conn.query("ROLLBACK");
+            return (true);
+        }
+        const err = "opponent is not ready";
+        throw err;
+    } catch (err) {
+        console.log(err);
+        await conn.query("COMMIT");
+        return (false);
+    } finally {
+        await conn.release();
+    }
+};
+
+const isAgainNumberOK = async (gameID) => {
+    const conn = await pool.getConnection();
+    try {
+        await conn.query("START TRANSACTION");
+        await conn.query("UPDATE game_setting_info SET again_number = again_number + 1 WHERE id = ?", gameID);
+        const result = await conn.query("SELECT again_number FROM game_setting_info WHERE id = ?", gameID);
+        const againNumber = result[0][0].again_number;
+        if (againNumber >= 2) { // 遊戲中只有兩人 2人遊戲
+            await conn.query("ROLLBACK");
+            return (true);
+        }
+        const err = "opponent has not click again yet";
+        throw err;
+    } catch (err) {
+        console.log(err);
+        await conn.query("COMMIT");
+        return (false);
+    } finally {
+        await conn.release();
+    }
+};
+
 module.exports = {
     joinRoom,
     leaveRoom,
@@ -110,5 +156,7 @@ module.exports = {
     watchLeaveRoom,
     findRoom,
     findRoonMember,
-    getRoomLobbyInfo
+    getRoomLobbyInfo,
+    isReadyNumberOK,
+    isAgainNumberOK
 };

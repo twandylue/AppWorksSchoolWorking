@@ -20,7 +20,7 @@ function addGameStatusandCards (round, number, target, state, cardsSetting) {
     game.id = "game";
     const memoryGame = document.createElement("section");
     memoryGame.className = "memory-game";
-    for (let i = 0; i < (number * number); i++) {
+    for (let i = 0; i < number; i++) {
         const card = document.createElement("div");
         card.classList.add("memory-card", `double${number}`);
         card.id = `cardID_${i}`;

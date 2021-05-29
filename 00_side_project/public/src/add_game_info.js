@@ -9,7 +9,7 @@ function addGameInfo (type, number, rounds) {
     infoType.innerHTML = `Type: ${type}`; // ajax
     const infoAmount = document.createElement("div");
     infoAmount.className = "info";
-    infoAmount.innerHTML = `Cards amount: ${number} x ${number} `; // ajax
+    infoAmount.innerHTML = `Cards amount: ${number}`; // ajax
     const infoTotal = document.createElement("div");
     infoTotal.className = "info";
     infoTotal.innerHTML = `Total rounds: ${rounds}`; // ajax

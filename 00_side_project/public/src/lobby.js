@@ -1,10 +1,11 @@
 import { updateLobby } from "./update_lobby.js";
 
 const token = localStorage.getItem("access_token");
+localStorage.removeItem("rules");
+localStorage.removeItem("gameID");
+localStorage.removeItem("roomID");
 const socket = io({
-    auth: {
-        token: token
-    }
+    auth: { token: token }
 });
 
 // window.onbeforeunload = () => {
@@ -30,9 +31,6 @@ const socket = io({
 //     // }
 // });
 
-localStorage.removeItem("gameID");
-
-// const socket = io();
 socket.on("connect", () => {
     console.log("socketID: " + socket.id);
 });
@@ -44,6 +42,7 @@ socket.on("room info", (roomInfo) => {
 });
 
 socket.on("join success", (roomID) => {
+    localStorage.setItem("roomID", roomID);
     window.location.href = `/match.html?roomID=${roomID}`;
 });
 

@@ -9,7 +9,7 @@
     /* perspective: 1000px; */
 }
 
-.double4 {
+.double16 {
     width: calc(25% - 10px);
     height: calc(25% - 10px);
     /* 有沒有彈性 隨時變動？ 還是需要先寫好情況 */
@@ -21,7 +21,7 @@
     transition: transform .5s;
 }
 
-.double5 {
+.double25 {
     width: calc(20% - 10px);
     height: calc(20% - 10px);
     /* 有沒有彈性 隨時變動？ 還是需要先寫好情況 */
@@ -33,7 +33,7 @@
     transition: transform .5s;
 }
 
-.double6 {
+.double36 {
     width: calc(16.65% - 10px);
     height: calc(16.65% - 10px);
     /* 有沒有彈性 隨時變動？ 還是需要先寫好情況 */

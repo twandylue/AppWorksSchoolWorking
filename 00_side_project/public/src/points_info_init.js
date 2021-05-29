@@ -4,9 +4,6 @@ function initPointsInfo () {
         choiceButtons[i].remove();
     }
 
-    const pics = document.querySelector("#paper_scissor_stone");
-    pics.remove();
-
     const userPoints = document.createElement("div");
     userPoints.id = "player_points";
     userPoints.className = "points";
