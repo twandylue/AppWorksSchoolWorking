@@ -16,10 +16,11 @@ app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// const { genRandomRulesSetting } = require("./server/models/genRandomRulesSetting");
-// const { getRandomRules } = require("./server/models/getRandomRules");
+// const { client, getCache } = require("./server/models/cache_model");
 // app.get("/test", async (req, res) => {
-//     await getRandomRules();
+//     // client.set("test1", "testCache");
+//     const test = await getCache("test"); // if not exist, return null
+//     console.log(test);
 //     res.send("test");
 // });
 
@@ -46,12 +47,13 @@ io.on("connection", async (socket) => {
     socket.on("disconnect", async () => {
         // console.log(`user: ${socket.id} disconnected`);
         const { token } = socket.handshake.auth;
-        const user = jwt.verify(token, TOKEN_SECRET);
-        const roomID = await roomModule.leaveRoom(user.email);
-        if (roomID) {
-            socket.emit("leave room", "you leave the room"); // 無用 因為重新連線後找不到原始socket id
-            // socket.leave(roomID);
-            socket.to(roomID).emit("opponent leave room", "oppo leave the room");
+        if (token) {
+            const user = jwt.verify(token, TOKEN_SECRET);
+            const roomID = await roomModule.leaveRoom(user.email);
+            if (roomID) {
+                socket.emit("leave room", "you leave the room"); // 無用 因為重新連線後找不到原始socket id
+                socket.to(roomID).emit("opponent leave room", "oppo leave the room");
+            }
         }
     });
 });

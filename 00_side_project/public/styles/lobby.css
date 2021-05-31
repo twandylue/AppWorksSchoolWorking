@@ -1,95 +1,278 @@
+@import url('http://fonts.cdnfonts.com/css/games');
+@import url('http://fonts.cdnfonts.com/css/redkost-comic');
+
 *{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    color: #112A46;
 }
 
 body {
-    margin: 5.0% 2% 5%;
+    margin: 3% 2% 5%;
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-#header {
-    width: 95%;
-    background-color: red;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-
-#user_profile {
-    display: flex;
-    flex-direction: column;
+    background: radial-gradient(circle,#fbfefb ,#efe5dc);
 }
 
 img {
     height: 90px;
     width: 90px;
+    border-radius: 15px;
+}
+
+.title {
+    opacity: 0.85;
+    height: 2.8rem;
+    font-size: 1.8rem;
+}
+
+.room {
+    height: calc(20% - 8px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #ebf4f5;
+    border-radius: 5px;
+    -webkit-filter: drop-shadow(10px 10px 7px rgba(0, 0, 0, 0.7));
+    filter: drop-shadow(10px 10px 7px rgba(0, 0, 0, 0.7));
+}
+
+.room-name {
+    font-size: 1.4rem;
+    margin: 5px 0 10px 8px;
+    padding: 3px;
+    width: 26.5%;
+    border-bottom: #112A46 solid 2px;
+}
+
+.room-state {
+    font-size: 1.0rem;
+    margin: 5px 0 3px 8px;
+}
+
+/* .button {
+    width: 100px;
+    height: 1.6rem;
+    font-size: 1.0rem;
+}
+
+.down > button {
+    font-size: 0.9rem;
+    margin: 6px;
+    width: 80px;
+} */
+
+#header {
+    position: sticky;
+    top: 0; 
+    z-index: 1;
+
+    width: 90%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 5px;
+    margin-bottom: 30px;
+    border-bottom:#003049 solid 0.26rem;
+    /* background-color: #efe5dc; */
+    background: radial-gradient(circle,#f5faf5 ,#efe5dc);
+    border-radius: 2px;
+    /* font-family: 'Games', sans-serif; */
+    font-family: 'Redkost Comic', sans-serif;
+}
+
+#header > .title {
+    font-size: 3.0em;
+}
+
+#user_profile {
+    margin: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#user_photo {
+    height: 80px;
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+#logo {
+    margin: 5px;
 }
 
 #container {
     display: flex;
     flex-direction: row;
-    /* justify-content: space-evenly; */
     justify-content: space-between;
-    width: 95%;
-    height: 90%;
+    width: 90%;
+    height: 93%;
 }
 
 #left {
     width: 50%;
-    background-color: aqua;
+    padding: 10px;
+    /* background-color: #fae1dd; */
+    background-color: #ffe8d6;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
+    -webkit-filter: drop-shadow(10px 10px 7px rgba(0, 0, 0, 0.7));
+    filter: drop-shadow(10px 10px 7px rgba(0, 0, 0, 0.7));
+}
+
+#project-name {
+    font-size: 2.4rem;
 }
 
 #rule-info {
-    background-color: seagreen;
-    height: 80%;
-}
-
-#title {
-    background-color: rgb(172, 209, 9);
-    height: 2.8rem;
-    font-size: 2rem;
+    height: 90%;
 }
 
 #right {
-    width: 40%;
-    background-color: blueviolet;
+    width: 45%;
 }
 
-#romm-list {
+#room-list {
     height: 100%;
-    background-color: rgb(222, 224, 101);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
 
-.room {
-    border: solid 2.0px red;
-    height: 16%;
-    margin-left: 5px;
+#mode-select {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#mode-select li {
+    list-style-type: none;
+    --c: #2B2D42;
+    color: var(--c);
+    font-size: 14px;
+    border: 0.15em solid var(--c);
+    border-radius: 0.5em;
+    width: 10em;
+    height: 3.3em;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-family: sans-serif;
+    letter-spacing: 0.1em;
+    text-align: center;
+    line-height: 3em;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    transition: 0.5s;
+    margin: 1em;
+}
+
+#mode-select li span {
+    position: absolute;
+    width: 25%;
+    height: 100%;
+    background-color: var(--c);
+    transform: translateY(150%);
+    border-radius: 50%;
+    left: calc((var(--n) - 1) * 25%);
+    transition: 0.5s;
+    transition-delay: calc((var(--n) - 1) * 0.1s);
+    z-index: -1;
+}
+
+#mode-select li:hover {
+    color: #ffb700;
+}
+
+#mode-select li:hover span {
+    transform: translateY(0) scale(2);
+}
+
+#mode-select li span:nth-child(1) {
+    --n: 1;
+}
+
+#mode-select li span:nth-child(2) {
+    --n: 2;
+}
+
+#mode-select li span:nth-child(3) {
+    --n: 3;
+}
+
+#mode-select li span:nth-child(4) {
+    --n: 4;
+}
+
+.down {
+    display: flex;
+    flex-direction: row;
+    width: 190px;
     justify-content: space-between;
+    margin-bottom: 10px;
 }
 
-.room-state {
-    font-size: 1.2rem;
+.down div {
+    --c: #2B2D42;
+    color: var(--c);
+    font-size: 8.5px;
+    border: 0.12em solid var(--c);
+    border-radius: 0.6em;
+    width: 9em;
+    height: 3.3em;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-family: sans-serif;
+    letter-spacing: 0.25em;
+    text-align: center;
+    line-height: 3em;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    transition: 0.5s;
+    margin: 1.2em 1em 1em 1em ;
 }
 
-.room-name {
-    font-size: 1.6rem;
+.down div span {
+    position: absolute;
+    width: 25%;
+    height: 100%;
+    background-color: var(--c);
+    transform: translateY(150%);
+    border-radius: 50%;
+    left: calc((var(--n) - 1) * 25%);
+    transition: 0.5s;
+    transition-delay: calc((var(--n) - 1) * 0.1s);
+    z-index: -1;
 }
 
-.button {
-    width: 100px;
-    height: 1.6rem;
-    font-size: 1.0rem;
+.down div:hover {
+    color: #ffb700;
+}
+
+.down div:hover span {
+    transform: translateY(0) scale(2);
+}
+
+.down div span:nth-child(1) {
+    --n: 1;
+}
+
+.down div span:nth-child(2) {
+    --n: 2;
+}
+
+.down div span:nth-child(3) {
+    --n: 3;
+}
+
+.down div span:nth-child(4) {
+    --n: 4;
 }

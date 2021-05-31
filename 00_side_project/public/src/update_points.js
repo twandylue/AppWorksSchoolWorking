@@ -4,14 +4,14 @@ function updatePoints (socket, pointsInfo) {
     const userPoints = parseInt((player.innerHTML).split(" ")[1]);
     const oppoPoints = parseInt((oppo.innerHTML).split(" ")[1]);
 
-    console.log("from: " + pointsInfo.playerID);
-    console.log("local: " + socket.id);
+    // console.log("from: " + pointsInfo.playerID);
+    // console.log("local: " + socket.id);
     if (pointsInfo.playerID === socket.id) { // player 加分
         const newPoints = userPoints + pointsInfo.point;
-        player.innerHTML = `Points: ${newPoints}`;
+        player.innerHTML = `目前得分: ${newPoints}`;
     } else { // oppo 加分
         const newPoints = oppoPoints + pointsInfo.point;
-        oppo.innerHTML = `Points: ${newPoints}`;
+        oppo.innerHTML = `對手得分: ${newPoints}`;
     }
 }
 

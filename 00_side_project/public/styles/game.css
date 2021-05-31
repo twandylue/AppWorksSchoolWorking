@@ -1,12 +1,14 @@
 .memory-game {
-    width: 98%;
+    width: 95%;
     height: 100%;
     margin: auto;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    background-color: darkgreen;
-    /* perspective: 1000px; */
+    border-radius: 8px;
+    background: radial-gradient(circle,#f1e1c2,#fcbc98); 
+    /* 顏色待改 */
+    font-family: 'Redkost Comic', sans-serif;
 }
 
 .double16 {
@@ -19,6 +21,7 @@
     transform: scale(1);
     transform-style: preserve-3d;
     transition: transform .5s;
+    border-radius: 8px;
 }
 
 .double25 {
@@ -31,6 +34,7 @@
     transform: scale(1);
     transform-style: preserve-3d;
     transition: transform .5s;
+    border-radius: 8px;
 }
 
 .double36 {
@@ -43,6 +47,43 @@
     transform: scale(1);
     transform-style: preserve-3d;
     transition: transform .5s;
+    border-radius: 8px;
+}
+
+.double16 > .front-face {
+    font-size: 40px; 
+    line-height: 80px;
+    /* 字體大小設定 */
+}
+
+.double25 > .front-face {
+    font-size: 30px; 
+    line-height: 50px;
+    /* 字體大小設定 */
+}
+
+.double36 > .front-face {
+    font-size: 30px; 
+    line-height: 35px;
+    /* 字體大小設定 */
+}
+
+.double16 > .back-face {
+    font-size: 40px; 
+    line-height: 80px;
+    /* 字體大小設定 */
+}
+
+.double25 > .back-face {
+    font-size: 30px; 
+    line-height: 45px;
+    /* 字體大小設定 */
+}
+
+.double36 > .back-face {
+    font-size: 5px; 
+    line-height: 20px;
+    /* 字體大小設定 */
 }
 
 .memory-card:active {
@@ -57,14 +98,15 @@
 .front-face,
 .back-face {
     text-align: center;
-    font-size: 2rem;
     width: 100%;
     height: 100%;
     padding: 20px;
     position: absolute;
     border-radius: 5px;
-    background: #81d8f3;
+    background: radial-gradient(circle,#9BB2E5,#7D9BCE);
+     /* 顏色待改 */
     backface-visibility: hidden;
+    border-radius: 8px;
 }
 
 /* 關閉 for ready */
@@ -81,11 +123,17 @@
 }
 
 .card-color {
-    border: rgb(238, 56, 56) solid 5.0px;
-    border-style: dotted;
+    border-radius: 8px;
 }
 
 .card-color-opponent {
-    border: rgb(41, 44, 233) solid 5.0px;
-    border-style: dotted;
+    border-radius: 8px;
+}
+
+.card-color > .front-face {
+    background: radial-gradient(circle,#f9ab8f,#f40752);
+}
+
+.card-color-opponent > .front-face {
+    background: radial-gradient(circle,#60efff,#0061ff);
 }

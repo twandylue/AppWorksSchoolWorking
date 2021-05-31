@@ -116,8 +116,10 @@ socket.on("both of you in ready", (info) => { // gameID 第一次出現 在info�
     showGameRules(info.rules);
 
     const startButton = document.querySelector("#start");
-    startButton.disabled = false;
-    startButton.innerHTML = "我準備好了！";
+    if (startButton) {
+        startButton.disabled = false;
+        startButton.innerHTML = "我準備好了！";
+    }
 });
 
 const start = document.querySelector("#start");
@@ -145,9 +147,9 @@ socket.on("chat message", (msg) => {
 });
 
 socket.on("execute rules", (info) => {
-    refreshRoundsInfo(info.rules.rounds);
-    initPointsInfo();
-    addGameInfo(info.rules.type, info.rules.number, info.rules.rounds);
+    // refreshRoundsInfo(info.rules.rounds); // 待改
+    // initPointsInfo(); // 不用了 一開始就設定好
+    addGameInfo(info.rules.type, info.rules.number, info.rules.rounds, info.rules.targets);
     addGameStatusandCards(info.round, info.rules.number, info.target, info.rules.state, info.cardsSetting);
 });
 
@@ -165,7 +167,7 @@ socket.on("countdown in game", (time) => {
     document.querySelector("#countdown").innerHTML = `Countdown: ${time} s`;
 });
 
-socket.on("start game", (info) => { // 翻牌
+socket.on("start game", (info) => { // 翻牌(問號面)
     if (info.msg === "start") {
         const cardFrontFaces = document.querySelectorAll(".front-face");
         const cardBackFaces = document.querySelectorAll(".back-face");

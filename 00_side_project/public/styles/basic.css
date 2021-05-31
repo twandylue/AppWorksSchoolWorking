@@ -1,3 +1,6 @@
+@import url('http://fonts.cdnfonts.com/css/games');
+@import url('http://fonts.cdnfonts.com/css/redkost-comic');
+
 *{
     margin: 0;
     padding: 0;
@@ -5,96 +8,132 @@
 }
 
 body {
-    margin: 3.5% 2% 5%;
-    height: 80%;
+    margin: 3% 2% 5%;
+    /* height: 80%; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: radial-gradient(circle,#fbfefb ,#efe5dc);
+
+}
+
+img {
+    height: 90px;
+    width: 90px;
+    border-radius: 15px;
+}
+
+#header {
+    position: sticky;
+    top: 0; 
+    z-index: 1;
+    width: 90%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+    border-bottom:#003049 solid 0.26rem;
+    /* background-color: #efe5dc; */
+    background: radial-gradient(circle,#f5faf5 ,#efe5dc);
+    border-radius: 2px;
+    /* font-family: 'Games', sans-serif; */
+    font-family: 'Redkost Comic', sans-serif;
+}
+
+#header > .title {
+    font-size: 3.0em;
+}
+
+#user_profile {
+    margin: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#user_photo {
+    height: 80px;
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+#logo {
+    margin: 5px;
 }
 
 .container {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    border: salmon solid 2px;
+    width: 90%;
+    height: 85%;
 }
 
 #left {
     display: flex;
     justify-content: space-between;
     flex-direction: column;
-    border: black 2px solid;
-    background-color: royalblue;
+    align-items: center;
+    /* border: black 2px solid; */
+    border-radius: 10px;
+    background-color: #EAE9F2;
+    -webkit-filter: drop-shadow(8px 8px 3px rgba(0, 0, 0, 0.7));
+    filter: drop-shadow(8px 8px 3px rgba(0, 0, 0, 0.7));
     width: 20%;
-}
-
-#music {
-    width: 80%;
-    margin-bottom: 2.3rem;
-    font-size: 1.1rem;
-    height: 1.5rem;
 }
 
 .user {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    border: red solid 2px
+    height: 200px;
+    font-size: 1.8em;
+    font-family: 'Redkost Comic', sans-serif;
 }
 
 .user_photo {
-    /* margin-left: 30%; */
-    width: 60%;
-    border: royalblue solid 2px;
-    margin: 0 auto;
+    margin: 0 auto 9px;
 }
 
 #user_container {
     display: flex;
     flex-direction: column;
     align-items: center;
+    /* width: 80%; */
 }
 
-#input {
-    display: flex;
-    flex-direction: row;
-    border:yellowgreen solid 2px
-}
-
-#submit_name {
-    width: 30%;
-    font-size: 1.1rem;
-    margin-left: 20px;
-}
-
-#input_name{
-    width: 80%;
-    height: 2.0rem;
-    font-size: 1.1rem;
-    margin: 0 auto;
-}
-
-#main_user_name {
-    width: 60%;
+.points { 
+    width: 85%;
+    padding: 0.2em 0 0.2em 0;
+    margin-top: 15px auto 0;
     font-size: 1.5rem;
-    margin: 0 auto;
-    background-color: skyblue;
+    font-family: 'Redkost Comic', sans-serif;
     text-align: center;
+    border-top: #adb5bd solid 2px;
+    border-bottom: #adb5bd solid 2px;
 }
 
 #chat_room {
     display: flex;
     flex-direction: column;
-    height: 380px;
     justify-content: space-between;
     margin-top: 1rem;
-    /* background-color: red */
+    height: 75%;
+    width: 100%;;
 }
 
 #messages {
-    margin: 10px 0 5px 0;
-    /* background-color: coral; */
-    border: black solid 2.5px;
-    height: 90%;
+    margin: 10px 0 2px 0;
+    height: 100%;
     list-style-type: none;
     overflow: auto;
+    background: linear-gradient(#F9A87B ,#F98C66);
+    /* border-radius: 8px; */
+    border-radius: 8px 8px 0px 0px;
+    border-bottom: #191828 solid 4px;
     /* transform: rotate(180deg); */
     /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; */
 }
@@ -107,28 +146,27 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    background-color: rgb(201, 162, 7);
+    margin-top: 1.7px;
+    /* border-top: #191828 solid 2px; */
+    height: 2.0em;
+    /* background-color: rgb(201, 162, 7); */
 }
 
 #input {
+    font-size: 1.3em;
     width: 80%;
 }
 
 #send {
-    font-size: 1.2rem;
+    font-size: 1.0rem;
+    width: 20%;
 }
 
-#paper_scissor_stone {
+/* #paper_scissor_stone {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-}
-
-.mora {
-    margin: 0 auto;
-    border: red solid 2px;
-    width: 25%;
-}
+} */
 
 #middle {
     width: 45%;
@@ -139,9 +177,15 @@ body {
 
 #rule_setting {
     /* align-items: center; */
+    font-family: 'Redkost Comic', sans-serif;
     text-align: center;
-    border:seagreen solid 2px;
+    font-weight: bold;
     font-size: 2.5rem;
+    color: #26253C;
+    /* color: #003049; */
+    margin-bottom: 10px;
+    -webkit-filter: drop-shadow(4px 4px 3.5px rgba(0, 0, 0, 0.7));
+    filter: drop-shadow(4px 4px 3.5px rgba(0, 0, 0, 0.7));
 }
 
 #setting_details {
@@ -149,14 +193,49 @@ body {
     flex-direction: row;
     justify-content: space-between;
     flex-wrap: wrap;
-    border: salmon solid 2px;
+    height: 75%;
+    /* background-color: #ffe8d6; */
+    /* background-color: #dcdcdd; */
+    border-radius: 5px;
+    background: radial-gradient(circle,#E0E0E0,#DADAE7);
+    -webkit-filter: drop-shadow(6px 6px 2.5px rgba(0, 0, 0, 0.7));
+    filter: drop-shadow(6px 6px 2.5px rgba(0, 0, 0, 0.7));
 }
 
 .details {
+    display: flex;
+    flex-direction: column;
     width: 40%;
-    height: 25%;
+    height: 23%;
     margin: 1rem auto 20%;
-    background-color: red;
+}
+
+.setting-details-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    /* margin-bottom: 20px; */
+}
+
+.setting-details-content {
+    font-size: 1.8em;
+    font-weight: bold;
+    text-align: center;
+    color: #112A46;
+    margin: 50px auto;
+    width: 60%;
+    /* border-bottom: #191828 solid 0.08em; */
+    font-family: 'Redkost Comic', sans-serif;
+}
+
+.setting-details-content-show {
+    font-size: 3.2em;
+    font-weight: bold;
+    text-align: center;
+    color: #112A46;
+    margin: 25px auto;
+    width: 60%;
+    border-bottom: #003049 solid 4.5px;
+    font-family: 'Redkost Comic', sans-serif;
 }
 
 #target {
@@ -165,93 +244,102 @@ body {
     justify-content: space-between;
 }
 
-#target > input {
+#target > .setting-details-content-show{
+    font-size: 1.8em;
+    margin-top: 35px;
+    border-bottom: none;
     width: 80%;
-    font-size: 1.1rem;
 }
 
-.details > select {
+/* .details > select {
     height: 2.0rem;
     font-size: 1.5rem;
-}
+} */
 
 .button {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     width: 100px;
-}
-
-#choice {
-    display: flex;
-    flex-direction: column;
-    background-color: blue;
-    justify-content: space-between;
-    width: 90%;
-    height: 13%;
-}
-
-.choice_button {
-    margin: 0 auto;
-    font-size: 1.1rem;
-    width: 80%;
-    height: 2.0rem;
 }
 
 #start {
     margin: 0 auto;
+    width: 10em;
+    /* height: 1.2em; */
+    font-size: 1.0rem;
+    font-family: 'Redkost Comic', sans-serif;
 }
 
 #right {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    border: sienna solid 2px;
     align-items: center;
+    border-radius: 10px;
+    background-color: #EAE9F2;
+    -webkit-filter: drop-shadow(8px 8px 3px rgba(0, 0, 0, 0.7));
+    filter: drop-shadow(8px 8px 3px rgba(0, 0, 0, 0.7));
     width: 20%;
+    height: 100%;
 }
 
-#block {
-    width: 80%;
-    margin-bottom: 1.2rem;
-    font-size: 1.1rem;
-    background-color: blueviolet;
+#opposite_user_container {
+    width: 90%;
+    /* height: 55%; */
+    height: 150px;
+    margin-bottom: 10px;
+}
+
+#opponent-title{
+    margin-top: 20px;
+    /* margin-bottom: 30px; */
+    width: 90%;
+    font-size: 1.7rem;
     text-align: center;
+    font-family: 'Redkost Comic', sans-serif;
 }
 
 #opposite_user_name{
     width: 60%;
     font-size: 1.5rem;
     margin: 0 auto;
-    background-color: skyblue;
     text-align: center;
+    -webkit-filter: drop-shadow(2px 2px 2.5px #26253C);
+    filter: drop-shadow(2px 2px 2.5px #26253C);
 }
 
-#rules {
+/* #rules {
     border: blueviolet solid 2px;
     height: 25%;
-    /* margin-top: 27%; */
     margin-top: 1.5rem;
     font-size: 1.1rem;
-    /* 行距要如何調整？ */
-}
-
-.points { 
-    background-color: brown;
-    border: brown solid 2px;
-    height: 50px;
-    font-size: 2.0rem;
-}
-
-/* #rounds > li{
-    font-size: 1.0rem;
-    background-color: burlywood;
 } */
+
+.info {
+    font-size: 1.25rem;
+    margin-bottom: 1.3rem;
+    margin-left: 0.4em;
+}
+
+.info-title {
+    margin-top: 0.45em;
+    font-size: 1.65rem;
+    font-weight: bold;
+}
+
+#game_info {
+    margin-top: auto;
+    border-radius: 8px;
+    height: 45%;
+    width: 100%;
+    /* 待改 背景顏色 */
+    background: radial-gradient(circle,#f1e1c2,#fcbc98); 
+    font-family: 'Redkost Comic', sans-serif;
+}
 
 #rounds_record {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
     width: 95%;
-    /* margin-bottom: 1.2rem; */
     font-size: 1.1rem;
     height: 1.5rem;
     background-color: blueviolet;
@@ -266,16 +354,6 @@ body {
     font-size: 1.7rem;
     color: blue;
     text-align: center;
-}
-
-#game_info {
-    width: 100%;
-    background-color: darksalmon;
-}
-
-.info {
-    font-size: 1.2rem;
-    margin-bottom: 1.1rem;
 }
 
 #record {

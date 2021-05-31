@@ -12,6 +12,7 @@ const { getCardNumber } = require("./getCardNumber");
 const { recordEveryStep } = require("./step_record_model");
 const { sumRecord } = require("./record_summary_model");
 const roomModule = require("./Room_model");
+const { client, getCache } = require("./cache_model");
 
 const updateRoomLobbyinfo = function (socket, io) {
     socket.on("update room info", async () => {
@@ -82,24 +83,25 @@ const chat = function (socket, io) {
 const processinRoom = async function (socket, io) {
     const { token } = socket.handshake.auth;
     const { roomID } = socket.handshake.auth;
-    const user = jwt.verify(token, TOKEN_SECRET);
-
-    console.log(user.email);
-    console.log(roomID);
-    if (roomID !== undefined) {
-        const members = await roomModule.findRoonMember(roomID);
-        console.log(members);
-        if (members.length === 1) {
-            console.log(`wait for opponen in ${roomID}`);
-            socket.emit("wait for opponent", "wait for opponent");
+    // console.log(token);
+    if (token) {
+        const user = jwt.verify(token, TOKEN_SECRET);
+        console.log(`${user.email} in room: ${roomID}`);
+        if (roomID !== undefined) {
+            const members = await roomModule.findRoonMember(roomID);
+            console.log(members);
+            if (members.length === 1) {
+                console.log(`wait for opponen in ${roomID}`);
+                socket.emit("wait for opponent", "wait for opponent");
             // io.to(roomID).emit("wait for opponent", "wait for opponent");
-        }
-        if (members.length === 2) { // 一個房間內只能有2人
-            const rules = await getRandomRules(); // 隨機產生遊戲規則
-            const gameRules = { type: rules.type, number: rules.card_number, rounds: rules.rounds, targets: rules.targets };
-            const gameID = await saveGameRules(roomID, user.email, gameRules);
-            console.log(`GameID: ${gameID}`);
-            io.to(roomID).emit("both of you in ready", { rules: gameRules, gameID: gameID }); // 讓雙方都能看到規則 and 讓前端能點選開始鈕
+            }
+            if (members.length === 2) { // 一個房間內只能有2人
+                const rules = await getRandomRules(); // 隨機產生遊戲規則
+                const gameRules = { type: rules.type, number: rules.card_number, rounds: rules.rounds, targets: rules.targets };
+                const gameID = await saveGameRules(roomID, user.email, gameRules);
+                console.log(`GameID: ${gameID}`);
+                io.to(roomID).emit("both of you in ready", { rules: gameRules, gameID: gameID }); // 讓雙方都能看到規則 and 讓前端能點選開始鈕
+            }
         }
     }
 
@@ -157,7 +159,7 @@ const gameloop = async function (gameID, rules, socket, io, room) {
         io.to(room).emit("next round execute rules", info);
 
         let standbyTime = parseInt(STANDBYTIME);
-        while (standbyTime >= 0) { // countdown in ready
+        while (standbyTime >= 0) { // countdown in ready 注意 會不會影響到其他房間的遊玩？ 因為異步性
             io.to(room).emit("countdown in ready", standbyTime);
             await delay(1000);
             standbyTime--;
@@ -191,54 +193,51 @@ function delay (delayTime) {
 }
 
 const ClickCardinGame = function (socket, io) {
-    const numberMap = new Map(); // 多人遊玩時可能會碰到問題 每次有人連線 這句話都會被執行 此寫法不支援多人多房間遊玩 導致numberMap被初始化 要用sql解決 待改
-    // console.log("numberMap=================="); // test
-
-    socket.on("click init", () => { // 待改
-        // 回合轉換後 應該初始化numberMap
-    });
+    // const numberMap = new Map(); // 多人遊玩時可能會碰到問題 每次有人連線 這句話都會被執行 此寫法不支援多人多房間遊玩 導致numberMap被初始化 要用sql解決 待改
+    // 回合轉換後 應該初始化redis
 
     socket.on("click card", async (info) => { // race condition
         // select card value from sql and check if they are in pair.
-        const { gameID, round, source, cardID, time } = info; // for record time: countdown time
-        const user = jwt.verify(info.token, TOKEN_SECRET);
-        const result = await roomModule.findRoom(user.email);
-        const room = result[0].room_id;
-        console.log("===========in click card============");
-        const oppoInfo = { source: info.source, cardID: info.cardID };
-        socket.to(room).emit("opposite click card", oppoInfo); // 對其他人 此處效能待改 送出卡片和數字分離了
+        try {
+            const { gameID, round, source, cardID, time } = info; // for record time: countdown time
+            const user = jwt.verify(info.token, TOKEN_SECRET);
+            const result = await roomModule.findRoom(user.email);
+            const room = result[0].room_id;
+            console.log("===========in click card============");
+            const oppoInfo = { source: info.source, cardID: info.cardID };
+            socket.to(room).emit("opposite click card", oppoInfo); // 對其他人 此處效能待改 送出卡片和數字分離了
 
-        const number = await getCardNumber(gameID, room, info.round, info.cardID); // fill card number
-        console.log(result[0]);
-        console.log(`socketID: ${socket.id} click: ${number}`);
-        const CardfilledInfo = { cardID: info.cardID, number: number };
-        io.to(room).emit("fill card number", CardfilledInfo);
+            const number = await getCardNumber(gameID, room, info.round, info.cardID); // fill card number 可以改成cache 待改
+            console.log(result[0]);
+            console.log(`socketID: ${socket.id} click: ${number}`);
+            const CardfilledInfo = { cardID: info.cardID, number: number };
+            io.to(room).emit("fill card number", CardfilledInfo);
 
-        const utsOrder = new Date().getTime();
-        const stepInfo = { gameID: gameID, room: room, round: round, source: source, email: user.email, cardID: parseInt(cardID), number: number, addPoints: 0, time: parseInt(time), utsOrder: utsOrder };
+            const utsOrder = new Date().getTime();
+            const stepInfo = { gameID: gameID, room: room, round: round, source: source, email: user.email, cardID: parseInt(cardID), number: number, addPoints: 0, time: parseInt(time), utsOrder: utsOrder };
 
-        // check if match
-        if (numberMap.has(socket.id)) { // click twice
-            const selectedHis = numberMap.get(socket.id);
-            const numberSelected = selectedHis.number;
-            const ans = number * numberSelected;
-            // console.log(socket.id + " Multi ans: " + ans);
-            // console.log("Round target: " + info.target);
-            const MatchInfo = { selecterID: socket.id, cardIDs: [selectedHis.cardID, info.cardID] }; // 點擊兩次後送出的資料封包
-
-            if (parseInt(info.target) === ans) {
-                io.to(room).emit("card number match", MatchInfo);
-                // 計分
-                io.to(room).emit("update points", { playerID: socket.id, point: 10 }); // 配對成功 +10分
-                stepInfo.addPoints = 10; // 得分
+            // use cache
+            const selectedHis = JSON.parse(await getCache(socket.id)); // 不確定
+            if (selectedHis !== null) {
+                const numberSelected = selectedHis.number;
+                const ans = number * numberSelected;
+                const MatchInfo = { selecterID: socket.id, cardIDs: [selectedHis.cardID, info.cardID] }; // 點擊兩次後送出的資料封包
+                if (parseInt(info.target) === ans) {
+                    io.to(room).emit("card number match", MatchInfo);
+                    io.to(room).emit("update points", { playerID: socket.id, point: 10 }); // 讓前端計分 配對成功 +10分
+                    stepInfo.addPoints = 10; // 得分
+                } else {
+                    io.to(room).emit("card number not match", MatchInfo);
+                }
+                client.del(socket.id); // redis delete
             } else {
-                io.to(room).emit("card number not match", MatchInfo);
+                client.set(socket.id, JSON.stringify({ cardID: info.cardID, number: number }));
             }
-            numberMap.delete(socket.id);
-        } else {
-            numberMap.set(socket.id, { cardID: info.cardID, number: number });
+            await recordEveryStep(stepInfo); // 可否改為遊戲結束後一次insert? 待改
+        } catch (err) {
+            console.log(err);
+            socket.emit("join failed", { err: "localStorage error" });
         }
-        await recordEveryStep(stepInfo); // 可否改為遊戲結束後一次insert? 待改
     });
 };
 

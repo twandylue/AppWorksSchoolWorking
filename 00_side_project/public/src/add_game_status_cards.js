@@ -7,11 +7,11 @@ function addGameStatusandCards (round, number, target, state, cardsSetting) {
     const status = document.createElement("div");
     status.id = "status";
     status.className = "game_status";
-    status.innerHTML = `Round ${round} Ready`;
+    status.innerHTML = `Round ${round} Ready`; // 待改
     const goal = document.createElement("div");
     goal.id = "goal";
     goal.className = "game_status";
-    goal.innerHTML = `Target: card1 x card2 = ${target}`;
+    goal.innerHTML = `Target: card1 x card2 = ${target}`; // 待改
     const countdown = document.createElement("div");
     countdown.id = "countdown";
     countdown.className = "game_status";
