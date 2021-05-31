@@ -52,19 +52,19 @@
 
 .double16 > .front-face {
     font-size: 40px; 
-    line-height: 80px;
+    line-height: 55px;
     /* 字體大小設定 */
 }
 
 .double25 > .front-face {
     font-size: 30px; 
-    line-height: 50px;
+    line-height: 40px;
     /* 字體大小設定 */
 }
 
 .double36 > .front-face {
     font-size: 30px; 
-    line-height: 35px;
+    line-height: 28px;
     /* 字體大小設定 */
 }
 
@@ -76,13 +76,13 @@
 
 .double25 > .back-face {
     font-size: 30px; 
-    line-height: 45px;
+    line-height: 40px;
     /* 字體大小設定 */
 }
 
 .double36 > .back-face {
-    font-size: 5px; 
-    line-height: 20px;
+    font-size: 25px; 
+    line-height: 25px;
     /* 字體大小設定 */
 }
 

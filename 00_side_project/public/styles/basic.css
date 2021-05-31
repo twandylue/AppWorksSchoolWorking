@@ -130,10 +130,11 @@ img {
     height: 100%;
     list-style-type: none;
     overflow: auto;
-    background: linear-gradient(#F9A87B ,#F98C66);
+    /* background: linear-gradient(#F9A87B ,#F98C66); */
+    background: radial-gradient(circle,#fffcf2,#FFF1BF);
     /* border-radius: 8px; */
     border-radius: 8px 8px 0px 0px;
-    border-bottom: #191828 solid 4px;
+    border-bottom: #191828 solid 2.5px;
     /* transform: rotate(180deg); */
     /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; */
 }
@@ -173,6 +174,13 @@ img {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
+
+.middle-Stat {
+    border-radius: 8px;
+    background: radial-gradient(circle,#fffcf2,#FFF1BF);
+    -webkit-filter: drop-shadow(3px 3px 2.5px rgba(0, 0, 0, 0.7));
+    filter: drop-shadow(3px 3px 2.5px rgba(0, 0, 0, 0.7));
 }
 
 #rule_setting {
@@ -331,11 +339,12 @@ img {
     height: 45%;
     width: 100%;
     /* 待改 背景顏色 */
-    background: radial-gradient(circle,#f1e1c2,#fcbc98); 
+    /* background: radial-gradient(circle,#f1e1c2,#fcbc98);  */
+    background: radial-gradient(circle,#fffcf2,#FFF1BF);
     font-family: 'Redkost Comic', sans-serif;
 }
 
-#rounds_record {
+/* #rounds_record {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
@@ -343,74 +352,133 @@ img {
     font-size: 1.1rem;
     height: 1.5rem;
     background-color: blueviolet;
-}
+} */
 
-#game {
+/* #game {
     background-color: cyan;
     height: 85%;
-}
+} */
 
 .game_status {
-    font-size: 1.7rem;
-    color: blue;
+    font-family: 'Redkost Comic', sans-serif;
     text-align: center;
+    margin: 20px auto 10px;
 }
 
-#record {
+#status {
+    font-size: 1.4rem;
+    color: #495057;
+}
+
+#goal{
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #003049;
+}
+
+#countdown {
+    font-size: 1.4rem;
+    color: #495057;
+}
+
+#status-stat {
     font-size: 1.8rem;
-    margin-bottom: 5%;
+    font-weight: bold;
+    color: #003049;
+}
+
+#goal-stat {
+    font-size: 1.5rem;
+    color: #495057;
+}
+
+#countdown-stat {
+    font-size: 1.5rem;
+    color: #495057;
+}
+
+#record {    
+    margin-bottom: 10px;
+    /* padding-left: 20%; */
+    font-family: 'Redkost Comic', sans-serif;
+}
+
+#record-title {
+    font-size: 1.75rem;
+    color: #495057;
+    width: 50%;
+    margin: 4px auto;
 }
 
 #record_border {
-    border:black solid 2.5px
+    border-top:#d9d9d9 solid 2px;
+    border-bottom:#d9d9d9 solid 2px;
+    margin-top: 5px auto;
+    /* padding:5px 0 10px 15%; */
+    width: 100%;
 }
 
 .record_info {
-    font-size: 1.5rem;
-    margin: 10px;
+    font-size: 1.4rem;
+    color: #001427;
+    width: 50%;
+    /* margin: 10px 0 10px 4em; */
+    margin: 5px auto 10px;
 }
 
-#reply {
+#replay {
     display: flex;
     flex-direction: row;
-    border: springgreen solid 2px;
-    /* padding-bottom: 40%; */
+    width: 95%;
+    margin: 10px auto;
+    height: 2.5rem;
 }
 
-#reply_title {
+#replay-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin: 3px auto;
+    align-items: center;
+    height: 2.0rem;
+    width: 95%;
+}
+
+#replay_title {
+    color: #495057;
     font-size: 1.5rem;
-    margin-right: 20px;
+    /* margin-right: 10px;
+    margin-left: 10%; */
 }
 
-#reply > select {
-    width: 50%;
-    font-size: 1.2rem;
-    margin-right: 50px;
+#replay > select {
+    width: 45%;
+    font-size: 1.5rem;
+    /* margin-right: 50px; */
 }
 
-#reply > button {
-    width: 10%;
-    font-size: 1.2rem;
+#replay > button {
+    width: 80px;
+    font-size: 1.5rem;
 }
 
 #choose {
-    border: tomato solid 2px;
-    /* padding: 20px 0 10%; */
+    border-top:#d9d9d9 solid 2.5px;
+    width: 100%;
+    /* border: tomato solid 2px; */
+    padding: 10px;
 }
 
 #wrap {
     display: flex;
-    flex-direction: column;
-    width: 150px;
-    /* background-color: violet; */
-    margin-left: auto;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 70%;
+    align-items: center;
+    margin: 0 auto;
 }
 
 #wrap > button {
-    width: 100%;
-    height: 1.8rem;
-    font-size: 1.3rem;
-    margin-bottom: 1.0rem;
-    /* margin-right: 0; */
-    /* margin-left: 20px; */
+    width: 35%;
+    font-size: 1.15rem;
 }

@@ -39,6 +39,7 @@ io.on("connection", async (socket) => {
     // console.log(`user: ${socket.id} connected`);
 
     socketModule.processinRoom(socket, io);
+    socketModule.getUserInfo(socket, io);
     socketModule.updateRoomLobbyinfo(socket, io);
     socketModule.Room(socket, io);
     socketModule.chat(socket, io);

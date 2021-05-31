@@ -7,15 +7,16 @@ function addGameStatusandCards (round, number, target, state, cardsSetting) {
     const status = document.createElement("div");
     status.id = "status";
     status.className = "game_status";
-    status.innerHTML = `Round ${round} Ready`; // 待改
+    status.innerHTML = `第 ${round} 回合 Standby`; // 待改
     const goal = document.createElement("div");
     goal.id = "goal";
     goal.className = "game_status";
-    goal.innerHTML = `Target: card1 x card2 = ${target}`; // 待改
+    goal.innerHTML = `目標: 卡片1數字 x 卡片2數字 = ${target}`; // 待改
     const countdown = document.createElement("div");
     countdown.id = "countdown";
     countdown.className = "game_status";
-    countdown.innerHTML = "Countdown: 10 s"; // 待改
+    // countdown.innerHTML = "Countdown: 10 s"; // 待改
+    countdown.innerHTML = "準備倒數時間: 10 s"; // 待改
     const game = document.createElement("div");
     game.id = "game";
     const memoryGame = document.createElement("section");

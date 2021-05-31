@@ -35,6 +35,12 @@ socket.on("connect", () => {
     console.log("socketID: " + socket.id);
 });
 
+socket.emit("get user name", "get my name");
+
+socket.on("show my name", (user) => {
+    document.querySelector("#user_name").innerHTML = `Hi! ${user.name}`;
+});
+
 socket.emit("update room info", "need to update room info");
 
 socket.on("room info", (roomInfo) => {
@@ -64,7 +70,6 @@ function joinRoom () {
     const info = { roomID: roomID, token: token };
     socket.emit("join room", info);
 }
-
 async function main () {
     const loginStae = await checkLogin();
     // console.log(await loginStae.json());

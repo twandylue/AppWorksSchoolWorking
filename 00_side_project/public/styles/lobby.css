@@ -40,7 +40,7 @@ img {
 }
 
 .room-name {
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     margin: 5px 0 10px 8px;
     padding: 3px;
     width: 26.5%;
@@ -48,7 +48,7 @@ img {
 }
 
 .room-state {
-    font-size: 1.0rem;
+    font-size: 1.2rem;
     margin: 5px 0 3px 8px;
 }
 
@@ -144,6 +144,7 @@ img {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    font-family: 'Redkost Comic', sans-serif;
 }
 
 #mode-select {

@@ -21,9 +21,23 @@ const updateRoomLobbyinfo = function (socket, io) {
     });
 };
 
+const getUserInfo = function (socket, io) {
+    socket.on("get user name", () => {
+        try {
+            const { token } = socket.handshake.auth;
+            const user = jwt.verify(token, TOKEN_SECRET);
+            socket.emit("show my name", user);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+};
+
 const Room = function (socket, io) {
     socket.on("join room", async (info) => {
         try {
+            // const { token } = socket.handshake.auth;
+            // const user = jwt.verify(token, TOKEN_SECRET);
             const user = jwt.verify(info.token, TOKEN_SECRET);
             const pass = await roomModule.joinRoom(info.roomID, user.email);
             if (pass) {
@@ -99,7 +113,9 @@ const processinRoom = async function (socket, io) {
                 const rules = await getRandomRules(); // 隨機產生遊戲規則
                 const gameRules = { type: rules.type, number: rules.card_number, rounds: rules.rounds, targets: rules.targets };
                 const gameID = await saveGameRules(roomID, user.email, gameRules);
-                console.log(`GameID: ${gameID}`);
+                // const accessToken = jwt.sign({ type: rules.type, number: rules.card_number, rounds: rules.rounds, targets: rules.targets, gameID: gameID }, TOKEN_SECRET);
+                // console.log(`GameID: ${gameID}`);
+                io.to(roomID).emit("both of you in ready", { accessToken: accessToken }); // 讓雙方都能看到規則 and 讓前端能點選開始鈕
                 io.to(roomID).emit("both of you in ready", { rules: gameRules, gameID: gameID }); // 讓雙方都能看到規則 and 讓前端能點選開始鈕
             }
         }
@@ -242,6 +258,7 @@ const ClickCardinGame = function (socket, io) {
 };
 
 module.exports = {
+    getUserInfo,
     processinRoom,
     updateRoomLobbyinfo,
     Room,

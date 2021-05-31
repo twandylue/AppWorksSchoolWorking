@@ -5,7 +5,7 @@ function updateLobby (roomInfo) {
     }
     const roomNames = document.querySelectorAll(".room-name");
     for (let i = 0; i < roomNames.length; i++) {
-        roomNames[i].innerHTML = `Room: ${roomInfo[i].room_id}`;
+        roomNames[i].innerHTML = `Room ${roomInfo[i].room_id}`;
     }
     const roomStates = document.querySelectorAll(".room-state");
     for (let i = 0; i < roomNames.length; i++) {

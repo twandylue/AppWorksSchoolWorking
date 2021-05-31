@@ -134,8 +134,10 @@ start.addEventListener("click", () => {
         const gameID = localStorage.getItem("gameID");
         const rules = localStorage.getItem("rules");
         const gameRules = JSON.parse(rules);
-        gameRules.gameID = gameID;
-        socket.emit("I am ready", (gameRules));
+        if (gameRules) {
+            gameRules.gameID = gameID;
+            socket.emit("I am ready", (gameRules));
+        }
     });
 });
 
@@ -157,14 +159,14 @@ socket.on("countdown in ready", (time) => {
     if (document.querySelector("#countdown") === null) {
         return;
     }
-    document.querySelector("#countdown").innerHTML = `Countdown: ${time} s`;
+    document.querySelector("#countdown").innerHTML = `遊戲倒數時間: ${time} s`;
 });
 
 socket.on("countdown in game", (time) => {
     if (document.querySelector("#countdown") === null) {
         return;
     }
-    document.querySelector("#countdown").innerHTML = `Countdown: ${time} s`;
+    document.querySelector("#countdown").innerHTML = `遊戲倒數時間: ${time} s`;
 });
 
 socket.on("start game", (info) => { // 翻牌(問號面)
@@ -172,7 +174,8 @@ socket.on("start game", (info) => { // 翻牌(問號面)
         const cardFrontFaces = document.querySelectorAll(".front-face");
         const cardBackFaces = document.querySelectorAll(".back-face");
         const status = document.querySelector("#status");
-        status.innerHTML = `Round ${info.round} Start!`;
+        // status.innerHTML = `Round ${info.round} Start!`;
+        status.innerHTML = `第 ${info.round} 回合 Start！`;
         for (let i = 0; i < cardFrontFaces.length; i++) {
             cardFrontFaces[i].innerHTML = "";
             cardFrontFaces[i].classList.add("front-face_start");
