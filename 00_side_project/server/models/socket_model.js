@@ -115,7 +115,7 @@ const processinRoom = async function (socket, io) {
                 const gameID = await saveGameRules(roomID, user.email, gameRules);
                 // const accessToken = jwt.sign({ type: rules.type, number: rules.card_number, rounds: rules.rounds, targets: rules.targets, gameID: gameID }, TOKEN_SECRET);
                 // console.log(`GameID: ${gameID}`);
-                io.to(roomID).emit("both of you in ready", { accessToken: accessToken }); // 讓雙方都能看到規則 and 讓前端能點選開始鈕
+                // io.to(roomID).emit("both of you in ready", { accessToken: accessToken }); // 讓雙方都能看到規則 and 讓前端能點選開始鈕
                 io.to(roomID).emit("both of you in ready", { rules: gameRules, gameID: gameID }); // 讓雙方都能看到規則 and 讓前端能點選開始鈕
             }
         }
