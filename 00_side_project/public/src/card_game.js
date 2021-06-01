@@ -1,4 +1,4 @@
-function cardGame (socket, round, target) { // 第一回合有選中 第二回合會出現問題
+function cardGame (socket, gameID, round, target) { // 第一回合有選中 第二回合會出現問題
     // let hasEmitCheckMatch = false;
     let hasEmitedTwice = false;
     let lockBoard = false;
@@ -28,17 +28,18 @@ function cardGame (socket, round, target) { // 第一回合有選中 第二回�
                 secondCard = this;
                 lockBoard = true; // be able to flip only two card
             }
+
             const countdownTime = document.querySelector("#countdown").innerHTML;
             const time = countdownTime.split(" ")[1];
-            const token = localStorage.getItem("access_token");
-            const gameID = localStorage.getItem("gameID");
+            const token = localStorage.getItem("access_token"); // 此時token裡面應該帶有 gameID roomID rules等資訊
+            // const gameID = localStorage.getItem("gameID");
             const info = {
                 source: socket.id,
                 cardID: this.children[0].id,
                 round: round,
                 target: target,
                 time: time,
-                token: token,
+                token: token, // 此處待確認 可否不用帶著token在body中？
                 gameID: gameID
             };
 

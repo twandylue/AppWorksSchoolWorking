@@ -8,18 +8,41 @@ import { updatePoints } from "./update_points.js";
 import { showGameRules } from "./showGameRules.js";
 import { combineMatchPageforAgain } from "./combMatchPage.js";
 
+let frontGameID;
+let frontRules;
+
 const token = localStorage.getItem("access_token");
-const roomID = localStorage.getItem("roomID");
+// const roomID = localStorage.getItem("roomID");
+// const socket = io({
+//     auth: {
+//         token: token,
+//         roomID: roomID
+//     }
+// });
+
 const socket = io({
     auth: {
-        token: token,
-        roomID: roomID
+        token: token
     }
 });
 
 socket.on("connect", () => {
     // 講整段code放入此處 表示連線後才能執行?
     console.log(socket.id);
+});
+
+socket.on("connect_error", (err) => {
+    console.log(err.message);
+    if (err.message) {
+        Swal.fire({
+            icon: "warning",
+            title: "你斷線囉",
+            text: err.message,
+            confirmButtonText: "確認"
+        }).then(() => {
+            window.location.href = "./gamelobby.html";
+        });
+    }
 });
 
 socket.on("leave room", (msg) => {
@@ -57,23 +80,25 @@ socket.on("join failed", (msg) => {
     });
 });
 
-// Swal.fire({ // sweet alert寫法 不同體驗 先保留
-//     icon: "warning",
-//     title: "準備好了嗎？",
-//     text: "要開始了唷!",
-//     confirmButtonText: "確認"
-// }).then((result) => {
-//     const urlParams = new URLSearchParams(window.location.search);
-//     const roomID = urlParams.get("roomID");
-//     socket.emit("in room", { roomID: roomID, token: token });
-//     socket.emit("get user name", "get my name");
-// });
+Swal.fire({ // sweet alert寫法 不同體驗 先保留
+    icon: "warning",
+    title: "準備好了嗎？",
+    text: "要開始了唷!",
+    confirmButtonText: "確認"
+}).then((result) => {
+    // const urlParams = new URLSearchParams(window.location.search);
+    // const roomID = urlParams.get("roomID");
+    // socket.emit("in room", { roomID: roomID, token: token });
+    socket.emit("in room", "in the room"); // 不好的寫法 到此處時 理應上token中已帶有roomID資訊
+    socket.emit("get user name", "get my name");
+});
 
-socket.emit("in room", { roomID: roomID, token: token }); // 不好的寫法
-socket.emit("get user name", "get my name");
+// // socket.emit("in room", { roomID: roomID, token: token }); // 不好的寫法
+// socket.emit("in room", "in the room"); // 不好的寫法 到此處時 理應上token中已帶有roomID資訊
+// socket.emit("get user name", "get my name");
 
-socket.on("show my name", (user) => {
-    document.querySelector("#user_name").innerHTML = `Hi! ${user.name}`;
+socket.on("show my name", (name) => {
+    document.querySelector("#user_name").innerHTML = `Hi! ${name}`;
 });
 
 socket.on("fill name", (name) => {
@@ -116,10 +141,16 @@ socket.on("wait for opponent", () => { // 目前應該為等待畫面 不會顯�
 });
 
 socket.on("both of you in ready", (info) => { // gameID 第一次出現 在info中
-    const { gameID } = info;
-    localStorage.setItem("gameID", gameID);
-    localStorage.setItem("rules", JSON.stringify(info.rules));
-    showGameRules(info.rules);
+    // const { gameID } = info;
+    // console.log(info);
+    // localStorage.setItem("access_token", info.token); // 此處token帶有rules和gameID 資訊 第一次
+    // localStorage.setItem("gameID", gameID);
+    // localStorage.setItem("rules", JSON.stringify(info.rules));
+    // showGameRules(info.rules);
+    const { rules, gameID } = info;
+    frontGameID = gameID; //    第一次儲存gameID
+    frontRules = Object.assign({}, rules); // 第一次儲存frontRules
+    showGameRules(frontRules);
 
     const startButton = document.querySelector("#start");
     if (startButton) {
@@ -128,7 +159,7 @@ socket.on("both of you in ready", (info) => { // gameID 第一次出現 在info�
     }
 });
 
-const start = document.querySelector("#start");
+const start = document.querySelector("#start"); // 規則展示頁面 可以按下已準備
 start.addEventListener("click", () => {
     start.disabled = "disabled";
     Swal.fire({
@@ -137,13 +168,16 @@ start.addEventListener("click", () => {
         text: "等待對手準備...",
         confirmButtonText: "確認"
     }).then(() => {
-        const gameID = localStorage.getItem("gameID");
-        const rules = localStorage.getItem("rules");
-        const gameRules = JSON.parse(rules);
-        if (gameRules) {
-            gameRules.gameID = gameID;
-            socket.emit("I am ready", (gameRules));
-        }
+        // socket.emit("I am ready", "I am ready"); // 此處帶token至後端時 token內已有gameID 和 rules資訊
+        socket.emit("I am ready", { rules: frontRules, gameID: frontGameID });
+
+        // const gameID = localStorage.getItem("gameID");
+        // const rules = localStorage.getItem("rules");
+        // const gameRules = JSON.parse(rules);
+        // if (gameRules) {
+        //     gameRules.gameID = gameID;
+        //     socket.emit("I am ready", (gameRules));
+        // }
     });
 });
 
@@ -188,7 +222,7 @@ socket.on("start game", (info) => { // 翻牌(問號面)
             cardBackFaces[i].classList.remove("back-face_ready");
         }
 
-        cardGame(socket, info.round, info.target);
+        cardGame(socket, frontGameID, info.round, info.target);
     }
 });
 
@@ -233,9 +267,9 @@ socket.on("game over", (gameStatInfo) => {
 
     const again = document.querySelector("#again");
     again.addEventListener("click", () => {
-        const roomID = localStorage.getItem("roomID");
-        const gameID = localStorage.getItem("gameID");
-        const info = { gameID: gameID, roomID: roomID };
+        // const roomID = localStorage.getItem("roomID");
+        // const gameID = localStorage.getItem("gameID");
+        const info = { gameID: frontGameID };
         socket.emit("want to play again", info);
         Swal.fire({
             icon: "info",
@@ -264,13 +298,17 @@ socket.on("game over", (gameStatInfo) => {
 socket.on("again", (info) => {
     // console.log(info);
     // console.log(`gameID: ${info.gameID}`);
-    localStorage.setItem("gameID", info.gameID);
-    localStorage.setItem("rules", JSON.stringify(info.rules)); // 更新規則 危險 會有被前端串改的風險 機制待改
-    combineMatchPageforAgain(socket);
+    // localStorage.setItem("gameID", info.gameID);
+    // localStorage.setItem("rules", JSON.stringify(info.rules)); // 更新規則 危險 會有被前端串改的風險 機制待改
+    // frontGameID = info.gameID; // 第一次儲存gameID
+    // frontRules = Object.assign({}, info.rules); // 儲存新的frontRules
+    frontGameID = info.gameID; // 更新gameID
+    frontRules = Object.assign({}, info.rules); // 儲存新的frontRules
+    combineMatchPageforAgain();
     showGameRules(info.rules);
 
     const startButton = document.querySelector("#start");
-    startButton.addEventListener("click", () => {
+    startButton.addEventListener("click", () => { // 此callbackfunction 可以簡化 重複使用 start button 待改
         startButton.disabled = "disabled";
         Swal.fire({
             icon: "warning",
@@ -278,11 +316,12 @@ socket.on("again", (info) => {
             text: "等待對手準備...",
             confirmButtonText: "確認"
         }).then(() => {
-            const gameID = localStorage.getItem("gameID");
-            const rules = localStorage.getItem("rules");
-            const gameRules = JSON.parse(rules);
-            gameRules.gameID = gameID;
-            socket.emit("I am ready", (gameRules));
+            // const gameID = localStorage.getItem("gameID");
+            // const rules = localStorage.getItem("rules");
+            // const gameRules = JSON.parse(rules);
+            // gameRules.gameID = gameID;
+            // socket.emit("I am ready", (gameRules));
+            socket.emit("I am ready", { rules: frontRules, gameID: frontGameID });
         });
     });
 

@@ -35,21 +35,36 @@ socket.on("connect", () => {
     console.log("socketID: " + socket.id);
 });
 
-socket.emit("get user name", "get my name");
-
-socket.on("show my name", (user) => {
-    document.querySelector("#user_name").innerHTML = `Hi! ${user.name}`;
+socket.on("connect_error", (err) => {
+    console.log(err.message);
+    if (err.message) {
+        Swal.fire({
+            icon: "warning",
+            title: "你斷線囉",
+            text: err.message,
+            confirmButtonText: "確認"
+        }).then(() => {
+            main();
+            socket.emit("update room info", "need to update room info"); // 後端沒建立on時 會導致沒有觸發此事件 待改 改成用api的形式
+        });
+    }
 });
 
-socket.emit("update room info", "need to update room info");
+socket.emit("get user name", "get my name");
+
+socket.on("show my name", (name) => {
+    document.querySelector("#user_name").innerHTML = `Hi! ${name}`;
+});
+
+socket.emit("update room info", "need to update room info"); // 後端沒建立on時 會導致沒有觸發此事件 待改 改成用api的形式
 
 socket.on("room info", (roomInfo) => {
     updateLobby(roomInfo);
 });
 
-socket.on("join success", (roomID) => {
-    localStorage.setItem("roomID", roomID);
-    window.location.href = `/match.html?roomID=${roomID}`;
+socket.on("join success", (info) => {
+    localStorage.setItem("access_token", info.token); // 此token第一次帶有roomID資訊
+    window.location.href = `/match.html?roomID=${info.roomID}`;
 });
 
 socket.on("join failed", (info) => {
@@ -66,8 +81,9 @@ joinButtons.forEach(joinButton => joinButton.addEventListener("click", joinRoom)
 function joinRoom () {
     const button = this;
     const roomID = button.parentElement.parentElement.id;
-    const token = localStorage.getItem("access_token");
-    const info = { roomID: roomID, token: token };
+    // const token = localStorage.getItem("access_token");
+    // const info = { roomID: roomID, token: token };
+    const info = { roomID: roomID };
     socket.emit("join room", info);
 }
 async function main () {
@@ -134,6 +150,7 @@ async function main () {
                     }).then(async () => {
                         const info = await response.json();
                         localStorage.setItem("access_token", info.data.access_token);
+                        socket.emit("update room info", "need to update room info"); // 後端沒建立on時 會導致沒有觸發此事件 待改 改成用api的形式
                     });
                 }
             }

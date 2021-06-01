@@ -1,4 +1,4 @@
-function combineMatchPageforAgain (socket) {
+function combineMatchPageforAgain () {
     const gameInfo = document.querySelector("#game_info");
     gameInfo.remove(); // game-info 初始化
 

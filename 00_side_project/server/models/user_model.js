@@ -36,8 +36,7 @@ const signUp = async (name, roleId, email, password) => {
         const accessToken = jwt.sign({
             provider: user.provider,
             name: user.name,
-            email: user.email,
-            picture: user.picture
+            email: user.email
         }, TOKEN_SECRET);
         user.access_token = accessToken;
 
