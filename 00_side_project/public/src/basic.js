@@ -68,6 +68,12 @@ socket.on("join failed", (msg) => {
 //     socket.emit("in room", { roomID: roomID, token: token });
 // });
 
+socket.emit("get user name", "get my name");
+
+socket.on("show my name", (user) => {
+    document.querySelector("#user_name").innerHTML = `Hi! ${user.name}`;
+});
+
 socket.emit("in room", { roomID: roomID, token: token });
 
 socket.on("fill name", (name) => {
@@ -238,7 +244,7 @@ socket.on("game over", (gameStatInfo) => {
             confirmButtonText: "好的"
         }).then(() => {
             again.disabled = true;
-            again.innerHTML = "等待對手回應中";
+            again.innerHTML = "等待對手回應";
         });
     });
 

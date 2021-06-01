@@ -38,9 +38,9 @@ const socketModule = require("./server/models/socket_model");
 io.on("connection", async (socket) => {
     // console.log(`user: ${socket.id} connected`);
 
-    socketModule.processinRoom(socket, io);
     socketModule.getUserInfo(socket, io);
     socketModule.updateRoomLobbyinfo(socket, io);
+    socketModule.processinRoom(socket, io);
     socketModule.Room(socket, io);
     socketModule.chat(socket, io);
     socketModule.ClickCardinGame(socket, io);
