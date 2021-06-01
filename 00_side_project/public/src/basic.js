@@ -57,24 +57,24 @@ socket.on("join failed", (msg) => {
     });
 });
 
-// Swal.fire({ // sweet alert寫法 不同體驗 先保留
-//     icon: "warning",
-//     title: "準備好了嗎？",
-//     text: "要開始了唷!",
-//     confirmButtonText: "確認"
-// }).then((result) => {
-//     const urlParams = new URLSearchParams(window.location.search);
-//     const roomID = urlParams.get("roomID");
-//     socket.emit("in room", { roomID: roomID, token: token });
-// });
+Swal.fire({ // sweet alert寫法 不同體驗 先保留
+    icon: "warning",
+    title: "準備好了嗎？",
+    text: "要開始了唷!",
+    confirmButtonText: "確認"
+}).then((result) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomID = urlParams.get("roomID");
+    socket.emit("in room", { roomID: roomID, token: token });
+    socket.emit("get user name", "get my name");
+});
 
-socket.emit("get user name", "get my name");
+// socket.emit("in room", { roomID: roomID, token: token }); // 不好的寫法
+// socket.emit("get user name", "get my name");
 
 socket.on("show my name", (user) => {
     document.querySelector("#user_name").innerHTML = `Hi! ${user.name}`;
 });
-
-socket.emit("in room", { roomID: roomID, token: token });
 
 socket.on("fill name", (name) => {
     document.querySelector("#user_container #name").innerHTML = name;

@@ -4,9 +4,9 @@ function combineMatchPageforAgain (socket) {
 
     // points 初始化
     const userPoints = document.querySelector("#player_points");
-    userPoints.innerHTML = "目前得分:";
+    userPoints.innerHTML = "目前得分: 0";
     const oppoPoints = document.querySelector("#oppo_player_points");
-    oppoPoints.innerHTML = "對手得分:";
+    oppoPoints.innerHTML = "對手得分: 0";
 
     const middle = document.querySelector("#middle");
     while (middle.firstChild) { // 移除middle下 每個項目
