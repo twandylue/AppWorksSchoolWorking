@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>MEMORY GAME</title>
+        <title>MEMORY&GUESS</title>
         <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link rel="stylesheet" type="text/css" href="/styles/basic.css" media="all">
         <link rel="stylesheet" type="text/css" href="./styles/game.css">
@@ -28,7 +28,7 @@
                     <ul id = "messages"></ul>
                     <div id = "sendmsg">
                         <input id="input" autocomplete="off" />
-                        <button id = "send">送出</button>
+                        <button style="cursor: pointer" id = "send">送出</button>
                     </div>
                 </div>
             </div>
@@ -50,12 +50,12 @@
                     <div class = "details" id = "target">
                         <div class = "setting-details-title">目標分數(/每回合):</div>
                         <div class="setting-details-content">Waiting...</div>
-                        <!-- <div class="setting-details-content">test</div>
-                        <div class="setting-details-content">test</div> -->
-
                     </div>
                 </div>
-                <button class = "button" id = "start">等待對手中</button>
+                <div id = "button-list">
+                    <button style="cursor: pointer" class = "button" id = "start">等待對手中</button>
+                    <button style="cursor: pointer" class = "button" id = "leave">離開房間</button>
+                </div>
             </div>
             <div id = "right">
                 <div id = "opponent-title">Opponent</div>
@@ -64,6 +64,7 @@
                     <div id = "opposite_user_name">Waiting...</div>
                 </div>
                 <div class = "points" id = "oppo_player_points">對手得分: 0</div>
+                <div id = "roomID">所在房號: ?</div>
             </div>
         </div>
         <script src="/socket.io/socket.io.js"></script>

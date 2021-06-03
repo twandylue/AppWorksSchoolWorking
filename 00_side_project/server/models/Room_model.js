@@ -74,6 +74,13 @@ const watchLeaveRoom = async (roomID) => {
     await pool.query(sql, insert);
 };
 
+const findGameID = async (email) => {
+    const conn = await pool.getConnection();
+    const result = await conn.query("SELECT game_id FROM room WHERE email = ?", [email]);
+    await conn.release();
+    return (result[0][0].game_id);
+};
+
 const findRoom = async (email) => {
     const conn = await pool.getConnection();
     const sql = "SELECT room.room_id, room.email, user.name FROM room INNER JOIN user ON room.email = user.email WHERE room.email = ?;";
@@ -155,14 +162,30 @@ const isAgainNumberOK = async (gameID) => {
     }
 };
 
+const bindGameIDinRoom = async (gameID, roomID) => {
+    const conn = await pool.getConnection();
+    try {
+        conn.query("START TRANSACTION");
+        await conn.query("UPDATE room SET game_id = ? WHERE room_id = ?;", [gameID, roomID]);
+        conn.query("COMMIT");
+    } catch (err) {
+        console.log(`error in bindGameIDinRoom: ${err}`);
+        conn.query("ROLLBACK");
+    } finally {
+        await conn.release();
+    }
+};
+
 module.exports = {
     joinRoom,
     leaveRoom,
     watchJoinRoom,
     watchLeaveRoom,
+    findGameID,
     findRoom,
     findRoonMember,
     getRoomLobbyInfo,
     isReadyNumberOK,
-    isAgainNumberOK
+    isAgainNumberOK,
+    bindGameIDinRoom
 };

@@ -63,11 +63,23 @@ function combineMatchPageforAgain () {
 
     settingDetails.append(type, numberofCards, rounds, target);
 
+    const buttonList = document.createElement("div");
+    buttonList.id = "button-list";
+
     const startButton = document.createElement("button");
     startButton.id = "start";
     startButton.className = "button";
     startButton.innerHTML = "我準備好了！";
-    middle.append(ruleSetting, settingDetails, startButton);
+    startButton.style = "cursor: pointer";
+
+    const leaveButton = document.createElement("button");
+    leaveButton.id = "leave";
+    leaveButton.className = "button";
+    leaveButton.innerHTML = "離開房間";
+    leaveButton.style = "cursor: pointer";
+    buttonList.append(startButton, leaveButton);
+
+    middle.append(ruleSetting, settingDetails, buttonList);
 }
 
 export { combineMatchPageforAgain };

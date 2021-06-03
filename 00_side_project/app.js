@@ -16,12 +16,23 @@ app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// const { client, getCache } = require("./server/models/cache_model");
-// app.get("/test", async (req, res) => {
-//     // client.set("test1", "testCache");
-//     const test = await getCache("test"); // if not exist, return null
-//     console.log(test);
-//     res.send("test");
+// const { statRecord } = require("./server/models/record_summary_model");
+// const { pool } = require("./server/models/mysqlcon");
+// app.post("/test", async (req, res) => {
+//     const { gameID, roomID, rounds } = req.body.data;
+//     // console.log({ gameID, roomID, rounds });
+//     const conn = await pool.getConnection();
+//     // console.log(pool.format("SELECT id, rounds FROM game_setting_info WHERE id > ? ", 1344));
+//     const results = await conn.query("SELECT id, rounds FROM game_setting_info WHERE id >= ? ", 1343);
+//     console.log(results[0]);
+//     for (const i in results[0]) {
+//         await statRecord(results[0][i].id, roomID, results[0][i].rounds);
+//         console.log(`${i} =======`);
+//     }
+//     await conn.release();
+
+//     // await statRecord(gameID, roomID, rounds);
+//     res.send("finished");
 // });
 
 // API routes
@@ -53,6 +64,7 @@ io.use((socket, next) => {
 
 const roomModule = require("./server/models/Room_model");
 const socketModule = require("./server/models/socket_model");
+const { client } = require("./server/models/cache_model");
 io.on("connection", async (socket) => {
     console.log(`user: ${socket.info.email} connected`);
     // console.log(socket.info);
@@ -64,11 +76,24 @@ io.on("connection", async (socket) => {
     socketModule.chat(socket, io);
 
     socket.on("disconnect", async () => {
-        console.log(`user: ${socket.info.email} disconnected`);
-        const roomID = await roomModule.leaveRoom(socket.info.email);
-        if (roomID) {
-            socket.emit("leave room", "you leave the room"); // 無用 因為重新連線後找不到原始socket id
-            socket.to(roomID).emit("opponent leave room", "oppo leave the room");
+        try {
+            console.log(`user: ${socket.info.email} disconnected`);
+            const gameID = await roomModule.findGameID(socket.info.email);
+            if (gameID) {
+                console.log(`gameID: ${gameID} is over`);
+                client.del(gameID); // 斷線時 初始化cache 該gameID的cardSstting
+            }
+            client.del(socket.info.email); // 中途離開時初始化cache 該使用者點擊過的卡片
+            client.del(socket.info.roomID); // 中途離開時 或遊戲結束時 初始化cache 該房間的倒數計器
+            const roomID = await roomModule.leaveRoom(socket.info.email);
+            if (roomID) {
+                socket.emit("leave room", "you leave the room"); // 無用 因為重新連線後找不到原始socket id
+                socket.to(roomID).emit("opponent leave room", "oppo leave the room");
+            }
+            const roomInfo = await roomModule.getRoomLobbyInfo();
+            io.emit("room info", roomInfo); // 更新大廳資訊
+        } catch (err) {
+            console.log(`disconnect err: ${err}`);
         }
         // const { token } = socket.handshake.auth;
         // if (token) {

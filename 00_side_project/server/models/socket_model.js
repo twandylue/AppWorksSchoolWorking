@@ -11,22 +11,26 @@ const { genMultiCardsNumber } = require("./genMultiCardsNumber");
 const { saveCardsSetting } = require("./saveCardsSetting_model");
 const { getCardNumber } = require("./getCardNumber");
 const { recordEveryStep } = require("./step_record_model");
-const { sumRecord } = require("./record_summary_model");
+// const { sumRecord } = require("./record_summary_model");
+const { statRecord } = require("./record_summary_model");
 const roomModule = require("./Room_model");
-const { client, getCache } = require("./cache_model");
+const { client, getCache, getCardNumberinCache } = require("./cache_model");
 
 const getUserInfo = function (socket, io) {
     socket.on("get user name", () => {
-        console.log("=======================");
-        console.log(socket.info.name);
-        socket.emit("show my name", socket.info.name);
+        // console.log({ name: socket.info.name, email: socket.info.email });
+        socket.emit("show my info", { name: socket.info.name, email: socket.info.email });
         // try {
         //     const { token } = socket.handshake.auth;
         //     const user = jwt.verify(token, TOKEN_SECRET);
-        //     socket.emit("show my name", user);
+        //     socket.emit("show my info", user);
         // } catch (err) {
         //     console.log(err);
         // }
+    });
+
+    socket.on("get user room", () => {
+        socket.emit("show roomID", { roomID: socket.info.roomID });
     });
 };
 
@@ -89,7 +93,8 @@ const Room = function (socket, io) { // join room
             if (members.length === 2) { // 一個房間內只能有2人
                 const rules = await getRandomRules(); // 隨機產生遊戲規則
                 const gameRules = { type: rules.type, number: rules.card_number, rounds: rules.rounds, targets: rules.targets };
-                const gameID = await saveGameRules(roomID, user.email, gameRules);
+                const gameID = await saveGameRules(roomID, members, gameRules); // gameID 第一次出現
+                await roomModule.bindGameIDinRoom(gameID, roomID); // save gameID with room 此時room是唯一的 能綁定gameID
                 // const accessToken = jwt.sign({ type: rules.type, number: rules.card_number, rounds: rules.rounds, targets: rules.targets, gameID: gameID }, TOKEN_SECRET);
                 // console.log(`GameID: ${gameID}`);
                 // io.to(roomID).emit("both of you in ready", { accessToken: accessToken }); // 讓雙方都能看到規則 and 讓前端能點選開始鈕
@@ -187,10 +192,13 @@ const processinRoom = async function (socket, io) {
         const { gameID } = info;
         const isAgainNumberOK = await roomModule.isAgainNumberOK(gameID);
         if (isAgainNumberOK) {
+            console.log(`AGAIN: DEL ${info.gameID}`);
+            client.del(info.gameID);// 初始化cache cardSetting by old gameID
             const rules = await getRandomRules(); // 隨機產生遊戲規則
             const gameRules = { type: rules.type, number: rules.card_number, rounds: rules.rounds, targets: rules.targets };
             const gameID = await saveGameRules(roomID, user.email, gameRules);
-            console.log(`GameID: ${gameID}`);
+            await roomModule.bindGameIDinRoom(gameID, roomID); // room table中 也要更新gameID
+            console.log(`New GameID: ${gameID}`);
             console.log("both player click again button");
             io.to(roomID).emit("again", { rules: gameRules, gameID: gameID });
         } else {
@@ -200,13 +208,20 @@ const processinRoom = async function (socket, io) {
     });
 };
 
-const gameloop = async function (gameID, rules, room, socket, io) {
+const gameloop = async function (gameID, rules, room, socket, io) { // 與機器人對戰可以直接從這邊開始
+    client.set(room, "working"); // 表示房間現在正在被使用
     for (let i = 0; i < rules.rounds; i++) {
         const round = i + 1; // init
         const target = rules.targets[i];
         rules.state = "in ready";
-        const cardsSetting = genMultiCardsNumber(target, rules.number); // 需要await 考量非同步的延遲
-        await saveCardsSetting(gameID, room, cardsSetting, round);
+        const cardsSetting = genMultiCardsNumber(target, rules.number); // 需要await 考量非同步的延遲 // 搭配cache使用 先存後取
+        await saveCardsSetting(gameID, room, cardsSetting, round); // 一回合存一次 如果有cache 或許不用await
+        // 一份存cache
+        const objinCache = {};
+        objinCache[round] = cardsSetting;
+        const CardSettinginCache = JSON.stringify(objinCache);
+        client.set(gameID, CardSettinginCache); // 斷線時會初始化 注意 重新開始時應當要初始化
+
         const info = {
             round: round,
             target: target,
@@ -225,6 +240,10 @@ const gameloop = async function (gameID, rules, room, socket, io) {
             io.to(room).emit("countdown in ready", standbyTime);
             await delay(1000);
             standbyTime--;
+            const status = await getCache(room); // 倒數計時器終止 如果有人中離 理應會回傳null
+            if (status !== "working") {
+                return; // 終止
+            }
         }
 
         const startGameInfo = {
@@ -239,12 +258,21 @@ const gameloop = async function (gameID, rules, room, socket, io) {
             io.to(room).emit("countdown in game", roundTime);
             await delay(1000);
             roundTime--;
+            const status = await getCache(room); // 倒數計時器終止 如果有人中離
+            if (status !== "working") {
+                return; // 終止
+            }
         }
-        // round結束
+        // round結束 應該在此處初始化cache
+        const members = await roomModule.findRoonMember(room); // 找出房內所有人 用於cache初始化
+        for (const i in members) { // 每回合結束時 初始化cahce 去除上回合點擊過的卡片
+            client.del(members[i].email);
+        }
     }
     console.log("========game over========");
     const rounds = rules.rounds; // round 因為搭配上發寫法
-    const gameStat = await sumRecord(gameID, room, socket, rounds); // 統計遊玩資訊
+    // const gameStat = await sumRecord(gameID, room, socket, rounds); // 統計遊玩資訊
+    const gameStat = await statRecord(gameID, room, rounds);
     io.to(room).emit("game over", gameStat);
 };
 
@@ -254,7 +282,7 @@ function delay (delayTime) {
     });
 }
 
-const ClickCardinGame = function (socket, io) {
+const ClickCardinGame = function (socket, io) { // 等等將socketid用email代替 並配合sql可以得知房內wmail 以此可以初始化cache
     // const numberMap = new Map(); // 多人遊玩時可能會碰到問題 每次有人連線 這句話都會被執行 此寫法不支援多人多房間遊玩 導致numberMap被初始化 要用sql解決 待改
     // 回合轉換後 應該初始化redis
 
@@ -263,8 +291,10 @@ const ClickCardinGame = function (socket, io) {
         try {
             // const { gameID, round, source, cardID, time } = info; // for record time: countdown time
             // const user = jwt.verify(info.token, TOKEN_SECRET);
-            const { gameID, source, cardID, round, target, time, token } = info; // for record time: countdown time // 此處token中已有roomID gameID資訊
-            const user = jwt.verify(token, TOKEN_SECRET);
+            // const { gameID, source, cardID, round, target, time, token } = info; // for record time: countdown time // 此處token中已有roomID gameID資訊
+            const { gameID, source, cardID, round, target, time } = info; // for record time: countdown time // 此處token中已有roomID gameID資訊
+            const user = socket.info;
+            // const user = jwt.verify(token, TOKEN_SECRET);
             // // const result = await roomModule.findRoom(user.email);
             // // const room = result[0].room_id;
             // const { gameID } = user;
@@ -272,9 +302,13 @@ const ClickCardinGame = function (socket, io) {
             console.log("===========in click card============");
             // const oppoInfo = { source: info.source, cardID: info.cardID };
             const oppoInfo = { source: source, cardID: cardID };
-            socket.to(room).emit("opposite click card", oppoInfo); // 對其他人 此處效能待改 送出卡片和數字分離了
+            socket.to(room).emit("opposite click card", oppoInfo); // 對其他人 此處效能待改 送出卡片和數字分離了 如是用cache 就沒差
 
-            const number = await getCardNumber(gameID, room, info.round, info.cardID); // fill card number 可以改成cache 待改
+            // const number = await getCardNumber(gameID, room, info.round, info.cardID); // fill card number 可以改成cache 待改 先存後取
+            // const numberinCache = await getCardNumberinCache(gameID, info.round, info.cardID); // use cache
+            // console.log(`numberinCache: ${numberinCache}`);
+            const number = await getCardNumberinCache(gameID, info.round, info.cardID); // use cache
+
             // console.log(result[0]);
             console.log(`Room ID: ${room}`);
             console.log(`socketID: ${socket.id} email: ${user.email} click: ${number}`);
@@ -286,7 +320,8 @@ const ClickCardinGame = function (socket, io) {
             const stepInfo = { gameID: gameID, room: room, round: round, source: source, email: user.email, cardID: parseInt(cardID), number: number, addPoints: 0, time: parseInt(time), utsOrder: utsOrder };
 
             // use cache
-            const selectedHis = JSON.parse(await getCache(socket.id)); // 待確認 應該可
+            // const selectedHis = JSON.parse(await getCache(socket.id)); // 待確認 應該可
+            const selectedHis = JSON.parse(await getCache(user.email));
             if (selectedHis !== null) {
                 const numberSelected = selectedHis.number;
                 const ans = number * numberSelected;
@@ -298,9 +333,11 @@ const ClickCardinGame = function (socket, io) {
                 } else {
                     io.to(room).emit("card number not match", MatchInfo);
                 }
-                client.del(socket.id); // redis delete
+                // client.del(socket.id); // redis delete
+                client.del(user.email);
             } else {
-                client.set(socket.id, JSON.stringify({ cardID: cardID, number: number }));
+                // client.set(socket.id, JSON.stringify({ cardID: cardID, number: number, gameID: gameID })); // gameID for cache init after each round over
+                client.set(user.email, JSON.stringify({ cardID: cardID, number: number, gameID: gameID }));
             }
             await recordEveryStep(stepInfo); // 可否改為遊戲結束後一次insert? 待改
         } catch (err) {

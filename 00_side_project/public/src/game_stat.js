@@ -50,7 +50,7 @@ function gameStat (hitRate, totalPointsNumber, roundsPoints, winnerStatus) {
     const winner = document.createElement("div");
     winner.className = "record_info";
     winner.id = "winner";
-    winner.innerHTML = `遊戲勝負結果: ${winnerStatus}`;
+    winner.innerHTML = `遊戲勝負結果:  ${winnerStatus}`;
     recordBorder.append(correctRate, totalPoints, eachRoundPoint, winner);
 
     record.append(recordTitle, recordBorder);

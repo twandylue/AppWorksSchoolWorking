@@ -52,8 +52,8 @@ socket.on("connect_error", (err) => {
 
 socket.emit("get user name", "get my name");
 
-socket.on("show my name", (name) => {
-    document.querySelector("#user_name").innerHTML = `Hi! ${name}`;
+socket.on("show my info", (info) => {
+    document.querySelector("#user_name").innerHTML = `Hi! ${info.name}`;
 });
 
 socket.emit("update room info", "need to update room info"); // 後端沒建立on時 會導致沒有觸發此事件 待改 改成用api的形式

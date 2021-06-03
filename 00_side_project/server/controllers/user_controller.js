@@ -88,14 +88,26 @@ const getUserProfile = async (req, res) => {
         data: {
             provider: req.user.provider,
             name: req.user.name,
-            email: req.user.email,
-            picture: req.user.picture
+            email: req.user.email
         }
     });
+};
+
+const getUserRecord = async (req, res) => {
+    const email = req.user.email;
+    const records = await User.getRecord(email);
+    res.status(200).send({ data: records });
+};
+
+const getLeaderBoard = async (req, res) => {
+    const leaderLit = await User.getLeaderList();
+    res.status(200).send({ data: leaderLit });
 };
 
 module.exports = {
     signUp,
     signIn,
-    getUserProfile
+    getUserProfile,
+    getUserRecord,
+    getLeaderBoard
 };

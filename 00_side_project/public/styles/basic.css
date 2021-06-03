@@ -264,16 +264,25 @@ img {
     font-size: 1.5rem;
 } */
 
-.button {
-    font-size: 1.2rem;
-    width: 100px;
-}
-
-#start {
+/* #start {
     margin: 0 auto;
     width: 10em;
-    /* height: 1.2em; */
     font-size: 1.0rem;
+    font-family: 'Redkost Comic', sans-serif;
+} */
+
+.button {
+    font-size: 1.1em;
+    width: 130px;
+}
+
+#button-list {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 90%;
+    /* background-color: red; */
+    margin: 0 auto;
     font-family: 'Redkost Comic', sans-serif;
 }
 
@@ -312,6 +321,13 @@ img {
     text-align: center;
     -webkit-filter: drop-shadow(2px 2px 2.5px #26253C);
     filter: drop-shadow(2px 2px 2.5px #26253C);
+}
+
+#roomID {
+    margin-top: 15px;
+    font-size: 1.05em;
+    /* color: ; */ 
+    /* 字體顏色待改 */
 }
 
 /* #rules {

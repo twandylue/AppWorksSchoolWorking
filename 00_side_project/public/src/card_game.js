@@ -31,7 +31,7 @@ function cardGame (socket, gameID, round, target) { // 第一回合有選中 第
 
             const countdownTime = document.querySelector("#countdown").innerHTML;
             const time = countdownTime.split(" ")[1];
-            const token = localStorage.getItem("access_token"); // 此時token裡面應該帶有 gameID roomID rules等資訊
+            // const token = localStorage.getItem("access_token"); // 此時token裡面應該帶有 gameID roomID rules等資訊
             // const gameID = localStorage.getItem("gameID");
             const info = {
                 source: socket.id,
@@ -39,7 +39,7 @@ function cardGame (socket, gameID, round, target) { // 第一回合有選中 第
                 round: round,
                 target: target,
                 time: time,
-                token: token, // 此處待確認 可否不用帶著token在body中？
+                // token: token, // 此處待確認 可否不用帶著token在body中？
                 gameID: gameID
             };
 

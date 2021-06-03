@@ -91,14 +91,20 @@ Swal.fire({ // sweet alert寫法 不同體驗 先保留
     // socket.emit("in room", { roomID: roomID, token: token });
     socket.emit("in room", "in the room"); // 不好的寫法 到此處時 理應上token中已帶有roomID資訊
     socket.emit("get user name", "get my name");
+    socket.emit("get user room", "get my roomID");
 });
 
 // // socket.emit("in room", { roomID: roomID, token: token }); // 不好的寫法
 // socket.emit("in room", "in the room"); // 不好的寫法 到此處時 理應上token中已帶有roomID資訊
 // socket.emit("get user name", "get my name");
 
-socket.on("show my name", (name) => {
-    document.querySelector("#user_name").innerHTML = `Hi! ${name}`;
+socket.on("show my info", (info) => {
+    console.log(info);
+    document.querySelector("#user_name").innerHTML = `Hi! ${info.name}`;
+});
+
+socket.on("show roomID", (info) => {
+    document.querySelector("#roomID").innerHTML = `所在房號: ${info.roomID}`;
 });
 
 socket.on("fill name", (name) => {
@@ -157,28 +163,6 @@ socket.on("both of you in ready", (info) => { // gameID 第一次出現 在info�
         startButton.disabled = false;
         startButton.innerHTML = "我準備好了！";
     }
-});
-
-const start = document.querySelector("#start"); // 規則展示頁面 可以按下已準備
-start.addEventListener("click", () => {
-    start.disabled = "disabled";
-    Swal.fire({
-        icon: "warning",
-        title: "準備完成！",
-        text: "等待對手準備...",
-        confirmButtonText: "確認"
-    }).then(() => {
-        // socket.emit("I am ready", "I am ready"); // 此處帶token至後端時 token內已有gameID 和 rules資訊
-        socket.emit("I am ready", { rules: frontRules, gameID: frontGameID });
-
-        // const gameID = localStorage.getItem("gameID");
-        // const rules = localStorage.getItem("rules");
-        // const gameRules = JSON.parse(rules);
-        // if (gameRules) {
-        //     gameRules.gameID = gameID;
-        //     socket.emit("I am ready", (gameRules));
-        // }
-    });
 });
 
 socket.on("chat message", (msg) => {
@@ -240,57 +224,65 @@ socket.on("update points", (pointsInfo) => {
 });
 
 socket.on("game over", (gameStatInfo) => {
+    socket.emit("get user name", "get my name");
     Swal.fire({
         icon: "success",
         title: "遊戲結束！",
         text: "看看自己的成績吧",
         confirmButtonText: "確認"
     });
-
-    let hitRate, roundsPoints, totalPoints, winnerStatus;
-    for (const i in gameStatInfo.results) {
-        if (socket.id === gameStatInfo.results[i].playerID) {
-            hitRate = gameStatInfo.results[i].hitRate;
-            roundsPoints = gameStatInfo.results[i].roundsPoints.map((element) => { return element; });
-            totalPoints = gameStatInfo.results[i].totalPoints;
+    socket.on("show my info", (info) => {
+        let hitRate, roundsPoints, totalPoints;
+        for (const i in gameStatInfo.results) {
+            if (gameStatInfo.results[i].player_email === info.email) {
+                hitRate = gameStatInfo.results[i].hitRate;
+                roundsPoints = gameStatInfo.results[i].roundsPoints.map((element) => { return element; });
+                totalPoints = gameStatInfo.results[i].totalPoints;
+            }
+            // if (socket.id === gameStatInfo.results[i].playerID) {
+            //     hitRate = gameStatInfo.results[i].hitRate;
+            //     roundsPoints = gameStatInfo.results[i].roundsPoints.map((element) => { return element; });
+            //     totalPoints = gameStatInfo.results[i].totalPoints;
+            // }
         }
-    }
-    if (gameStatInfo.winner[0] === socket.id) {
-        winnerStatus = "You win";
-    } else {
-        winnerStatus = "You lose";
-    }
-    if (gameStatInfo.winner.length === 2) {
-        winnerStatus = "Tie";
-    }
-    gameStat(hitRate, totalPoints, roundsPoints, winnerStatus);
+        // if (gameStatInfo.winner[0] === socket.id) {
+        //     winnerStatus = "You win";
+        // } else {
+        //     winnerStatus = "You lose";
+        // }
+        // if (gameStatInfo.winner.length === 2) {
+        //     winnerStatus = "Tie";
+        // }
+        const winnerStatus = gameStatInfo.winner[0].name;
+        gameStat(hitRate, totalPoints, roundsPoints, winnerStatus);
 
-    const again = document.querySelector("#again");
-    again.addEventListener("click", () => {
+        const again = document.querySelector("#again");
+        again.addEventListener("click", () => {
         // const roomID = localStorage.getItem("roomID");
         // const gameID = localStorage.getItem("gameID");
-        const info = { gameID: frontGameID };
-        socket.emit("want to play again", info);
-        Swal.fire({
-            icon: "info",
-            title: "已送出再玩一次的邀請",
-            text: "請等待對手回應",
-            confirmButtonText: "好的"
-        }).then(() => {
-            again.disabled = true;
-            again.innerHTML = "等待對手回應";
+            const info = { gameID: frontGameID };
+            socket.emit("want to play again", info);
+            Swal.fire({
+                icon: "info",
+                title: "已送出再玩一次的邀請",
+                text: "請等待對手回應",
+                confirmButtonText: "好的"
+            }).then(() => {
+                again.disabled = true;
+                again.innerHTML = "等待對手回應";
+            });
         });
-    });
 
-    const goodbye = document.querySelector("#goodbye");
-    goodbye.addEventListener("click", () => {
-        Swal.fire({
-            icon: "warning",
-            title: "離開遊戲房間",
-            text: "再見",
-            confirmButtonText: "Bye"
-        }).then(() => {
-            window.location.href = "/gamelobby.html";
+        const goodbye = document.querySelector("#goodbye");
+        goodbye.addEventListener("click", () => {
+            Swal.fire({
+                icon: "warning",
+                title: "離開遊戲房間",
+                text: "再見",
+                confirmButtonText: "Bye"
+            }).then(() => {
+                window.location.href = "/gamelobby.html";
+            });
         });
     });
 });
@@ -316,12 +308,25 @@ socket.on("again", (info) => {
             text: "等待對手準備...",
             confirmButtonText: "確認"
         }).then(() => {
-            // const gameID = localStorage.getItem("gameID");
-            // const rules = localStorage.getItem("rules");
-            // const gameRules = JSON.parse(rules);
-            // gameRules.gameID = gameID;
-            // socket.emit("I am ready", (gameRules));
             socket.emit("I am ready", { rules: frontRules, gameID: frontGameID });
+        });
+    });
+
+    const leave = document.querySelector("#leave");
+    leave.addEventListener("click", () => {
+        Swal.fire({
+            icon: "warning",
+            title: "離開房間?",
+            text: "確定要離開房間嗎?",
+            showDenyButton: true,
+            confirmButtonText: "確認",
+            denyButtonText: "取消"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "./gamelobby.html";
+            } else if (result.isDenied) {
+                Swal.fire("留在房間內", "", "info");
+            }
         });
     });
 
@@ -330,5 +335,46 @@ socket.on("again", (info) => {
         title: "對手也想再玩一局！",
         text: "轉跳至準備頁面",
         confirmButtonText: "確認"
+    });
+});
+
+const start = document.querySelector("#start"); // 規則展示頁面 可以按下已準備
+start.addEventListener("click", () => {
+    start.disabled = "disabled";
+    leave.disabled = "disabled";
+    Swal.fire({
+        icon: "warning",
+        title: "準備完成！",
+        text: "等待對手準備...",
+        confirmButtonText: "確認"
+    }).then(() => {
+        // socket.emit("I am ready", "I am ready"); // 此處帶token至後端時 token內已有gameID 和 rules資訊
+        socket.emit("I am ready", { rules: frontRules, gameID: frontGameID });
+
+        // const gameID = localStorage.getItem("gameID");
+        // const rules = localStorage.getItem("rules");
+        // const gameRules = JSON.parse(rules);
+        // if (gameRules) {
+        //     gameRules.gameID = gameID;
+        //     socket.emit("I am ready", (gameRules));
+        // }
+    });
+});
+
+const leave = document.querySelector("#leave");
+leave.addEventListener("click", () => {
+    Swal.fire({
+        icon: "warning",
+        title: "離開房間?",
+        text: "確定要離開房間嗎?",
+        showDenyButton: true,
+        confirmButtonText: "確認",
+        denyButtonText: "取消"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "./gamelobby.html";
+        } else if (result.isDenied) {
+            Swal.fire("留在房間內", "", "info");
+        }
     });
 });
