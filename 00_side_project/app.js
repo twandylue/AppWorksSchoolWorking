@@ -16,31 +16,24 @@ app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// const { statRecord } = require("./server/models/record_summary_model");
-// const { pool } = require("./server/models/mysqlcon");
-// app.post("/test", async (req, res) => {
-//     const { gameID, roomID, rounds } = req.body.data;
-//     // console.log({ gameID, roomID, rounds });
-//     const conn = await pool.getConnection();
-//     // console.log(pool.format("SELECT id, rounds FROM game_setting_info WHERE id > ? ", 1344));
-//     const results = await conn.query("SELECT id, rounds FROM game_setting_info WHERE id >= ? ", 1343);
-//     console.log(results[0]);
-//     for (const i in results[0]) {
-//         await statRecord(results[0][i].id, roomID, results[0][i].rounds);
-//         console.log(`${i} =======`);
-//     }
-//     await conn.release();
+const { statRecordSingle } = require("./server/models/record_summary_model");
+const { pool } = require("./server/models/mysqlcon");
+app.post("/test", async (req, res) => {
+    const { gameID, roomID, rounds } = req.body.data;
+    // const members = ["robot", "amy@gmail.com"];
+    const members = [{ email: "test_robot", name: "Robot" }, { email: "amy@gmail.com", name: "amy" }]; // 待確認
 
-//     // await statRecord(gameID, roomID, rounds);
-//     res.send("finished");
-// });
+    // console.log({ gameID, roomID, rounds });
+    const conn = await pool.getConnection();
+    await statRecordSingle(gameID, roomID, rounds, members);
+    await conn.release();
+    res.send("finished");
+});
 
 // API routes
 app.use("/api/" + API_VERSION,
     [
-        require("./server/routes/user_route"),
-        require("./server/routes/match_route"),
-        require("./server/routes/pairAns_route")
+        require("./server/routes/user_route")
     ]
 );
 
@@ -75,35 +68,40 @@ io.on("connection", async (socket) => {
     socketModule.ClickCardinGame(socket, io);
     socketModule.chat(socket, io);
 
-    socket.on("disconnect", async () => {
+    socket.on("disconnect", async () => { // play with robot 會無法刪除gameID and roomID 因為沒把相關資料存進DB中
         try {
             console.log(`user: ${socket.info.email} disconnected`);
+            client.del(socket.info.email); // 中途離開時初始化cache 該使用者點擊過的卡片
+            client.del(socket.info.roomID); // 中途離開時 或遊戲結束時 初始化cache 該房間的倒數計器
+
             const gameID = await roomModule.findGameID(socket.info.email);
             if (gameID) {
                 console.log(`gameID: ${gameID} is over`);
                 client.del(gameID); // 斷線時 初始化cache 該gameID的cardSstting
+                client.del(`${gameID}_matchNumberList`); // 單人模式中有使用 初始化已配對卡片清單
+                client.del(`${gameID}_switch`); // 單人模式中有使用 停止robot運作 關機
+                client.del(`${gameID}_robot`); // 單人模式中使用 玩家中途離開時初始化cache 該遊戲中機器人點擊過的卡片
             }
-            client.del(socket.info.email); // 中途離開時初始化cache 該使用者點擊過的卡片
-            client.del(socket.info.roomID); // 中途離開時 或遊戲結束時 初始化cache 該房間的倒數計器
-            const roomID = await roomModule.leaveRoom(socket.info.email);
-            if (roomID) {
-                socket.emit("leave room", "you leave the room"); // 無用 因為重新連線後找不到原始socket id
-                socket.to(roomID).emit("opponent leave room", "oppo leave the room");
+
+            if (socket.info.status === 1) {
+                const state = await roomModule.leaveRoomwithRobot(socket.info.email);
+                if (state) {
+                    socket.emit("leave room", "you have left the room"); // 無用 因為重新連線後找不到原始socket id
+                    // console.log(socket.info.roomID);
+                    // socket.to(socket.info.roomID).emit("opponent leave room", "oppo leave the room");
+                }
+            } else if (socket.info.status === 2) {
+                const roomID = await roomModule.leaveRoom(socket.info.email);
+                if (roomID) {
+                    socket.emit("leave room", "you have left the room"); // 無用 因為重新連線後找不到原始socket id
+                    socket.to(roomID).emit("opponent leave room", "oppo leave the room");
+                }
             }
             const roomInfo = await roomModule.getRoomLobbyInfo();
             io.emit("room info", roomInfo); // 更新大廳資訊
         } catch (err) {
             console.log(`disconnect err: ${err}`);
         }
-        // const { token } = socket.handshake.auth;
-        // if (token) {
-        //     const user = jwt.verify(token, TOKEN_SECRET);
-        //     const roomID = await roomModule.leaveRoom(user.email);
-        //     if (roomID) {
-        //         socket.emit("leave room", "you leave the room"); // 無用 因為重新連線後找不到原始socket id
-        //         socket.to(roomID).emit("opponent leave room", "oppo leave the room");
-        //     }
-        // }
     });
 });
 

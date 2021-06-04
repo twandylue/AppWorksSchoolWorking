@@ -30,6 +30,38 @@ const joinRoom = async (roomID, email) => {
     }
 };
 
+const joinRoomwithRobot = async (roomID, email) => {
+    const conn = await pool.getConnection();
+    const inserts = [roomID, email, 1];
+    await conn.query("INSERT INTO room (room_id, email, count) VALUES ?;", [[inserts]]);
+    await conn.release();
+    return true;
+};
+
+const leaveRoomwithRobot = async (email) => {
+    const conn = await pool.getConnection();
+    try {
+        const result = await conn.query("SELECT room_id, count FROM room WHERE email = ?", email);
+        if (result[0].length === 0) {
+            console.log("not in any room");
+            return (false);
+        }
+        if (result[0][0].count <= 1) {
+            console.log(email + " 第一次斷線 不算離開房間");
+            await conn.query("UPDATE room SET count = count + 1 WHERE email = ?", email);
+            return (false);
+        }
+        await conn.query("DELETE FROM room WHERE email = ?;", email);
+        console.log(email + " 第一次之後的斷線 算離開房間");
+        return (true);
+    } catch (err) {
+        console.log(err);
+        await conn.query("ROLLBACK");
+    } finally {
+        await conn.release();
+    }
+};
+
 const leaveRoom = async (email) => {
     const conn = await pool.getConnection();
     try {
@@ -42,7 +74,7 @@ const leaveRoom = async (email) => {
         // console.log(result[0][0]);
         if (result[0][0].count <= 1) {
             console.log(email + " 第一次斷線 不算離開房間");
-            const result = await conn.query("UPDATE room SET count = count + 1 WHERE email = ?", email);
+            await conn.query("UPDATE room SET count = count + 1 WHERE email = ?", email);
             return (false);
         }
 
@@ -75,10 +107,14 @@ const watchLeaveRoom = async (roomID) => {
 };
 
 const findGameID = async (email) => {
-    const conn = await pool.getConnection();
-    const result = await conn.query("SELECT game_id FROM room WHERE email = ?", [email]);
-    await conn.release();
-    return (result[0][0].game_id);
+    try {
+        const conn = await pool.getConnection();
+        const result = await conn.query("SELECT game_id FROM room WHERE email = ?", [email]);
+        await conn.release();
+        return (result[0][0].game_id);
+    } catch (err) {
+        console.log(`error in findGameID: ${err}`);
+    }
 };
 
 const findRoom = async (email) => {
@@ -178,6 +214,8 @@ const bindGameIDinRoom = async (gameID, roomID) => {
 
 module.exports = {
     joinRoom,
+    joinRoomwithRobot,
+    leaveRoomwithRobot,
     leaveRoom,
     watchJoinRoom,
     watchLeaveRoom,

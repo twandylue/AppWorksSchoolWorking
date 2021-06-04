@@ -8,7 +8,6 @@ const saveGameRules = async (room, members, rules) => {
     }
     data.push(0, 0); // init ready_number and again_number
     data.push(members[0].email, members[1].email); // players in the game
-    // const sql = "INSERT INTO game_setting_info (room_id, rule_setter, type, number, rounds, targets_1, targets_2, targets_3, ready_number, again_number) VALUES ?";
     const sql = "INSERT INTO game_setting_info (room_id, type, number, rounds, targets_1, targets_2, targets_3, ready_number, again_number, player_1, player_2) VALUES ?";
 
     const result = await conn.query(sql, [[data]]);

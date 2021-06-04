@@ -3,7 +3,6 @@ const { pool } = require("./mysqlcon");
 const getRandomRules = async () => {
     const conn = await pool.getConnection();
     const result = await conn.query("SELECT COUNT(*) FROM game_rules_random;");
-    // console.log(result[0][0]["COUNT(*)"]);
     const totalRows = result[0][0]["COUNT(*)"];
     const randomNumber = Math.floor(Math.random() * totalRows);
     const row = await conn.query("SELECT * FROM game_rules_random WHERE id = ?", randomNumber);

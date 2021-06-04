@@ -8,29 +8,6 @@ const socket = io({
     auth: { token: token }
 });
 
-// window.onbeforeunload = () => {
-//     window.location.href = "./gamelobby.html";
-// };
-
-// location.reload();
-
-// window.addEventListener("onbeforeunload", function (event) {
-//     console.log("test");
-//     // await test();
-//     // function test () {
-//     //     return new Promise((resolve, reject) => {
-//     //         Swal.fire({
-//     //             icon: "error",
-//     //             title: "test",
-//     //             text: "test!",
-//     //             confirmButtonText: "好的"
-//     //         }).then(() => {
-//     //             resolve();
-//     //         });
-//     //     });
-//     // }
-// });
-
 socket.on("connect", () => {
     console.log("socketID: " + socket.id);
 });
@@ -67,6 +44,11 @@ socket.on("join success", (info) => {
     window.location.href = `/match.html?roomID=${info.roomID}`;
 });
 
+socket.on("join room with robot success", info => {
+    localStorage.setItem("access_token", info.token); // 此token第一次帶有roomID資訊 單人模式
+    window.location.href = `/match_robot.html?roomID=${info.roomID}`;
+});
+
 socket.on("join failed", (info) => {
     Swal.fire({
         icon: "error",
@@ -86,6 +68,23 @@ function joinRoom () {
     const info = { roomID: roomID };
     socket.emit("join room", info);
 }
+
+const singleButton = document.querySelector("#mode-select");
+singleButton.addEventListener("click", () => {
+    Swal.fire({
+        icon: "question",
+        title: "單人模式",
+        text: "要跟機器人一起遊玩嗎？",
+        showCancelButton: true,
+        confirmButtonText: "確定",
+        cancelButtonText: "取消"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            socket.emit("join room with robot", "want to play with robot");
+        }
+    });
+});
+
 async function main () {
     const loginStae = await checkLogin();
     // console.log(await loginStae.json());

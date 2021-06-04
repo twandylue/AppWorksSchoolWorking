@@ -1,12 +1,6 @@
 const { pool } = require("../models/mysqlcon");
 
 const getGameRules = async (socket, io) => {
-    // let room;
-    // for (const i of socket.adapter.rooms.keys()) {
-    //     if (i.length === 7) { // room名稱待改
-    //         room = i;
-    //     }
-    // }
     const room = [];
     for (const i of io.sockets.adapter.sids.get(socket.id)) { // room[1]: room
         room.push(i);

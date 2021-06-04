@@ -1,4 +1,4 @@
-function cardGame (socket, gameID, round, target) { // 第一回合有選中 第二回合會出現問題
+function cardGameinSingle (socket, gameID, round, target) { // 第一回合有選中 第二回合會出現問題
     // let hasEmitCheckMatch = false;
     let hasEmitedTwice = false;
     let lockBoard = false;
@@ -44,7 +44,7 @@ function cardGame (socket, gameID, round, target) { // 第一回合有選中 第
                 if (secondCard) {
                     hasEmitedTwice = true;
                 }
-                socket.emit("click card", info);
+                socket.emit("click card in single mode", info);
             }
         }
     }
@@ -97,4 +97,4 @@ function cardGame (socket, gameID, round, target) { // 第一回合有選中 第
     cards.forEach(card => card.addEventListener("click", flipCard));
 }
 
-export { cardGame };
+export { cardGameinSingle };

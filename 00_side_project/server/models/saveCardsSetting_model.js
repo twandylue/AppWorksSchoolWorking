@@ -8,7 +8,7 @@ const saveCardsSetting = async (gameID, room, cardsSetting, round) => {
     }
     const conn = await pool.getConnection();
     const sql = "INSERT INTO cards_setting_info (game_id, room_id, round, card_ID, number) VALUES ?";
-    const result = await conn.query(sql, [data]);
+    await conn.query(sql, [data]);
     await conn.release();
 };
 
