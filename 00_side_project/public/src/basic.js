@@ -10,6 +10,10 @@ let frontGameID; // 儲存遊戲ID
 let frontRules; // 儲存遊戲規則
 
 const token = localStorage.getItem("access_token");
+async function main () {
+    const response = await checkLogin();
+}
+main();
 
 const socket = io({
     auth: {
@@ -205,7 +209,7 @@ socket.on("game over", (gameStatInfo) => {
         text: "看看自己的成績吧",
         confirmButtonText: "確認"
     });
-    socket.on("show my info", (info) => {
+    socket.on("show my info", (info) => { // 確認自己的email 用作辨認
         let hitRate, roundsPoints, totalPoints;
         for (const i in gameStatInfo.results) {
             if (gameStatInfo.results[i].player_email === info.email) {
@@ -331,3 +335,25 @@ leave.addEventListener("click", () => {
         }
     });
 });
+
+const profile = document.querySelector("#user_profile");
+profile.addEventListener("click", () => {
+    window.location.href = "/userprofile.html";
+});
+
+const logo = document.querySelector("#logo-container-header");
+logo.addEventListener("click", () => {
+    window.location.href = "/";
+});
+
+async function checkLogin () {
+    const accessToken = localStorage.getItem("access_token");
+    const response = await fetch("api/1.0/user/profile", {
+        method: "GET",
+        headers: new Headers({
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`
+        })
+    });
+    return await response.json();
+}

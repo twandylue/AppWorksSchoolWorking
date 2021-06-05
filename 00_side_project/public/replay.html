@@ -17,7 +17,7 @@
             <div class = "title" id = "project-name">MEMORY & GUESS</div>
             <div style="cursor: pointer" id = "user_profile">
                 <img id = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
-                <div id = "user_name"></div>
+                <div id = "user-name-header"></div>
             </div>
         </div>
         <div class = "container" id = "container">
@@ -27,7 +27,7 @@
                     <div id = "name"></div>
                 </div>
                 <div class = "points" id = "player_points">目前得分: 0</div>
-                <div id = "chat_room">
+                <div style="visibility:hidden" id = "chat_room">
                     <ul id = "messages"></ul>
                     <div id = "sendmsg">
                         <input id="input" autocomplete="off" />
@@ -36,29 +36,7 @@
                 </div>
             </div>
             <div id = "middle">
-                <div id = "rule_setting">遊戲規則</div>
-                <div id = "setting_details">
-                    <div class = "details" id = 'type'>
-                        <div class = "setting-details-title">類型:</div>
-                        <div class="setting-details-content">Waiting...</div>
-                    </div>
-                    <div class = "details" id = 'number_of_cards'>
-                        <div class = "setting-details-title">卡牌總數:</div>
-                        <div class="setting-details-content">Waiting...</div>
-                    </div>
-                    <div class = "details" id = 'rounds'>
-                        <div class = "setting-details-title">總回合數:</div>
-                        <div class="setting-details-content">Waiting...</div>
-                    </div>
-                    <div class = "details" id = "target">
-                        <div class = "setting-details-title">目標分數(/每回合):</div>
-                        <div class="setting-details-content">Waiting...</div>
-                    </div>
-                </div>
-                <div id = "button-list">
-                    <button style="cursor: pointer" class = "button" id = "start">等待對手中</button>
-                    <button style="cursor: pointer" class = "button" id = "leave">離開房間</button>
-                </div>
+
             </div>
             <div id = "right">
                 <div id = "opponent-title">Opponent</div>
@@ -67,10 +45,9 @@
                     <div id = "opposite_user_name">Waiting...</div>
                 </div>
                 <div class = "points" id = "oppo_player_points">對手得分: 0</div>
-                <div id = "roomID">所在房號: ?</div>
+                <div id = "roomID">重播場次: </div>
             </div>
         </div>
-        <script src="/socket.io/socket.io.js"></script>
-        <script src = "./src/basic.js" type="module"></script>
+        <script src = "./src/get_replay_reocrd.js" type="module"></script>
     </body>
 </html>

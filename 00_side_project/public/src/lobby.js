@@ -85,6 +85,16 @@ singleButton.addEventListener("click", () => {
     });
 });
 
+const profile = document.querySelector("#user_profile");
+profile.addEventListener("click", () => {
+    window.location.href = "/userprofile.html";
+});
+
+const logo = document.querySelector("#logo-container-header");
+logo.addEventListener("click", () => {
+    window.location.href = "/";
+});
+
 async function main () {
     const loginStae = await checkLogin();
     // console.log(await loginStae.json());
@@ -150,6 +160,7 @@ async function main () {
                         const info = await response.json();
                         localStorage.setItem("access_token", info.data.access_token);
                         socket.emit("update room info", "need to update room info"); // 後端沒建立on時 會導致沒有觸發此事件 待改 改成用api的形式
+                        window.location.href = "/";
                     });
                 }
             }
@@ -202,9 +213,9 @@ async function main () {
                         confirmButtonText: "好的"
                     }).then(async () => {
                         const info = await response.json();
-                        // console.log(info);
                         localStorage.setItem("access_token", info.data.access_token);
-                        console.log(info.data.user);
+                        socket.emit("update room info", "need to update room info"); // 後端沒建立on時 會導致沒有觸發此事件 待改 改成用api的形式
+                        window.location.href = "/";
                     });
                 }
             }

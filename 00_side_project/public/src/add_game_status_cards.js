@@ -17,7 +17,7 @@ function addGameStatusandCards (round, number, target, state, cardsSetting) {
     countdown.className = "game_status";
     // countdown.innerHTML = "Countdown: 10 s"; // 待改
     countdown.innerHTML = "準備倒數時間: 10 s"; // 待改
-    const game = document.createElement("div");
+    const game = document.createElement("div"); // 雞肋？ 待改
     game.id = "game";
     const memoryGame = document.createElement("section");
     memoryGame.className = "memory-game";

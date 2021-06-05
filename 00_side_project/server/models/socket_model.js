@@ -245,7 +245,7 @@ const gameloopwithRobot = async function (gameID, rules, roomID, members, socket
     }
     console.log("========game over========");
     const rounds = rules.rounds;
-    const gameStat = await statRecordSingle(gameID, roomID, rounds, members);
+    const gameStat = await statRecordSingle(gameID, roomID, rounds, members, 1);
     client.del(`${gameID}_matchNumberList`); // 在遊戲結束後 初始化_matchNumberList
     io.to(roomID).emit("game over", gameStat);
 };
@@ -312,7 +312,7 @@ const gameloop = async function (gameID, rules, room, socket, io) {
     }
     console.log("========game over========");
     const rounds = rules.rounds;
-    const gameStat = await statRecord(gameID, room, rounds);
+    const gameStat = await statRecord(gameID, room, rounds, 2);
     io.to(room).emit("game over", gameStat);
 };
 

@@ -27,7 +27,7 @@ async function main () {
     const leaderboard = document.querySelector("#leaderboard");
     for (let i = 0; i < leaderboardList.length; i++) {
         const leaderboardItem = document.createElement("li");
-        leaderboardItem.innerHTML = `排行${i + 1} | ${leaderboardList[i].name} | 總得分: ${leaderboardList[i].totalPoints} | 平均得分: ${(leaderboardList[i].avgPoints).toFixed(2)} | 平均命中率: ${(leaderboardList[i].avgHitRate * 100).toFixed(2)} %`;
+        leaderboardItem.innerHTML = `排行${i + 1} | ${leaderboardList[i].name} | 總得分: ${leaderboardList[i].totalPoints} | 每場遊戲平均得分: ${(leaderboardList[i].avgPoints).toFixed(2)} | 平均命中率: ${(leaderboardList[i].avgHitRate * 100).toFixed(2)} %`;
         leaderboard.append(leaderboardItem);
     }
 }
@@ -36,6 +36,19 @@ main();
 const submit = document.querySelector("#submit");
 submit.addEventListener("click", () => {
     // 重播使用
+    const item = document.querySelector("#game-history");
+    const gameID = item[item.selectedIndex].id; // get id of selected option
+    window.location.href = `/replay.html?gameID=${gameID}`;
+});
+
+const profile = document.querySelector("#user_profile");
+profile.addEventListener("click", () => {
+    window.location.href = "/userprofile.html";
+});
+
+const logo = document.querySelector("#logo-container-header");
+logo.addEventListener("click", () => {
+    window.location.href = "/";
 });
 
 async function checkLogin () {
@@ -47,6 +60,16 @@ async function checkLogin () {
             Authorization: `Bearer ${accessToken}`
         })
     });
+    if (response.status !== 200) {
+        Swal.fire({
+            icon: "warning",
+            title: "出事啦",
+            text: "請重新登入",
+            confirmButtonText: "確認"
+        }).then(() => {
+            window.location.href = "/";
+        });
+    }
     return await response.json();
 }
 

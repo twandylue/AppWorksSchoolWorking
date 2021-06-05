@@ -135,7 +135,6 @@ socket.on("start game", (info) => { // 翻牌(問號面)
             cardBackFaces[i].classList.remove("back-face_ready");
         }
 
-        // cardGame(socket, frontGameID, info.round, info.target);
         cardGameinSingle(socket, frontGameID, info.round, info.target);
     }
 });
@@ -277,4 +276,14 @@ leave.addEventListener("click", () => {
             Swal.fire("留在房間內", "", "info");
         }
     });
+});
+
+const profile = document.querySelector("#user_profile");
+profile.addEventListener("click", () => {
+    window.location.href = "/userprofile.html";
+});
+
+const logo = document.querySelector("#logo-container-header");
+logo.addEventListener("click", () => {
+    window.location.href = "/";
 });

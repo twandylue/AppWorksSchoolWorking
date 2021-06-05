@@ -1,7 +1,7 @@
 const { pool } = require("./mysqlcon");
 const roomModule = require("./Room_model");
 
-async function statRecord (gameID, roomID, rounds) {
+async function statRecord (gameID, roomID, rounds, status) {
     const conn = await pool.getConnection();
 
     const roomMembers = await roomModule.findRoonMember(roomID); // 前方已可知道roomber 此處不需要再await一次 待改
@@ -71,9 +71,9 @@ async function statRecord (gameID, roomID, rounds) {
 
     const inserts = [];
     for (const i in stat) {
-        inserts.push([gameID, stat[i].player_email, stat[i].roundsPoints[0], stat[i].roundsPoints[1], stat[i].roundsPoints[2], stat[i].totalPoints, stat[i].hitRate, winner[0].email]);
+        inserts.push([gameID, stat[i].player_email, stat[i].roundsPoints[0], stat[i].roundsPoints[1], stat[i].roundsPoints[2], stat[i].totalPoints, stat[i].hitRate, winner[0].email, status]);
     }
-    await conn.query("INSERT INTO game_results (game_id, player_email, round1_points, round2_points, round3_points, total_points, hit_rate, winner_email) VALUES ?", [inserts]);
+    await conn.query("INSERT INTO game_results (game_id, player_email, round1_points, round2_points, round3_points, total_points, hit_rate, winner_email, status) VALUES ?", [inserts]);
     await conn.release();
 
     console.log("record summry: ");
@@ -81,7 +81,7 @@ async function statRecord (gameID, roomID, rounds) {
     return ({ results: stat, winner: winner });
 }
 
-async function statRecordSingle (gameID, roomID, rounds, members) {
+async function statRecordSingle (gameID, roomID, rounds, members, status) {
     const conn = await pool.getConnection();
     try {
         const emailtoNameObj = {};
@@ -142,9 +142,9 @@ async function statRecordSingle (gameID, roomID, rounds, members) {
 
         const inserts = [];
         for (const i in stat) {
-            inserts.push([gameID, stat[i].player_email, stat[i].roundsPoints[0], stat[i].roundsPoints[1], stat[i].roundsPoints[2], stat[i].totalPoints, stat[i].hitRate, winner[0].email]);
+            inserts.push([gameID, stat[i].player_email, stat[i].roundsPoints[0], stat[i].roundsPoints[1], stat[i].roundsPoints[2], stat[i].totalPoints, stat[i].hitRate, winner[0].email, status]);
         }
-        await conn.query("INSERT INTO game_results (game_id, player_email, round1_points, round2_points, round3_points, total_points, hit_rate, winner_email) VALUES ?", [inserts]);
+        await conn.query("INSERT INTO game_results (game_id, player_email, round1_points, round2_points, round3_points, total_points, hit_rate, winner_email, status) VALUES ?", [inserts]);
         await conn.release();
 
         console.log("record summry: ");
