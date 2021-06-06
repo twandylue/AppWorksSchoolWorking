@@ -5,7 +5,8 @@ localStorage.removeItem("rules");
 localStorage.removeItem("gameID");
 localStorage.removeItem("roomID");
 const socket = io({
-    auth: { token: token }
+    auth: { token: token },
+    reconnect: true
 });
 
 socket.on("connect", () => {
