@@ -17,19 +17,16 @@ app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// const { statRecordSingle } = require("./server/models/record_summary_model");
-// const { pool } = require("./server/models/mysqlcon");
-// app.post("/test", async (req, res) => {
-//     const { gameID, roomID, rounds } = req.body.data;
-//     // const members = ["robot", "amy@gmail.com"];
-//     const members = [{ email: "test_robot", name: "Robot" }, { email: "amy@gmail.com", name: "amy" }]; // 待確認
-
-//     // console.log({ gameID, roomID, rounds });
-//     const conn = await pool.getConnection();
-//     await statRecordSingle(gameID, roomID, rounds, members);
-//     await conn.release();
-//     res.send("finished");
-// });
+const { pool } = require("./server/models/mysqlcon");
+app.get("/test", async (req, res) => {
+    // console.log({ gameID, roomID, rounds });
+    const conn = await pool.getConnection();
+    await conn.query("DELETE FROM cards_setting_info;");
+    await conn.query("DELETE FROM game_history");
+    await conn.query("DELETE FROM game_results");
+    await conn.release();
+    res.send("finished");
+});
 
 // API routes
 app.use("/api/" + API_VERSION,
@@ -91,10 +88,12 @@ io.on("connection", async (socket) => {
 
             if (socket.info.status === 1) {
                 const state = await roomModule.leaveRoomwithRobot(socket.info.email);
+                console.log(state);
+
                 if (state) {
-                    socket.emit("leave room", "you have left the room"); // 無用 因為重新連線後找不到原始socket id
-                    // console.log(socket.info.roomID);
-                    // socket.to(socket.info.roomID).emit("opponent leave room", "oppo leave the room");
+                    console.log("leave room: " + socket.info.roomID);
+                    io.to(socket.info.roomID).emit("robot leave room", "robot leave the room"); // 房號出問題
+                    // io.emit("robot leave room", "robot leave the room");
                 }
             } else if (socket.info.status === 2) {
                 const roomID = await roomModule.leaveRoom(socket.info.email);

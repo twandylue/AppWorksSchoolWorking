@@ -1,6 +1,6 @@
 import { addGameInfo } from "./add_game_info.js";
 import { addGameStatusandCards } from "./add_game_status_cards.js";
-import { cardGameinSingle } from "./card_game_with_robot.js";
+import { cardGame } from "./card_game.js";
 import { gameStat } from "./game_stat.js";
 import { updatePoints } from "./update_points.js";
 import { showGameRules } from "./showGameRules.js";
@@ -10,6 +10,10 @@ let frontGameID; // 儲存遊戲ID
 let frontRules; // 儲存遊戲規則
 
 const token = localStorage.getItem("access_token");
+async function main () {
+    const response = await checkLogin();
+}
+main();
 
 const socket = io({
     auth: {
@@ -36,6 +40,30 @@ socket.on("connect_error", (err) => {
     }
 });
 
+socket.on("leave room", (msg) => {
+    console.log(msg);
+    Swal.fire({
+        icon: "warning",
+        title: "你斷線囉",
+        text: "回到遊戲大廳!",
+        confirmButtonText: "確認"
+    }).then(() => {
+        window.location.href = "./gamelobby.html";
+    });
+});
+
+socket.on("opponent leave room", (msg) => {
+    console.log(msg);
+    Swal.fire({
+        icon: "warning",
+        title: "對手斷線了",
+        text: "回到遊戲大廳!",
+        confirmButtonText: "確認"
+    }).then(() => {
+        window.location.href = "./gamelobby.html";
+    });
+});
+
 socket.on("join failed", (msg) => {
     Swal.fire({
         icon: "error",
@@ -47,51 +75,65 @@ socket.on("join failed", (msg) => {
     });
 });
 
-socket.on("leave room", (msg) => { // 有問題 聽不到 待改
-    console.log(msg);
-    Swal.fire({
-        icon: "warning",
-        title: "你斷線囉",
-        text: "回到遊戲大廳!",
-        confirmButtonText: "確認"
-    }).then(() => {
-        window.location.href = "./gamelobby.html";
-    });
-});
-
-socket.on("robot leave room", (msg) => {
-    console.log(msg);
-    Swal.fire({
-        icon: "warning",
-        title: "你斷線囉",
-        text: "回到遊戲大廳!",
-        confirmButtonText: "確認"
-    }).then(() => {
-        window.location.href = "./gamelobby.html";
-    });
-});
-
 Swal.fire({ // sweet alert寫法 不同體驗 先保留
     icon: "warning",
-    title: "準備好了嗎？",
-    text: "要開始了唷!",
+    title: "歡迎進入房間觀戰",
+    text: "要準備開始啦！",
     confirmButtonText: "確認"
 }).then(() => {
-    socket.emit("in room with robot", "in the room"); // 較安全的寫法 等後端建立好on事件 and 到此處時 理應上token中已帶有roomID資訊
+    socket.emit("watcher in room", "watcher in the room"); // 較安全的寫法 等後端建立好on事件 and 到此處時 理應上token中已帶有roomID資訊
     socket.emit("get user name", "get my name");
     socket.emit("get user room", "get my roomID");
 });
 
 socket.on("show my info", (info) => {
     document.querySelector("#user_name").innerHTML = `Hi! ${info.name}`;
-    document.querySelector("#user_container #name").innerHTML = info.name;
 });
 
 socket.on("show roomID", (info) => {
     document.querySelector("#roomID").innerHTML = `所在房號: ${info.roomID}`;
 });
 
-socket.on("ready in single mode", (info) => { // gameID 第一次出現 在info中
+socket.on("fill name", (name) => {
+    document.querySelector("#user_container #name").innerHTML = name;
+});
+socket.on("fill opponent name", (oppoName) => {
+    document.querySelector("#opposite_user_name").innerHTML = oppoName;
+});
+
+// for chat room
+const inputEnter = document.querySelector("#sendmsg #input");
+const sendMsg = document.querySelector("#send");
+const chatroom = document.querySelector("#messages");
+
+sendMsg.addEventListener("click", () => {
+    const userName = document.querySelector("#user_container #name").innerHTML;
+    if (inputEnter.value) {
+        socket.emit("chat message", userName + ": " + inputEnter.value);
+        inputEnter.value = "";
+    }
+});
+
+inputEnter.addEventListener("keyup", (event) => {
+    if (event.keyCode === 13) {
+        event.preventDefault();
+        sendMsg.click();
+    }
+});
+
+socket.on("wait for opponent", () => { // 目前應該為等待畫面 不會顯示規則
+    Swal.fire({
+        icon: "warning",
+        title: "尚未配對成功",
+        text: "等一下對手出現",
+        confirmButtonText: "確認"
+    });
+    const startButton = document.querySelector("#start");
+    startButton.disabled = true;
+    startButton.innerHTML = "等待對手中";
+});
+
+socket.on("both of you in ready", (info) => { // gameID 第一次出現 在info中
     const { rules, gameID } = info;
     frontGameID = gameID; //    第一次儲存gameID
     frontRules = Object.assign({}, rules); // 第一次儲存frontRules(game rules)
@@ -102,6 +144,13 @@ socket.on("ready in single mode", (info) => { // gameID 第一次出現 在info�
         startButton.disabled = false;
         startButton.innerHTML = "我準備好了！";
     }
+});
+
+socket.on("chat message", (msg) => {
+    const item = document.createElement("li");
+    item.innerHTML = msg;
+    chatroom.appendChild(item);
+    chatroom.scrollTo(0, chatroom.scrollHeight);
 });
 
 socket.on("execute rules", (info) => {
@@ -135,7 +184,7 @@ socket.on("start game", (info) => { // 翻牌(問號面)
             cardBackFaces[i].classList.remove("back-face_ready");
         }
 
-        cardGameinSingle(socket, frontGameID, info.round, info.target);
+        cardGame(socket, frontGameID, info.round, info.target);
     }
 });
 
@@ -160,7 +209,7 @@ socket.on("game over", (gameStatInfo) => {
         text: "看看自己的成績吧",
         confirmButtonText: "確認"
     });
-    socket.on("show my info", (info) => {
+    socket.on("show my info", (info) => { // 確認自己的email 用作辨認
         let hitRate, roundsPoints, totalPoints;
         for (const i in gameStatInfo.results) {
             if (gameStatInfo.results[i].player_email === info.email) {
@@ -175,7 +224,7 @@ socket.on("game over", (gameStatInfo) => {
         const again = document.querySelector("#again");
         again.addEventListener("click", () => {
             const info = { gameID: frontGameID };
-            socket.emit("want to play again in single mode", info);
+            socket.emit("want to play again", info);
             Swal.fire({
                 icon: "info",
                 title: "已送出再玩一次的邀請",
@@ -216,7 +265,7 @@ socket.on("again", (info) => {
             text: "等待對手準備...",
             confirmButtonText: "確認"
         }).then(() => {
-            socket.emit("I am ready in single mode", { rules: frontRules, gameID: frontGameID });
+            socket.emit("I am ready", { rules: frontRules, gameID: frontGameID });
         });
     });
 
@@ -256,7 +305,16 @@ start.addEventListener("click", () => {
         text: "等待對手準備...",
         confirmButtonText: "確認"
     }).then(() => {
-        socket.emit("I am ready in single mode", { rules: frontRules, gameID: frontGameID });
+        // socket.emit("I am ready", "I am ready"); // 此處帶token至後端時 token內已有gameID 和 rules資訊
+        socket.emit("I am ready", { rules: frontRules, gameID: frontGameID });
+
+        // const gameID = localStorage.getItem("gameID");
+        // const rules = localStorage.getItem("rules");
+        // const gameRules = JSON.parse(rules);
+        // if (gameRules) {
+        //     gameRules.gameID = gameID;
+        //     socket.emit("I am ready", (gameRules));
+        // }
     });
 });
 
@@ -287,3 +345,15 @@ const logo = document.querySelector("#logo-container-header");
 logo.addEventListener("click", () => {
     window.location.href = "/";
 });
+
+async function checkLogin () {
+    const accessToken = localStorage.getItem("access_token");
+    const response = await fetch("api/1.0/user/profile", {
+        method: "GET",
+        headers: new Headers({
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`
+        })
+    });
+    return await response.json();
+}

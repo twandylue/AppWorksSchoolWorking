@@ -70,8 +70,6 @@ const leaveRoom = async (email) => {
             console.log("not in any room");
             return (false);
         }
-        // console.log("===========");
-        // console.log(result[0][0]);
         if (result[0][0].count <= 1) {
             console.log(email + " 第一次斷線 不算離開房間");
             await conn.query("UPDATE room SET count = count + 1 WHERE email = ?", email);
@@ -94,14 +92,25 @@ const leaveRoom = async (email) => {
     }
 };
 
-const watchJoinRoom = async (roomID) => {
-    const sql = "UPDATE lobby_table SET watch = watch + 1 WHERE room_id = ?";
-    const insert = roomID;
-    await pool.query(sql, insert);
+const watcherJoinRoom = async (roomID) => {
+    const conn = await pool.getConnection();
+    try {
+        await conn.query("UPDATE lobby_table SET watcher = watcher + 1 WHERE room_id = ?", [roomID]); // wathcer 沒有上限
+    } catch (err) {
+        console.log(`error in watcherJoinRoom ${err}`);
+    } finally {
+        await conn.release();
+    }
 };
 
-const watchLeaveRoom = async (roomID) => {
-    const sql = "UPDATE lobby_table SET watch = watch - 1 WHERE room_id = ?";
+const watcherLeaveRoom = async (roomID) => {
+    const conn = await pool.getConnection();
+    try {
+
+    } catch (err) {
+
+    }
+    const sql = "UPDATE lobby_table SET watcher = watcher - 1 WHERE room_id = ?";
     const insert = roomID;
     await pool.query(sql, insert);
 };
@@ -122,9 +131,8 @@ const findRoom = async (email) => {
     const sql = "SELECT room.room_id, room.email, user.name FROM room INNER JOIN user ON room.email = user.email WHERE room.email = ?;";
     const insert = [[email]];
     const result = await conn.query(sql, insert);
-    // console.log(result[0]);
     await conn.release();
-    if (result.length !== 0) {
+    if (result[0].length !== 0) {
         return result[0];
     } else {
         return false;
@@ -217,8 +225,8 @@ module.exports = {
     joinRoomwithRobot,
     leaveRoomwithRobot,
     leaveRoom,
-    watchJoinRoom,
-    watchLeaveRoom,
+    watcherJoinRoom,
+    watcherLeaveRoom,
     findGameID,
     findRoom,
     findRoonMember,

@@ -1,4 +1,3 @@
-<!-- <!DOCTYPE html> -->
 <html>
     <head>
         <meta charset="utf-8">
@@ -27,7 +26,7 @@
                     <div id = "name"></div>
                 </div>
                 <div class = "points" id = "player_points">目前得分: 0</div>
-                <div style="visibility:hidden" id = "chat_room">
+                <div id = "chat_room">
                     <ul id = "messages"></ul>
                     <div id = "sendmsg">
                         <input id="input" autocomplete="off" />
@@ -56,7 +55,7 @@
                     </div>
                 </div>
                 <div id = "button-list">
-                    <button style="cursor: pointer" class = "button" id = "start">我準備好了</button>
+                    <button style="cursor: pointer" class = "button" id = "start">等待對手中</button>
                     <button style="cursor: pointer" class = "button" id = "leave">離開房間</button>
                 </div>
             </div>
@@ -64,14 +63,14 @@
                 <div id = "opponent-title">Opponent</div>
                 <div class = "user" id = "opposite_user_container">
                     <img class = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
-                    <div id = "opposite_user_name">Robot</div>
+                    <div id = "opposite_user_name">Waiting...</div>
                 </div>
                 <div class = "points" id = "oppo_player_points">對手得分: 0</div>
-                <div id = "mode">單人模式</div>
+                <div id = "mode">觀戰模式</div>
                 <div id = "roomID">所在房號: ?</div>
             </div>
         </div>
         <script src="/socket.io/socket.io.js"></script>
-        <script src = "./src/match_robot.js" type="module"></script>
+        <script src = "./src/watcher.js" type="module"></script>
     </body>
 </html>

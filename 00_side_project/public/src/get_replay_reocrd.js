@@ -303,11 +303,11 @@ function addGameStatusReplayInit (round, target, time) {
     const status = document.createElement("div");
     status.id = "status";
     status.className = "game_status";
-    status.innerHTML = `第 ${round} 回合 Replay: Standby`; // 待改
+    status.innerHTML = `第 ${round} 回合 Replay: Standby`;
     const goal = document.createElement("div");
     goal.id = "goal";
     goal.className = "game_status";
-    goal.innerHTML = `目標: 卡片1數字 x 卡片2數字 = ${target}`; // 待改
+    goal.innerHTML = `目標: 卡片1數字 x 卡片2數字 = ${target}`;
     const countdown = document.createElement("div");
     countdown.id = "countdown";
     countdown.className = "game_status";
@@ -323,7 +323,7 @@ function showCardsinReplay (number, state, cardsSetting) {
         const card = document.createElement("div");
         card.classList.add("memory-card", `double${number}`);
         card.id = `cardID_${i}`;
-        card.dataset.framework = `card_${i}`; // wait for ajax() pair ans 待改
+        card.dataset.framework = `card_${i}`;
         const frontFace = document.createElement("div");
         frontFace.id = `${i}`;
         frontFace.innerHTML = `${cardsSetting[i].number}`;

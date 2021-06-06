@@ -1,7 +1,8 @@
 require("dotenv").config();
 const redis = require("redis");
 const { REDISPORT } = process.env || 6379; // redis port setting
-const client = redis.createClient(REDISPORT); // create redis client
+const { REDISHOST } = process.env;
+const client = redis.createClient(REDISPORT, REDISHOST); // create redis client
 
 function getCache (key) { // used in async function
     return new Promise((resolve, reject) => {

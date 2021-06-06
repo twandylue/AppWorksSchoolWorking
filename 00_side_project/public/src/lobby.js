@@ -44,6 +44,11 @@ socket.on("join success", (info) => {
     window.location.href = `/match.html?roomID=${info.roomID}`;
 });
 
+socket.on("watcher join room success", (info) => {
+    localStorage.setItem("access_token", info.token); // 此token第一次帶有roomID資訊
+    window.location.href = `/watcher.html?roomID=${info.roomID}`;
+});
+
 socket.on("join room with robot success", info => {
     localStorage.setItem("access_token", info.token); // 此token第一次帶有roomID資訊 單人模式
     window.location.href = `/match_robot.html?roomID=${info.roomID}`;
@@ -63,10 +68,18 @@ joinButtons.forEach(joinButton => joinButton.addEventListener("click", joinRoom)
 function joinRoom () {
     const button = this;
     const roomID = button.parentElement.parentElement.id;
-    // const token = localStorage.getItem("access_token");
-    // const info = { roomID: roomID, token: token };
     const info = { roomID: roomID };
     socket.emit("join room", info);
+}
+
+const watcherButtons = document.querySelectorAll(".watch");
+watcherButtons.forEach(watcherButton => watcherButton.addEventListener("click", watchRoom));
+function watchRoom () {
+    const button = this;
+    const roomID = button.parentElement.parentElement.id;
+    const info = { roomID: roomID };
+    // socket.emit("join room", info);
+    socket.emit("watcher join room", info);
 }
 
 const singleButton = document.querySelector("#mode-select");
@@ -101,7 +114,7 @@ async function main () {
     if (loginStae.status !== 200) {
         Swal.fire({
             icon: "error",
-            title: "尚未登入",
+            title: "請先登入",
             text: "還沒登入不給玩喔!",
             showDenyButton: true,
             showCancelButton: true,

@@ -109,7 +109,12 @@ const getUserDetail = async (email, roleId) => {
 const getRecord = async (email) => {
     const conn = await pool.getConnection();
     const results = await conn.query("SELECT player_email, SUM(points), COUNT(*) FROM game_history WHERE player_email = ?", email); // 這裏從history中計算 包含與機器人對戰
-    const totalPoints = parseInt(results[0][0]["SUM(points)"]);
+    let totalPoints;
+    if (results[0][0]["SUM(points)"] === null) {
+        totalPoints = 0;
+    } else {
+        totalPoints = parseInt(results[0][0]["SUM(points)"]);
+    }
     const hitRate = (totalPoints * 2 / 10) / parseInt(results[0][0]["COUNT(*)"]);
 
     const sql = "SELECT game_results.game_id, user.name, user.email, game_setting_info.room_id, game_setting_info.type, game_setting_info.number, game_setting_info.rounds, game_setting_info.player_1, game_setting_info.player_2, game_results.round1_points, game_results.round2_points, game_results.round3_points, game_results.total_points, game_results.hit_rate, game_results.winner_email FROM game_results INNER JOIN `user` ON user.email = game_results.player_email INNER JOIN game_setting_info ON game_setting_info.id = game_results.game_id WHERE game_results.player_email = ? AND status = 2;"; // status = 2 只限雙人遊玩可以重播記錄
@@ -124,7 +129,7 @@ const getRecord = async (email) => {
 const getLeaderList = async () => {
     // use game_results SUM(total_points) GROUP BY (email) JOIN user.name
     const conn = await pool.getConnection();
-    const results = await conn.query("SELECT user.name, player_email, SUM(total_points), SUM(hit_rate), COUNT(*) FROM game_results INNER JOIN user ON user.email = game_results.player_email GROUP BY player_email ORDER BY SUM(total_points) DESC;"); // 這裏從game_results拿取資訊
+    const results = await conn.query("SELECT user.name, player_email, SUM(total_points), SUM(hit_rate), COUNT(*) FROM game_results INNER JOIN user ON user.email = game_results.player_email GROUP BY player_email ORDER BY SUM(total_points) DESC;"); // 這裏從game_results拿取資訊 user.name會剔除機器人進入排行榜
     await conn.release();
 
     const leaderList = [];

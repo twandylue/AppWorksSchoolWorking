@@ -90,9 +90,33 @@ const Room = function (socket, io) { // join room
         }
     });
 
+    socket.on("watcher join room", async (info) => { // 觀戰系統 未完工 待改
+        try {
+            console.log(`watch room: ${info.roomID}`);
+            await roomModule.watcherJoinRoom(info.roomID);
+            const accessToken = jwt.sign({ provider: socket.info.provider, name: socket.info.name, email: socket.info.email, roomID: info.roomID, status: 3 }, TOKEN_SECRET); // status: 3 watcher
+            socket.emit("watcher join room success", { token: accessToken, roomID: info.roomID }); // 此token第一次帶有roomID
+        } catch (err) {
+            console.log(`err when watch room: ${err}`);
+            socket.emit("join failed", { error: "Forbidden" });
+        }
+        const roomInfo = await roomModule.getRoomLobbyInfo();
+        io.emit("room info", roomInfo); // update rooms info on lobby
+    });
+
+    socket.on("watcher in room", async () => {
+        // join room
+        // 雙方姓名 怎麼色塊
+        // 右下角規則說明
+        // gameID 拿該room裡面最新的 如果還沒產生roomID怎麼辦？
+        // 為了畫面同步 記錄畫面狀態 combine with gameID 等待畫面 配對成功畫面 ready倒數畫面 start倒數畫面 統計畫面
+        // 為了翻牌同步
+
+    });
+
     socket.on("join room with robot", async () => {
         // const roomID = "robot_" + socket.info.email;
-        const roomID = `${socket.info.name}_robot_room`;
+        const roomID = `${socket.info.name}_robot_room`; // 要用name? 待確認 待改
         await roomModule.joinRoomwithRobot(roomID, socket.info.email); // 加入房間 和robot一起
         const accessToken = jwt.sign({ provider: socket.info.provider, name: socket.info.name, email: socket.info.email, roomID: roomID, status: 1 }, TOKEN_SECRET); // status: 1 single mode
         socket.emit("join room with robot success", { token: accessToken, roomID: roomID }); // 此token第一次帶有roomID 單人模式
@@ -101,14 +125,19 @@ const Room = function (socket, io) { // join room
     socket.on("in room with robot", async () => {
         const user = socket.info; // token中應該已帶有roomID資訊
         const { roomID } = user;
-        socket.join(roomID);
-        const members = [{ email: `${user.name}_robot` }, { email: user.email }]; // 待確認
-        const rules = await getRandomRules(); // 隨機產生遊戲規則
-        const gameRules = { type: rules.type, number: rules.card_number, rounds: rules.rounds, targets: rules.targets };
-        const gameID = await saveGameRules(roomID, members, gameRules); // gameID 第一次出現
-        await roomModule.bindGameIDinRoom(gameID, roomID); // save gameID with room 此時room是唯一的 能綁定gameID
-        console.log(`room: ${roomID}`);
-        io.to(roomID).emit("ready in single mode", { rules: gameRules, gameID: gameID }); // 讓雙方都能看到規則 and 讓前端能點選開始鈕 此處第一次出現gameID
+        socket.join(roomID); // 單人模式下 重新整理頁面後 隨即加入到roomID
+        const isJoinRoom = await roomModule.findRoom(user.email); // 重新整理頁面 會回傳false mysql中的資料已被刪除
+        if (isJoinRoom) {
+            const members = [{ email: `${user.name}_robot` }, { email: user.email }];
+            const rules = await getRandomRules(); // 隨機產生遊戲規則
+            const gameRules = { type: rules.type, number: rules.card_number, rounds: rules.rounds, targets: rules.targets };
+            const gameID = await saveGameRules(roomID, members, gameRules); // gameID 第一次出現
+            await roomModule.bindGameIDinRoom(gameID, roomID); // save gameID with room 此時room是唯一的 能綁定gameID
+            console.log(`room: ${roomID}`);
+            io.to(roomID).emit("ready in single mode", { rules: gameRules, gameID: gameID }); // 讓雙方都能看到規則 and 讓前端能點選開始鈕 此處第一次出現gameID
+        } else {
+            io.to(roomID).emit("robot leave room", "robot leave the room"); // 房號出問題
+        }
     });
 };
 
@@ -341,7 +370,6 @@ const ClickCardinGame = function (socket, io) {
             io.to(room).emit("fill card number", CardfilledInfo);
 
             const utsOrder = new Date().getTime();
-            // const stepInfo = { gameID: gameID, room: room, round: round, source: source, email: user.email, cardID: parseInt(cardID), number: number, addPoints: 0, time: parseInt(time), utsOrder: utsOrder };
             const stepInfo = { gameID: gameID, room: room, round: round, source: source, email: user.email, cardID: parseInt(cardID), number: number, addPoints: 0, time: parseInt(time), utsOrder: utsOrder, status: socket.info.status };
 
             // use cache
@@ -364,7 +392,7 @@ const ClickCardinGame = function (socket, io) {
             await recordEveryStep(stepInfo); // 可否改為遊戲結束後一次insert? 待改
         } catch (err) {
             console.log(err);
-            socket.emit("join failed", { err: "localStorage error" }); // 待改
+            socket.emit("join failed", { err: "join failed" });
         }
     });
 

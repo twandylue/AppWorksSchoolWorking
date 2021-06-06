@@ -27,7 +27,7 @@ async function main () {
     const leaderboard = document.querySelector("#leaderboard");
     for (let i = 0; i < leaderboardList.length; i++) {
         const leaderboardItem = document.createElement("li");
-        leaderboardItem.innerHTML = `排行${i + 1} | ${leaderboardList[i].name} | 總得分: ${leaderboardList[i].totalPoints} | 每場遊戲平均得分: ${(leaderboardList[i].avgPoints).toFixed(2)} | 平均命中率: ${(leaderboardList[i].avgHitRate * 100).toFixed(2)} %`;
+        leaderboardItem.innerHTML = `排行${i + 1} | ${leaderboardList[i].name} | 總得分: ${leaderboardList[i].totalPoints} | 平均得分(/場): ${(leaderboardList[i].avgPoints).toFixed(2)} | 平均命中率: ${(leaderboardList[i].avgHitRate * 100).toFixed(2)} %`;
         leaderboard.append(leaderboardItem);
     }
 }
