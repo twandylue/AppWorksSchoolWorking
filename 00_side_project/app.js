@@ -4,20 +4,30 @@ const port = PORT;
 const { TOKEN_SECRET, REDISHOST } = process.env;
 const jwt = require("jsonwebtoken");
 const path = require("path");
+const cors = require("cors");
 
 // Express initialization
 const express = require("express");
 const app = express();
 const http = require("http");
 const server = http.createServer(app);
-const Server = require("socket.io").Server;
-const io = new Server(server);
-const redis = require("socket.io-redis");
-io.adapter(redis({ host: REDISHOST, port: 6379 }));
+// const Server = require("socket.io").Server;
+// const io = new Server(server);
+const io = require("socket.io")(server, {
+    cors: {
+        origin: "localhost:3000",
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
+
+const redisAdapter = require("socket.io-redis");
+io.adapter(redisAdapter({ host: REDISHOST, port: 6379 }));
 
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 // const { pool } = require("./server/models/mysqlcon");
 // app.get("/test", async (req, res) => {
