@@ -139,7 +139,7 @@ const findRoom = async (email) => {
     }
 };
 
-const findRoonMember = async (roomID) => {
+const findRoomMember = async (roomID) => {
     const conn = await pool.getConnection();
     // console.log(pool.format("SELECT user.name, room.email FROM room INNER JOIN user ON room.email = user.email WHERE room_id = ?", roomID));
     try {
@@ -229,7 +229,7 @@ module.exports = {
     watcherLeaveRoom,
     findGameID,
     findRoom,
-    findRoonMember,
+    findRoomMember,
     getRoomLobbyInfo,
     isReadyNumberOK,
     isAgainNumberOK,

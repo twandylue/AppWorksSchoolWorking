@@ -4,7 +4,7 @@ const roomModule = require("./Room_model");
 async function statRecord (gameID, roomID, rounds, status) {
     const conn = await pool.getConnection();
 
-    const roomMembers = await roomModule.findRoonMember(roomID); // 前方已可知道roomber 此處不需要再await一次 待改
+    const roomMembers = await roomModule.findRoomMember(roomID); // 前方已可知道roomber 此處不需要再await一次 待改
     const members = [];
     for (const i in roomMembers) {
         members.push(roomMembers[i].email);

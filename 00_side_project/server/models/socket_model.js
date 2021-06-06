@@ -58,7 +58,7 @@ const Room = function (socket, io) { // join room
             socket.join(roomID);
             console.log(`in the room: ${roomID}`);
             socket.emit("fill name", user.name);
-            const members = await roomModule.findRoonMember(roomID);
+            const members = await roomModule.findRoomMember(roomID);
             console.log(members);
             for (const i in members) {
                 if (members[i].email === user.email) {
@@ -334,7 +334,7 @@ const gameloop = async function (gameID, rules, room, socket, io) {
             }
         }
         // round結束
-        const members = await roomModule.findRoonMember(room); // 找出房內所有人 用於cache初始化 待改 不用每次回合結束後都await一次
+        const members = await roomModule.findRoomMember(room); // 找出房內所有人 用於cache初始化 待改 不用每次回合結束後都await一次
         for (const i in members) { // 每回合結束時 初始化cahce 去除上回合點擊過的卡片
             client.del(members[i].email);
         }
