@@ -16,6 +16,7 @@
     "eslint-plugin-promise": "^4.3.1"
   },
   "dependencies": {
+    "@socket.io/redis-emitter": "^4.1.0",
     "bcrypt": "^5.0.1",
     "dotenv": "^9.0.1",
     "express": "^4.17.1",
