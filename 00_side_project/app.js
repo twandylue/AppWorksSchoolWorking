@@ -1,7 +1,7 @@
 require("dotenv").config();
 const { PORT_TEST, PORT, NODE_ENV, API_VERSION } = process.env;
 const port = PORT;
-const { TOKEN_SECRET } = process.env;
+const { TOKEN_SECRET, REDISHOST } = process.env;
 const jwt = require("jsonwebtoken");
 const path = require("path");
 
@@ -12,21 +12,23 @@ const http = require("http");
 const server = http.createServer(app);
 const Server = require("socket.io").Server;
 const io = new Server(server);
+const redis = require("socket.io-redis");
+io.adapter(redis({ host: REDISHOST, port: 6379 }));
 
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const { pool } = require("./server/models/mysqlcon");
-app.get("/test", async (req, res) => {
-    // console.log({ gameID, roomID, rounds });
-    const conn = await pool.getConnection();
-    await conn.query("DELETE FROM cards_setting_info;");
-    await conn.query("DELETE FROM game_history");
-    await conn.query("DELETE FROM game_results");
-    await conn.release();
-    res.send("finished");
-});
+// const { pool } = require("./server/models/mysqlcon");
+// app.get("/test", async (req, res) => {
+//     // console.log({ gameID, roomID, rounds });
+//     const conn = await pool.getConnection();
+//     await conn.query("DELETE FROM cards_setting_info;");
+//     await conn.query("DELETE FROM game_history");
+//     await conn.query("DELETE FROM game_results");
+//     await conn.release();
+//     res.send("finished");
+// });
 
 // API routes
 app.use("/api/" + API_VERSION,
