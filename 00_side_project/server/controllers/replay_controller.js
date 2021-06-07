@@ -10,7 +10,6 @@ const getReplayRecord = async (req, res) => {
         const names = replayObj.members.map((ele) => {
             return ele.name;
         });
-
         if (!names.includes(req.user.name)) {
             res.status(400).send({ error: "Permission denied" }); // 沒有權限
             return;

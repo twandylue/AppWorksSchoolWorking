@@ -25,7 +25,7 @@ async function main () {
     document.querySelector("#user-name-main").innerHTML = `Hi! ${userInfo.data.name}`;
     document.querySelector("#user-email-main").innerHTML = `Email: ${userInfo.data.email}`;
     document.querySelector("#total-points").innerHTML = `生涯總得分: ${totalPoints} 分`;
-    document.querySelector("#correct-rate").innerHTML = `生涯命中率: ${hitRate.toFixed(2)} %`;
+    document.querySelector("#correct-rate").innerHTML = `生涯命中率: ${(hitRate * 100).toFixed(2)} %`;
     const gameHistory = document.querySelector("#game-history");
     const { gameHis } = userRecord.data;
     for (let i = 0; i < gameHis.length; i++) {

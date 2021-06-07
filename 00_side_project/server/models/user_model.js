@@ -116,7 +116,7 @@ const getRecord = async (email) => {
 
     const personRecord = await conn.query("SELECT user.name, player_email, SUM(total_points), SUM(hit_rate), COUNT(*) FROM game_results INNER JOIN user ON user.email = game_results.player_email WHERE player_email = ? AND status = 2;", email);
     // console.log(personRecord[0]);
-    const hitRate = parseInt(personRecord[0][0]["SUM(hit_rate)"]) / parseInt(personRecord[0][0]["COUNT(*)"]);
+    const hitRate = parseFloat(personRecord[0][0]["SUM(hit_rate)"]) / parseFloat(personRecord[0][0]["COUNT(*)"]);
 
     return ({ totalPoints: personRecord[0][0]["SUM(total_points)"], hitRate: hitRate, gameHis: gameHis[0] });
 };
@@ -131,7 +131,7 @@ const getLeaderList = async () => {
     // console.log(results[0]);
 
     for (const i in results[0]) {
-        leaderList.push({ name: results[0][i].name, player_email: results[0][i].player_email, totalPoints: parseInt(results[0][i]["SUM(total_points)"]), avgPoints: parseInt(results[0][i]["SUM(total_points)"]) / parseInt(results[0][i]["COUNT(*)"]), avgHitRate: parseInt(results[0][i]["SUM(hit_rate)"]) / parseInt(results[0][i]["COUNT(*)"]) });
+        leaderList.push({ name: results[0][i].name, player_email: results[0][i].player_email, totalPoints: parseFloat(results[0][i]["SUM(total_points)"]), avgPoints: parseFloat(results[0][i]["SUM(total_points)"]) / parseFloat(results[0][i]["COUNT(*)"]), avgHitRate: parseFloat(results[0][i]["SUM(hit_rate)"]) / parseFloat(results[0][i]["COUNT(*)"]) });
     }
 
     return (leaderList);

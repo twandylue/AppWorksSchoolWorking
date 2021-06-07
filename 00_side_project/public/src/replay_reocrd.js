@@ -152,7 +152,7 @@ async function main () {
                 }
             }
         }
-        gameStatReplay(parseInt(hitRate), totalPointsNumber, roundsPoints, winnerStatus);
+        gameStatReplay(parseFloat(hitRate), totalPointsNumber, roundsPoints, winnerStatus);
     }
     document.querySelector("#replay_title").innerHTML = "重播結束囉！";
     document.querySelector("#replay_title").style = "cursor:auto; color:#fbfef9; background-color: #0D1F2D;";
