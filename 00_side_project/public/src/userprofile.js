@@ -8,11 +8,24 @@ async function main () {
     // console.log("-----------------");
     // console.log(userRecord);
 
+    let totalPoints, hitRate;
+    if (userRecord.data.totalPoints === null) {
+        totalPoints = 0;
+    } else {
+        totalPoints = userRecord.data.totalPoints;
+    }
+
+    if (userRecord.data.hitRate === null) {
+        hitRate = 0;
+    } else {
+        hitRate = userRecord.data.hitRate;
+    }
+
     document.querySelector("#user-name-header").innerHTML = `Hi! ${userInfo.data.name}`;
     document.querySelector("#user-name-main").innerHTML = `Hi! ${userInfo.data.name}`;
     document.querySelector("#user-email-main").innerHTML = `Email: ${userInfo.data.email}`;
-    document.querySelector("#total-points").innerHTML = `生涯總得分: ${userRecord.data.totalPoints}`;
-    document.querySelector("#correct-rate").innerHTML = `生涯命中率: ${(userRecord.data.hitRate * 100).toFixed(2)} %`;
+    document.querySelector("#total-points").innerHTML = `生涯總得分: ${totalPoints} 分`;
+    document.querySelector("#correct-rate").innerHTML = `生涯命中率: ${hitRate.toFixed(2)} %`;
     const gameHistory = document.querySelector("#game-history");
     const { gameHis } = userRecord.data;
     for (let i = 0; i < gameHis.length; i++) {
