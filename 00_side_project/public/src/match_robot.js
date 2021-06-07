@@ -171,6 +171,8 @@ socket.on("game over", (gameStatInfo) => {
         }
         const winnerStatus = gameStatInfo.winner[0].name;
         gameStat(hitRate, totalPoints, roundsPoints, winnerStatus);
+        document.querySelector("#replay_title").innerHTML = "與機器人對戰結束";
+        document.querySelector("#replay_title").style = "cursor:auto; color:#fbfef9; background-color: #0D1F2D;";
 
         const again = document.querySelector("#again");
         again.addEventListener("click", () => {
@@ -204,6 +206,7 @@ socket.on("game over", (gameStatInfo) => {
 socket.on("again", (info) => {
     frontGameID = info.gameID; // 更新gameID
     frontRules = Object.assign({}, info.rules); // 儲存新的frontRules
+    document.querySelector("#middle").classList.remove("middle-Stat");
     combineMatchPageforAgain();
     showGameRules(info.rules);
 
@@ -240,7 +243,7 @@ socket.on("again", (info) => {
 
     Swal.fire({
         icon: "warning",
-        title: "對手也想再玩一局！",
+        title: "再來一局吧！",
         text: "轉跳至準備頁面",
         confirmButtonText: "確認"
     });
@@ -280,7 +283,23 @@ leave.addEventListener("click", () => {
 
 const profile = document.querySelector("#user_profile");
 profile.addEventListener("click", () => {
-    window.location.href = "/userprofile.html";
+    Swal.fire({
+        icon: "question",
+        title: "請選擇功能",
+        text: "想做啥?",
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "我的檔案",
+        denyButtonText: "登出",
+        cancelButtonText: "取消"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "/userprofile.html";
+        } else if (result.isDenied) {
+            localStorage.removeItem("access_token");
+            window.location.href = "/";
+        }
+    });
 });
 
 const logo = document.querySelector("#logo-container-header");

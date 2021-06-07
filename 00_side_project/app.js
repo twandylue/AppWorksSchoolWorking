@@ -11,15 +11,15 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const server = http.createServer(app);
-// const Server = require("socket.io").Server;
-// const io = new Server(server);
-const io = require("socket.io")(server, {
-    cors: {
-        origin: "localhost:3000",
-        methods: ["GET", "POST"],
-        credentials: true
-    }
-});
+const Server = require("socket.io").Server;
+const io = new Server(server);
+// const io = require("socket.io")(server, {
+//     cors: {
+//         origin: "localhost:3000",
+//         methods: ["GET", "POST"],
+//         credentials: true
+//     }
+// });
 
 const redisAdapter = require("socket.io-redis");
 io.adapter(redisAdapter({ host: REDISHOST, port: 6379 }));
@@ -75,7 +75,6 @@ const socketModule = require("./server/models/socket_model");
 const { client } = require("./server/models/cache_model");
 io.on("connection", async (socket) => {
     console.log(`user: ${socket.info.email} connected`);
-    // console.log(socket.info);
     socketModule.getUserInfo(socket, io);
     socketModule.updateRoomLobbyinfo(socket, io);
     socketModule.Room(socket, io); // join room

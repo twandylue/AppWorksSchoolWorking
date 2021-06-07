@@ -21,13 +21,14 @@ async function main () {
         // 以下加入 勝負 and 對手
         const str = `第 ${i + 1} 場 | room: ${gameHis[i].room_id} | 類型: ${gameHis[i].type} | 卡片數量: ${gameHis[i].number} | 總回合數: ${gameHis[i].rounds} | 總分: ${gameHis[i].total_points} | 命中率: ${(gameHis[i].hit_rate * 100).toFixed(2)} %`;
         gameItem.innerHTML = str;
+        gameItem.dataset.index = i + 1;
         gameHistory.append(gameItem);
     }
 
     const leaderboard = document.querySelector("#leaderboard");
     for (let i = 0; i < leaderboardList.length; i++) {
         const leaderboardItem = document.createElement("li");
-        leaderboardItem.innerHTML = `排行${i + 1} | ${leaderboardList[i].name} | 總得分: ${leaderboardList[i].totalPoints} | 平均得分(/場): ${(leaderboardList[i].avgPoints).toFixed(2)} | 平均命中率: ${(leaderboardList[i].avgHitRate * 100).toFixed(2)} %`;
+        leaderboardItem.innerHTML = `排行${i + 1} | ${leaderboardList[i].name} | 總得分: ${leaderboardList[i].totalPoints} | 平均得分(/場): ${(leaderboardList[i].avgPoints).toFixed(2)} | 生涯命中率: ${(leaderboardList[i].avgHitRate * 100).toFixed(2)} %`;
         leaderboard.append(leaderboardItem);
     }
 }
@@ -38,12 +39,29 @@ submit.addEventListener("click", () => {
     // 重播使用
     const item = document.querySelector("#game-history");
     const gameID = item[item.selectedIndex].id; // get id of selected option
-    window.location.href = `/replay.html?gameID=${gameID}`;
+    const index = item[item.selectedIndex].dataset.index;
+    window.location.href = `/replay.html?gameID=${gameID}&&index=${index}`;
 });
 
 const profile = document.querySelector("#user_profile");
 profile.addEventListener("click", () => {
-    window.location.href = "/userprofile.html";
+    Swal.fire({
+        icon: "question",
+        title: "請選擇功能",
+        text: "想做啥?",
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "我的檔案",
+        denyButtonText: "登出",
+        cancelButtonText: "取消"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "/userprofile.html";
+        } else if (result.isDenied) {
+            localStorage.removeItem("access_token");
+            window.location.href = "/";
+        }
+    });
 });
 
 const logo = document.querySelector("#logo-container-header");

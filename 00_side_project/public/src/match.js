@@ -190,7 +190,9 @@ socket.on("start game", (info) => { // 翻牌(問號面)
 
 socket.on("fill card number", (cardfilledInfo) => {
     const cardFrontFaces = document.querySelectorAll(".front-face");
-    cardFrontFaces[cardfilledInfo.cardID].innerHTML = cardfilledInfo.number;
+    if (cardFrontFaces) {
+        cardFrontFaces[cardfilledInfo.cardID].innerHTML = cardfilledInfo.number;
+    }
 });
 
 socket.on("next round execute rules", (info) => {
@@ -221,6 +223,23 @@ socket.on("game over", (gameStatInfo) => {
         const winnerStatus = gameStatInfo.winner[0].name;
         gameStat(hitRate, totalPoints, roundsPoints, winnerStatus);
 
+        const replay = document.querySelector("#replay_title");
+        replay.addEventListener("click", () => {
+            Swal.fire({
+                icon: "warning",
+                title: "離開房間",
+                text: "前往觀看遊戲重播",
+                confirmButtonText: "確認",
+                showDenyButton: true,
+                denyButtonText: "取消"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const index = "none";
+                    window.location.href = `/replay.html?gameID=${frontGameID}&&index=${index}`;
+                }
+            });
+        });
+
         const again = document.querySelector("#again");
         again.addEventListener("click", () => {
             const info = { gameID: frontGameID };
@@ -231,8 +250,19 @@ socket.on("game over", (gameStatInfo) => {
                 text: "請等待對手回應",
                 confirmButtonText: "好的"
             }).then(() => {
-                again.disabled = true;
-                again.innerHTML = "等待對手回應";
+                again.remove();
+                const wati = document.createElement("div");
+                wati.id = "wait";
+                wati.innerHTML = "等待對手回應...";
+                const watispan1 = document.createElement("span");
+                const watispan2 = document.createElement("span");
+                const watispan3 = document.createElement("span");
+                const watispan4 = document.createElement("span");
+                wati.append(watispan1, watispan2, watispan3, watispan4);
+                const wrap = document.querySelector("#wrap");
+                wrap.insertBefore(wati, wrap.firstChild);
+                // middle-Stat
+                // document.querySelector("#middle").classList.remove("middle-Stat");
             });
         });
 
@@ -253,6 +283,7 @@ socket.on("game over", (gameStatInfo) => {
 socket.on("again", (info) => {
     frontGameID = info.gameID; // 更新gameID
     frontRules = Object.assign({}, info.rules); // 儲存新的frontRules
+    document.querySelector("#middle").classList.remove("middle-Stat");
     combineMatchPageforAgain();
     showGameRules(info.rules);
 
@@ -305,16 +336,7 @@ start.addEventListener("click", () => {
         text: "等待對手準備...",
         confirmButtonText: "確認"
     }).then(() => {
-        // socket.emit("I am ready", "I am ready"); // 此處帶token至後端時 token內已有gameID 和 rules資訊
         socket.emit("I am ready", { rules: frontRules, gameID: frontGameID });
-
-        // const gameID = localStorage.getItem("gameID");
-        // const rules = localStorage.getItem("rules");
-        // const gameRules = JSON.parse(rules);
-        // if (gameRules) {
-        //     gameRules.gameID = gameID;
-        //     socket.emit("I am ready", (gameRules));
-        // }
     });
 });
 
@@ -338,7 +360,23 @@ leave.addEventListener("click", () => {
 
 const profile = document.querySelector("#user_profile");
 profile.addEventListener("click", () => {
-    window.location.href = "/userprofile.html";
+    Swal.fire({
+        icon: "question",
+        title: "請選擇功能",
+        text: "想做啥?",
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "我的檔案",
+        denyButtonText: "登出",
+        cancelButtonText: "取消"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "/userprofile.html";
+        } else if (result.isDenied) {
+            localStorage.removeItem("access_token");
+            window.location.href = "/";
+        }
+    });
 });
 
 const logo = document.querySelector("#logo-container-header");

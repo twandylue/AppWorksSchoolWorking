@@ -59,8 +59,7 @@ async function statRecord (gameID, roomID, rounds, status) {
             // console.log("===no history==");
         }
     }
-    // console.log(stat);
-
+    console.log(stat);
     if (stat[0].totalPoints > stat[1].totalPoints) {
         winner.push({ email: stat[0].player_email, name: emailtoNameObj[stat[0].player_email] });
     } else if (stat[0].totalPoints < stat[1].totalPoints) {

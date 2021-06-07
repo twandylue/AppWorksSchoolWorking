@@ -8,6 +8,9 @@ async function main () {
     document.querySelector("#user-name-header").innerHTML = response.data.name;
     const urlParams = new URLSearchParams(window.location.search);
     const gameID = urlParams.get("gameID");
+    const index = urlParams.get("index");
+    document.querySelector("#roomID").innerHTML = `重播場次: 第${index}場`;
+
     if (gameID == null) {
         Swal.fire({
             icon: "warning",
@@ -21,7 +24,18 @@ async function main () {
     }
 
     const replayData = await getReplayData(gameID);
-    // console.log(replayData);
+    if (replayData.data === 0) {
+        console.log("test");
+        Swal.fire({
+            icon: "warning",
+            title: "與對手配對成功，但沒有遊玩記錄",
+            text: "請重新選擇重播場次",
+            confirmButtonText: "確認"
+        }).then(() => {
+            window.location.href = "./userprofile.html";
+        });
+        return;
+    }
     const { members, rules, stepList, cardsSetting, gameStatData } = replayData.data;
     const roundStepList = [];
     const cardsSettingList = [];
@@ -73,6 +87,7 @@ async function main () {
     }
     // console.log(cardsSettingList);
 
+    console.log(members);
     for (const i in members) {
         if (members[i].player_email === response.data.email) {
             userName = members[i].name;
@@ -89,7 +104,7 @@ async function main () {
 
     let nowRound;
     for (let i = 0; i < roundStepList.length; i++) { // cardSetting 也要放入
-        let readyTime = 10;
+        let readyTime = 5;
         const roundTime = 15;
         nowRound = i + 1;
         addGameStatusReplayInit(nowRound, targets[i], readyTime); // 上方資訊
@@ -109,32 +124,38 @@ async function main () {
             confirmButtonText: "確認"
         });
         // 回合結束
-        console.log("======================回合結束=======================");
+        // console.log("======================回合結束=======================");
     }
     // 遊戲結束 顯示統計結果
     let hitRate, totalPointsNumber, winnerStatus;
     const roundsPoints = [];
-    for (const i in gameStatData) {
-        if (gameStatData[i].player_email === userEmail) {
-            hitRate = gameStatData[i].hit_rate;
-            totalPointsNumber = gameStatData[i].total_points;
-            // roundsPoints =gameStatData[i]
-            const points = [gameStatData[i].round1_points, gameStatData[i].round2_points, gameStatData[i].round3_points];
-            for (const i in points) {
-                if (points[i] !== null) {
-                    roundsPoints.push(points[i]);
+    if (gameStatData === 0) {
+        gameStatReplay("None", "None", "None", "中途結束 無勝負");
+    } else {
+        for (const i in gameStatData) {
+            if (gameStatData[i].player_email === userEmail) {
+                hitRate = gameStatData[i].hit_rate;
+                totalPointsNumber = gameStatData[i].total_points;
+                // roundsPoints =gameStatData[i]
+                const points = [gameStatData[i].round1_points, gameStatData[i].round2_points, gameStatData[i].round3_points];
+                for (const i in points) {
+                    if (points[i] !== null) {
+                        roundsPoints.push(points[i]);
+                    }
+                }
+                if (gameStatData[i].winner_email === userEmail) {
+                    winnerStatus = userName;
+                } else if (gameStatData[i].winner_email === oppoEmail) {
+                    winnerStatus = oppoName;
+                } else {
+                    winnerStatus = "tie";
                 }
             }
-            if (gameStatData[i].winner_email === userEmail) {
-                winnerStatus = userName;
-            } else if (gameStatData[i].winner_email === oppoEmail) {
-                winnerStatus = oppoName;
-            } else {
-                winnerStatus = "tie";
-            }
         }
+        gameStatReplay(parseInt(hitRate), totalPointsNumber, roundsPoints, winnerStatus);
     }
-    gameStatReplay(parseInt(hitRate), totalPointsNumber, roundsPoints, winnerStatus);
+    document.querySelector("#replay_title").innerHTML = "重播結束囉！";
+    document.querySelector("#replay_title").style = "cursor:auto; color:#fbfef9; background-color: #0D1F2D;";
     Swal.fire({
         icon: "success",
         title: "遊戲重播結束囉",
@@ -281,6 +302,16 @@ async function getReplayData (gameID) { // 從url中拿資料
             window.location.href = "./userprofile.html";
         });
     }
+    if (response.status === 400) {
+        Swal.fire({
+            icon: "warning",
+            title: "沒有權限觀看",
+            text: "請重新選擇重播場次",
+            confirmButtonText: "確認"
+        }).then(() => {
+            window.location.href = "./userprofile.html";
+        });
+    }
     return await response.json();
 }
 
@@ -357,7 +388,23 @@ function hideCardsinReplay (round, roundTime) {
 
 const profile = document.querySelector("#user_profile");
 profile.addEventListener("click", () => {
-    window.location.href = "/userprofile.html";
+    Swal.fire({
+        icon: "question",
+        title: "請選擇功能",
+        text: "想做啥?",
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "我的檔案",
+        denyButtonText: "登出",
+        cancelButtonText: "取消"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "/userprofile.html";
+        } else if (result.isDenied) {
+            localStorage.removeItem("access_token");
+            window.location.href = "/";
+        }
+    });
 });
 
 const logo = document.querySelector("#logo-container-header");

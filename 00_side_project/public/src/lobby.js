@@ -101,7 +101,23 @@ singleButton.addEventListener("click", () => {
 
 const profile = document.querySelector("#user_profile");
 profile.addEventListener("click", () => {
-    window.location.href = "/userprofile.html";
+    Swal.fire({
+        icon: "question",
+        title: "請選擇功能",
+        text: "想做啥?",
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "我的檔案",
+        denyButtonText: "登出",
+        cancelButtonText: "取消"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "/userprofile.html";
+        } else if (result.isDenied) {
+            localStorage.removeItem("access_token");
+            window.location.href = "/";
+        }
+    });
 });
 
 const logo = document.querySelector("#logo-container-header");

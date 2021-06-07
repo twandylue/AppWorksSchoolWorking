@@ -40,12 +40,6 @@ function gameStat (hitRate, totalPointsNumber, roundsPoints, winnerStatus) {
     eachRoundPoint.id = "each_round_point";
     const strRoundsPoints = roundsPoints.toString().replace(/,/g, "/");
     eachRoundPoint.innerHTML = "每回合得分: " + strRoundsPoints;
-    // console.log(roundsPoints);
-    // console.log(strRoundsPoints);
-
-    // const eachRoundTime = document.createElement("div");
-    // eachRoundTime.className = "record_info";
-    // eachRoundTime.id = "each_round_time";
 
     const winner = document.createElement("div");
     winner.className = "record_info";
@@ -59,42 +53,47 @@ function gameStat (hitRate, totalPointsNumber, roundsPoints, winnerStatus) {
     replay.id = "replay";
     const replayTitle = document.createElement("div");
     replayTitle.id = "replay_title";
-    replayTitle.innerHTML = "重播(回合): ";
-    const replayItem = document.createElement("select");
-    replayItem.id = "replay_item";
-    const choiceRound = document.createElement("option");
-    choiceRound.innerHTML = "想要看第幾回合呢？";
-    replayItem.append(choiceRound);
-    for (let i = 0; i < roundsPoints.length; i++) {
-        const round = document.createElement("option");
-        round.innerHTML = `第 ${i + 1} 回合`;
-        replayItem.append(round);
-    }
-    const all = document.createElement("option");
-    all.innerHTML = "ALL";
-    replayItem.append(all);
-    const submitButton = document.createElement("button");
-    submitButton.id = "comfirm";
-    submitButton.innerHTML = "送出";
+    replayTitle.innerHTML = "遊戲過程重播";
+    replayTitle.style = "cursor: pointer";
+    const span1 = document.createElement("span");
+    const span2 = document.createElement("span");
+    const span3 = document.createElement("span");
+    const span4 = document.createElement("span");
+    replayTitle.append(span1, span2, span3, span4);
     const replayWrapper = document.createElement("div");
     replayWrapper.id = "replay-wrapper";
-    replayWrapper.append(replayTitle, replayItem, submitButton);
+    replayWrapper.append(replayTitle);
+
     replay.append(replayWrapper);
 
     const choose = document.createElement("div");
     choose.id = "choose";
     const wrap = document.createElement("div");
     wrap.id = "wrap";
-    const again = document.createElement("button");
+
+    const again = document.createElement("div");
     again.id = "again";
     again.innerHTML = "再來一場";
-    const goodbye = document.createElement("button");
+    again.style = "cursor: pointer";
+    const againspan1 = document.createElement("span");
+    const againspan2 = document.createElement("span");
+    const againspan3 = document.createElement("span");
+    const againspan4 = document.createElement("span");
+    again.append(againspan1, againspan2, againspan3, againspan4);
+
+    const goodbye = document.createElement("div");
     goodbye.id = "goodbye";
     goodbye.innerHTML = "不了！掰掰";
+    goodbye.style = "cursor: pointer";
+    const goodbyespan1 = document.createElement("span");
+    const goodbyespan2 = document.createElement("span");
+    const goodbyespan3 = document.createElement("span");
+    const goodbyespan4 = document.createElement("span");
+    goodbye.append(goodbyespan1, goodbyespan2, goodbyespan3, goodbyespan4);
+
     wrap.append(again, goodbye);
     choose.append(wrap);
 
-    // middle.append(status, goal, countdown, record, replay, choose);
     middle.append(status, countdown, record, replay, choose);
 
     const container = document.querySelector("#container");
