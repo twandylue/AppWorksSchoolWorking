@@ -117,9 +117,10 @@ photo.addEventListener("click", () => {
         icon: "info",
         html:
           "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_1.png\" alt = \"logo\">" +
-          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_2.png\" alt = \"logo\">" +
+          //   "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_2.png\" alt = \"logo\">" +
           "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_3.png\" alt = \"logo\">" +
-          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_4.png\" alt = \"logo\">",
+          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_4.png\" alt = \"logo\">" +
+          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_5.jpeg\" alt = \"logo\">",
         showCloseButton: true,
         showCancelButton: true,
         focusConfirm: false,

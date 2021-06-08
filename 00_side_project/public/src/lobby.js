@@ -80,7 +80,13 @@ function watchRoom () {
     const roomID = button.parentElement.parentElement.id;
     const info = { roomID: roomID };
     // socket.emit("join room", info);
-    socket.emit("watcher join room", info);
+    // socket.emit("watcher join room", info);
+    Swal.fire({
+        icon: "error",
+        title: "施工中",
+        text: "此路不通!",
+        confirmButtonText: "好的"
+    });
 }
 
 const singleButton = document.querySelector("#mode-select");
