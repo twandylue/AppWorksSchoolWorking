@@ -1,3 +1,28 @@
+const token = localStorage.getItem("access_token");
+const socket = io({
+    auth: { token: token },
+    reconnect: true
+});
+
+socket.on("connect", () => {
+    console.log("socketID: " + socket.id);
+});
+
+socket.on("connect_error", (err) => {
+    console.log(err.message);
+    if (err.message) {
+        Swal.fire({
+            icon: "warning",
+            title: "你斷線囉",
+            text: err.message,
+            confirmButtonText: "確認"
+        }).then(() => {
+            main();
+            socket.emit("update room info", "need to update room info"); // 後端沒建立on時 會導致沒有觸發此事件 待改 改成用api的形式
+        });
+    }
+});
+
 async function main () {
     const userInfo = await checkLogin();
     const userRecord = await getUserRecord();
@@ -24,6 +49,8 @@ async function main () {
     document.querySelector("#user-name-header").innerHTML = `Hi! ${userInfo.data.name}`;
     document.querySelector("#user-name-main").innerHTML = `Hi! ${userInfo.data.name}`;
     document.querySelector("#user-email-main").innerHTML = `Email: ${userInfo.data.email}`;
+    document.querySelector("#user_photo").src = userInfo.data.picture;
+    document.querySelector("#user-photo").src = userInfo.data.picture;
     document.querySelector("#total-points").innerHTML = `生涯總得分: ${totalPoints} 分`;
     document.querySelector("#correct-rate").innerHTML = `生涯命中率: ${(hitRate * 100).toFixed(2)} %`;
     const gameHistory = document.querySelector("#game-history");
@@ -41,7 +68,7 @@ async function main () {
     const leaderboard = document.querySelector("#leaderboard");
     for (let i = 0; i < leaderboardList.length; i++) {
         const leaderboardItem = document.createElement("li");
-        leaderboardItem.innerHTML = `排行${i + 1} | ${leaderboardList[i].name} | 總得分: ${leaderboardList[i].totalPoints} | 平均得分(/場): ${(leaderboardList[i].avgPoints).toFixed(2)} | 生涯命中率: ${(leaderboardList[i].avgHitRate * 100).toFixed(2)} %`;
+        leaderboardItem.innerHTML = `排行${i + 1} | ${leaderboardList[i].name} | 總得分: ${leaderboardList[i].totalPoints} | 平均得分(/場): ${(leaderboardList[i].avgPoints).toFixed(2)} 分 | 生涯命中率: ${(leaderboardList[i].avgHitRate * 100).toFixed(2)} %`;
         leaderboard.append(leaderboardItem);
     }
 }
@@ -80,6 +107,41 @@ profile.addEventListener("click", () => {
 const logo = document.querySelector("#logo-container-header");
 logo.addEventListener("click", () => {
     window.location.href = "/";
+});
+
+const photo = document.querySelector("#user-photo");
+photo.addEventListener("click", () => {
+    let userPhoto;
+    Swal.fire({
+        title: "請選擇大頭貼",
+        icon: "info",
+        html:
+          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_1.png\" alt = \"logo\">" +
+          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_2.png\" alt = \"logo\">" +
+          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_3.png\" alt = \"logo\">" +
+          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_4.png\" alt = \"logo\">",
+        showCloseButton: true,
+        showCancelButton: true,
+        focusConfirm: false,
+        confirmButtonText: "確認",
+        cancelButtonText: "取消",
+        didOpen: () => {
+            const photoChooseds = document.querySelectorAll(".user-photo-option");
+            photoChooseds.forEach(photoChoosed => photoChoosed.addEventListener("click", (event) => {
+                for (let i = 0; i < photoChooseds.length; i++) {
+                    photoChooseds[i].classList.remove("user-photo-choose");
+                }
+                event.target.className = "user-photo-choose";
+                const strArr = event.target.src.split("/");
+                userPhoto = `/images/${strArr[strArr.length - 1]}`;
+            }));
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            console.log(userPhoto);
+            socket.emit("select user photo", userPhoto);
+        }
+    });
 });
 
 async function checkLogin () {
@@ -127,3 +189,9 @@ async function getLeaderBoard () {
     });
     return await response.json();
 }
+
+socket.on("update user photo", (info) => {
+    document.querySelector("#user-photo").src = info.src;
+    document.querySelector("#user_photo").src = info.src;
+    localStorage.setItem("access_token", info.token); // update photo
+});

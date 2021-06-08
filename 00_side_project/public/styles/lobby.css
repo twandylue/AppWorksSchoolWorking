@@ -22,12 +22,6 @@ img {
     border-radius: 15px;
 }
 
-/* .title {
-    opacity: 0.85;
-    height: 2.8rem;
-    font-size: 1.8rem;
-} */
-
 .room {
     height: calc(20% - 8px);
     display: flex;
@@ -66,10 +60,8 @@ img {
     padding-bottom: 5px;
     margin-bottom: 30px;
     border-bottom:#003049 solid 0.26rem;
-    /* background-color: #efe5dc; */
     background: radial-gradient(circle,#f5faf5 ,#efe5dc);
     border-radius: 2px;
-    /* font-family: 'Games', sans-serif; */
     font-family: 'Gloria Hallelujah', cursive;
 }
 

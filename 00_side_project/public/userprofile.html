@@ -10,7 +10,7 @@
     <body>
         <div id = "header" class = "header">
             <div style="cursor: pointer" id = "logo-container-header">
-                <img id = "logo" src = "./images/profile.jpeg" alt = "logo">
+                <img id = "logo" src = "./images/logo_MemoryGuess.jpeg" alt = "logo">
                 <div id = "logo-header">Back to homepage</div>
             </div>
             <div class = "title" id = "project-name">MEMORY & GUESS</div>
@@ -21,7 +21,7 @@
         </div>
         <div class = "container" id = "container">
             <div id = "user-info" class = "info">
-                <img id = "user-photo" src = "./images/profile.jpeg" alt = "user-photo">
+                <img style="cursor: pointer" id = "user-photo" src = "./images/profile.jpeg" alt = "user-photo">
                 <div id = "user-name-main" class = "statInfo"></div>
                 <div id = "user-email-main" class = "statInfo"></div>
                 <div id = "total-points" class = "statInfo"></div>
@@ -44,6 +44,7 @@
                 </ul>
             </div>
         </div>
+        <script src="/socket.io/socket.io.js"></script>
         <script src = "./src/userprofile.js" type="module"></script>
     </body>
 </html>

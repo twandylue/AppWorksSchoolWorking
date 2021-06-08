@@ -306,3 +306,24 @@ const logo = document.querySelector("#logo-container-header");
 logo.addEventListener("click", () => {
     window.location.href = "/";
 });
+
+async function main () {
+    const userInfo = await getUserPhoto();
+    document.querySelector("#user_photo").src = userInfo.data.picture;
+    document.querySelector("#user_photo_left").src = userInfo.data.picture;
+    document.querySelector("#name").innerHTML = userInfo.data.name;
+    document.querySelector("#user_name").innerHTML = `Hi! ${userInfo.data.name}`;
+}
+main();
+
+async function getUserPhoto () {
+    const accessToken = localStorage.getItem("access_token");
+    const response = await fetch("api/1.0/user/profile", {
+        method: "GET",
+        headers: new Headers({
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`
+        })
+    });
+    return await response.json();
+}

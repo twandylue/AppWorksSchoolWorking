@@ -20,6 +20,7 @@ function addGameStatusandCards (round, number, target, state, cardsSetting) {
     memoryGame.className = "memory-game";
     for (let i = 0; i < number; i++) {
         const card = document.createElement("div");
+        card.style = "cursor: pointer";
         card.classList.add("memory-card", `double${number}`);
         card.id = `cardID_${i}`;
         card.dataset.framework = `card_${i}`;

@@ -73,7 +73,8 @@ const signIn = async (req, res) => {
                 user: {
                     provider: user.provider,
                     name: user.name,
-                    email: user.email
+                    email: user.email,
+                    picture: user.picture
                 }
             }
         });
@@ -88,7 +89,8 @@ const getUserProfile = async (req, res) => {
         data: {
             provider: req.user.provider,
             name: req.user.name,
-            email: req.user.email
+            email: req.user.email,
+            picture: req.user.picture
         }
     });
 };

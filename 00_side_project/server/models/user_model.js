@@ -31,12 +31,14 @@ const signUp = async (name, roleId, email, password) => {
             password: bcrypt.hashSync(password, salt),
             name: name,
             access_expired: TOKEN_EXPIRE,
-            login_at: loginAt
+            login_at: loginAt,
+            photo_src: "/images/profile.jpeg" // default photo
         };
         const accessToken = jwt.sign({
             provider: user.provider,
             name: user.name,
-            email: user.email
+            email: user.email,
+            picture: user.photo_src
         }, TOKEN_SECRET);
         user.access_token = accessToken;
 
@@ -71,7 +73,8 @@ const nativeSignIn = async (email, password) => {
         const accessToken = jwt.sign({
             provider: user.provider,
             name: user.name,
-            email: user.email
+            email: user.email,
+            picture: user.photo_src
         }, TOKEN_SECRET);
 
         const queryStr = "UPDATE user SET access_token = ?, access_expired = ?, login_at = ? WHERE id = ?";

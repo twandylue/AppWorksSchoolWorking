@@ -2,10 +2,12 @@ import { addGameInfo } from "./add_game_info.js";
 import { gameStatReplay } from "./game_stat_replay.js";
 
 async function main () {
-    let userName, userEmail, oppoName, oppoEmail;
-    const response = await checkLogin(); // 前端把關
-    document.querySelector("#name").innerHTML = response.data.name;
-    document.querySelector("#user-name-header").innerHTML = response.data.name;
+    let userName, userEmail, oppoName, oppoEmail, userPhoto, oppoPhoto;
+    const userInfo = await checkLogin(); // 前端把關
+    document.querySelector("#user_photo").src = userInfo.data.picture;
+    document.querySelector("#user_photo_left").src = userInfo.data.picture;
+    document.querySelector("#name").innerHTML = userInfo.data.name;
+    document.querySelector("#user-name-header").innerHTML = userInfo.data.name;
     const urlParams = new URLSearchParams(window.location.search);
     const gameID = urlParams.get("gameID");
     const index = urlParams.get("index");
@@ -87,18 +89,21 @@ async function main () {
     }
     // console.log(cardsSettingList);
 
-    console.log(members);
     for (const i in members) {
-        if (members[i].player_email === response.data.email) {
+        if (members[i].player_email === userInfo.data.email) {
             userName = members[i].name;
             userEmail = members[i].player_email;
+            // userPhoto = members[i].photo_src;
         } else {
             oppoName = members[i].name;
             oppoEmail = members[i].player_email;
+            oppoPhoto = members[i].photo_src;
         }
     }
 
     document.querySelector("#opposite_user_name").innerHTML = oppoName; // 填寫user name
+    document.querySelector("#user_photo_right").src = oppoPhoto; // 填上對手照片
+
     const targets = [rules.targets_1, rules.targets_2, rules.targets_3];
     addGameInfo(rules.type, rules.number, rules.rounds, targets);// 填寫規則提醒
 

@@ -12,6 +12,7 @@ const { saveCardsSetting } = require("./saveCardsSetting_model");
 const { getCardNumber } = require("./getCardNumber"); // 保留 從sql中拿取數字
 const { recordEveryStep } = require("./step_record_model");
 const { statRecord, statRecordSingle } = require("./record_summary_model");
+const { saveUserPhoto } = require("./saveChoosePhoto");
 const roomModule = require("./Room_model");
 const { client, getCache, getCardNumberinCache } = require("./cache_model");
 
@@ -39,7 +40,7 @@ const Room = function (socket, io) { // join room
             if (pass) {
                 // socket.join(info.roomID); // 需要嗎！？ 因為轉跳頁面會斷線 所以現在join沒有用 所以不需要
                 console.log(`join room: ${info.roomID}`);
-                const accessToken = jwt.sign({ provider: socket.info.provider, name: socket.info.name, email: socket.info.email, roomID: info.roomID, status: 2 }, TOKEN_SECRET); // status: 2 play with opponent
+                const accessToken = jwt.sign({ provider: socket.info.provider, name: socket.info.name, email: socket.info.email, picture: socket.info.picture, roomID: info.roomID, status: 2 }, TOKEN_SECRET); // status: 2 play with opponent
                 socket.emit("join success", { token: accessToken, roomID: info.roomID }); // 此token第一次帶有roomID
             } else {
                 socket.emit("join failed", { error: "Forbidden" });
@@ -63,10 +64,9 @@ const Room = function (socket, io) { // join room
             for (const i in members) {
                 if (members[i].email === user.email) {
                     socket.emit("fill name", members[i].name);
-                    socket.to(roomID).emit("fill opponent name", members[i].name);
-                    // socket.emit("fill opponent name", result[i].name); // 測試使用 因為一個瀏覽器只能儲存一組token 所以jtw justify後email會重複
+                    socket.to(roomID).emit("fill opponent info", { name: members[i].name, picture: members[i].photo_src });
                 } else {
-                    socket.emit("fill opponent name", members[i].name);
+                    socket.emit("fill opponent info", { name: members[i].name, picture: members[i].photo_src });
                 }
             }
 
@@ -94,7 +94,7 @@ const Room = function (socket, io) { // join room
         try {
             console.log(`watch room: ${info.roomID}`);
             await roomModule.watcherJoinRoom(info.roomID);
-            const accessToken = jwt.sign({ provider: socket.info.provider, name: socket.info.name, email: socket.info.email, roomID: info.roomID, status: 3 }, TOKEN_SECRET); // status: 3 watcher
+            const accessToken = jwt.sign({ provider: socket.info.provider, name: socket.info.name, email: socket.info.email, picture: socket.info.picture, roomID: info.roomID, status: 3 }, TOKEN_SECRET); // status: 3 watcher
             socket.emit("watcher join room success", { token: accessToken, roomID: info.roomID }); // 此token第一次帶有roomID
         } catch (err) {
             console.log(`err when watch room: ${err}`);
@@ -118,7 +118,7 @@ const Room = function (socket, io) { // join room
         // const roomID = "robot_" + socket.info.email;
         const roomID = `${socket.info.name}_robot_room`; // 要用name? 待確認 待改
         await roomModule.joinRoomwithRobot(roomID, socket.info.email); // 加入房間 和robot一起
-        const accessToken = jwt.sign({ provider: socket.info.provider, name: socket.info.name, email: socket.info.email, roomID: roomID, status: 1 }, TOKEN_SECRET); // status: 1 single mode
+        const accessToken = jwt.sign({ provider: socket.info.provider, name: socket.info.name, email: socket.info.email, picture: socket.info.picture, roomID: roomID, status: 1 }, TOKEN_SECRET); // status: 1 single mode
         socket.emit("join room with robot success", { token: accessToken, roomID: roomID }); // 此token第一次帶有roomID 單人模式
     });
 
@@ -558,6 +558,20 @@ const chat = function (socket, io) {
     });
 };
 
+const choosePhoto = function (socket, io) {
+    socket.on("select user photo", async (src) => {
+        const user = socket.info;
+        await saveUserPhoto(user.email, src);
+        const accessToken = jwt.sign({
+            provider: user.provider,
+            name: user.name,
+            email: user.email,
+            picture: src
+        }, TOKEN_SECRET);
+        socket.emit("update user photo", { src: src, token: accessToken });
+    });
+};
+
 const randomNumberforArrayIndex = (range, count) => { // 0
     const randomNumberArr = [];
     for (let i = 0; i < count; i++) {
@@ -573,5 +587,6 @@ module.exports = {
     processinRoom,
     Room,
     ClickCardinGame,
-    chat
+    chat,
+    choosePhoto
 };

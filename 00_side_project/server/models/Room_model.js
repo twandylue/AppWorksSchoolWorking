@@ -143,7 +143,7 @@ const findRoomMember = async (roomID) => {
     const conn = await pool.getConnection();
     // console.log(pool.format("SELECT user.name, room.email FROM room INNER JOIN user ON room.email = user.email WHERE room_id = ?", roomID));
     try {
-        const result = await conn.query("SELECT user.name, room.email FROM room INNER JOIN user ON room.email = user.email WHERE room_id = ?", roomID);
+        const result = await conn.query("SELECT user.name, room.email, user.photo_src FROM room INNER JOIN user ON room.email = user.email WHERE room_id = ?", roomID);
         return (result[0]);
     } catch (err) {
         console.log(err);

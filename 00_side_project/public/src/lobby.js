@@ -126,9 +126,21 @@ logo.addEventListener("click", () => {
 });
 
 async function main () {
-    const loginStae = await checkLogin();
-    // console.log(await loginStae.json());
-    if (loginStae.status !== 200) {
+    const userInfo = await checkLogin();
+    document.querySelector("#user_photo").src = userInfo.data.picture;
+}
+main();
+
+async function checkLogin () {
+    const accessToken = localStorage.getItem("access_token");
+    const response = await fetch("api/1.0/user/profile", {
+        method: "GET",
+        headers: new Headers({
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`
+        })
+    });
+    if (response.status !== 200) {
         Swal.fire({
             icon: "error",
             title: "請先登入",
@@ -251,17 +263,5 @@ async function main () {
             }
         });
     }
-}
-main();
-
-async function checkLogin () {
-    const accessToken = localStorage.getItem("access_token");
-    const response = await fetch("api/1.0/user/profile", {
-        method: "GET",
-        headers: new Headers({
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`
-        })
-    });
-    return response;
+    return await response.json();
 }

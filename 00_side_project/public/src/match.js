@@ -11,7 +11,11 @@ let frontRules; // 儲存遊戲規則
 
 const token = localStorage.getItem("access_token");
 async function main () {
-    const response = await checkLogin();
+    const userInfo = await getUserPhoto();
+    document.querySelector("#user_photo").src = userInfo.data.picture;
+    document.querySelector("#user_photo_left").src = userInfo.data.picture;
+    document.querySelector("#name").innerHTML = userInfo.data.name;
+    document.querySelector("#user_name").innerHTML = `Hi! ${userInfo.data.name}`;
 }
 main();
 
@@ -97,8 +101,9 @@ socket.on("show roomID", (info) => {
 socket.on("fill name", (name) => {
     document.querySelector("#user_container #name").innerHTML = name;
 });
-socket.on("fill opponent name", (oppoName) => {
-    document.querySelector("#opposite_user_name").innerHTML = oppoName;
+socket.on("fill opponent info", (oppoInfo) => {
+    document.querySelector("#opposite_user_name").innerHTML = oppoInfo.name;
+    document.querySelector("#user_photo_right").src = oppoInfo.picture;
 });
 
 // for chat room
@@ -384,7 +389,7 @@ logo.addEventListener("click", () => {
     window.location.href = "/";
 });
 
-async function checkLogin () {
+async function getUserPhoto () {
     const accessToken = localStorage.getItem("access_token");
     const response = await fetch("api/1.0/user/profile", {
         method: "GET",

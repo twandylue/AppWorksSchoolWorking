@@ -81,6 +81,7 @@ io.on("connection", async (socket) => {
     socketModule.processinRoom(socket, io);
     socketModule.ClickCardinGame(socket, io);
     socketModule.chat(socket, io);
+    socketModule.choosePhoto(socket, io);
 
     socket.on("disconnect", async () => { // play with robot 會無法刪除gameID and roomID 因為沒把相關資料存進DB中
         try {
