@@ -196,6 +196,7 @@ socket.on("update points", (pointsInfo) => {
 });
 
 socket.on("game over", (gameStatInfo) => {
+    console.log("test");
     socket.emit("get user name", "get my name");
     Swal.fire({
         icon: "success",

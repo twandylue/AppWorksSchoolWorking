@@ -23,9 +23,9 @@ const updateOnlineNumbers = async function (socket, io) {
 };
 
 const getUserInfo = function (socket, io) {
-    // socket.on("get user name", () => {
-    //     socket.emit("show my info", { name: socket.info.name, email: socket.info.email });
-    // });
+    socket.on("get user name", () => {
+        socket.emit("show my info", { name: socket.info.name, email: socket.info.email });
+    });
 
     socket.on("get user room", () => {
         const { roomID } = socket.info;
