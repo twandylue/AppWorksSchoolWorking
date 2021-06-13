@@ -52,7 +52,10 @@ function videoChet (socket) {
         console.log(`*** 加入新取得的 ICE candidate: ${JSON.stringify(candidate)}`);
         try {
             // candidateTemplates.push(candidate);
-            await peer.addIceCandidate(candidate); // 注意先後順序 after setRemoteDescription
+            if (JSON.stringify(candidate) !== null) {
+                await peer.addIceCandidate(candidate); // 注意先後順序 after setRemoteDescription
+            }
+            // await peer.addIceCandidate(candidate); // 注意先後順序 after setRemoteDescription
         } catch (error) {
             console.log(`Failed to add ICE: ${error.toString()}`);
         }
@@ -101,8 +104,6 @@ function videoChet (socket) {
 
     function handleRemoteStream (event) {
         const remoteVideo = document.getElementById("remoteVideo"); // 有問題
-        console.log("handleRemoteStream");
-        console.log(event.streams[0]);
         if (remoteVideo.srcObject !== event.streams[0]) {
             remoteVideo.srcObject = event.streams[0];
         }
