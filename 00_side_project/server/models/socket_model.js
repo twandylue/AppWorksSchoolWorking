@@ -720,14 +720,14 @@ const vedioChat = function (socket, io) { // 已經在房內 已經join room
 
     socket.on("offer", (offer) => {
         const { roomID } = socket.info;
-        // socket.to(roomID).emit("offer", offer);
-        socket.broadcast.to(roomID).emit("offer", offer);
+        socket.to(roomID).emit("offer", offer);
+        // socket.broadcast.to(roomID).emit("offer", offer);
     });
 
     socket.on("answer", (answer) => {
         const { roomID } = socket.info;
-        // socket.to(roomID).emit("answer", answer);
-        socket.broadcast.to(roomID).emit("answer", answer);
+        socket.to(roomID).emit("answer", answer);
+        // socket.broadcast.to(roomID).emit("answer", answer);
     });
 
     socket.on("icecandidate", (event) => {
