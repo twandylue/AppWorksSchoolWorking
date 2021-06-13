@@ -102,6 +102,7 @@ function videoChet (socket) {
     function handleRemoteStream (event) {
         const remoteVideo = document.getElementById("remoteVideo"); // 有問題
         console.log("handleRemoteStream");
+        console.log(event.streams[0]);
         if (remoteVideo.srcObject !== event.streams[0]) {
             remoteVideo.srcObject = event.streams[0];
         }
