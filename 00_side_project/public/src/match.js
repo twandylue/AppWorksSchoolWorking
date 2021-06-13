@@ -5,6 +5,8 @@ import { gameStat } from "./game_stat.js";
 import { updatePoints } from "./update_points.js";
 import { showGameRules } from "./showGameRules.js";
 import { combineMatchPageforAgain } from "./combMatchPage.js";
+import { breakTimeInfo } from "./break_time.js";
+import { videoChet } from "./video_chat.js";
 
 let frontGameID; // 儲存遊戲ID
 let frontRules; // 儲存遊戲規則
@@ -28,6 +30,7 @@ const socket = io({
 socket.on("connect", () => {
     // 講整段code放入此處 表示連線後才能執行?
     console.log(socket.id);
+    videoChet(socket);
 });
 
 socket.on("connect_error", (err) => {
@@ -56,7 +59,7 @@ socket.on("leave room", (msg) => {
     });
 });
 
-socket.on("opponent leave room", (msg) => {
+socket.on("opponent leave room", async (msg) => {
     console.log(msg);
     Swal.fire({
         icon: "warning",
@@ -66,6 +69,8 @@ socket.on("opponent leave room", (msg) => {
     }).then(() => {
         window.location.href = "./gamelobby.html";
     });
+    await delay(2500); // 2.5秒後自動踢人
+    window.location.href = "./gamelobby.html";
 });
 
 socket.on("join failed", (msg) => {
@@ -79,19 +84,14 @@ socket.on("join failed", (msg) => {
     });
 });
 
+socket.emit("in room", "in the room"); // 較不安全的寫法 應該等後端建立好on事件 and 到此處時 理應上token中已帶有roomID資訊
+socket.emit("get user room", "get my roomID");
+
 Swal.fire({ // sweet alert寫法 不同體驗 先保留
     icon: "warning",
     title: "準備好了嗎？",
     text: "要開始了唷!",
     confirmButtonText: "確認"
-}).then(() => {
-    socket.emit("in room", "in the room"); // 較安全的寫法 等後端建立好on事件 and 到此處時 理應上token中已帶有roomID資訊
-    socket.emit("get user name", "get my name");
-    socket.emit("get user room", "get my roomID");
-});
-
-socket.on("show my info", (info) => {
-    document.querySelector("#user_name").innerHTML = `Hi! ${info.name}`;
 });
 
 socket.on("show roomID", (info) => {
@@ -104,6 +104,7 @@ socket.on("fill name", (name) => {
 socket.on("fill opponent info", (oppoInfo) => {
     document.querySelector("#opposite_user_name").innerHTML = oppoInfo.name;
     document.querySelector("#user_photo_right").src = oppoInfo.picture;
+    localStorage.setItem("oppoPhoto", oppoInfo.picture);
 });
 
 // for chat room
@@ -112,9 +113,8 @@ const sendMsg = document.querySelector("#send");
 const chatroom = document.querySelector("#messages");
 
 sendMsg.addEventListener("click", () => {
-    const userName = document.querySelector("#user_container #name").innerHTML;
     if (inputEnter.value) {
-        socket.emit("chat message", userName + ": " + inputEnter.value);
+        socket.emit("chat message", ": " + inputEnter.value);
         inputEnter.value = "";
     }
 });
@@ -168,6 +168,45 @@ socket.on("countdown in ready", (time) => {
         return;
     }
     document.querySelector("#countdown").innerHTML = `遊戲倒數時間: ${time} s`;
+});
+
+socket.on("break", (info) => {
+    let timerInterval;
+    Swal.fire({
+        title: "此回合結束！",
+        html: `休息一下吧！ <b></b> 秒後進入第${info.nextRound}回合`,
+        timer: (info.breakTime) * 1000,
+        timerProgressBar: true,
+        didOpen: () => {
+            Swal.showLoading();
+            timerInterval = setInterval(() => {
+                const content = Swal.getHtmlContainer();
+                if (content) {
+                    const b = content.querySelector("b");
+                    if (b) {
+                        b.textContent = parseFloat(parseInt(Swal.getTimerLeft()) / 1000).toFixed(0);
+                    }
+                }
+            }, 100);
+        },
+        willClose: () => {
+            clearInterval(timerInterval);
+        }
+    }).then((result) => {
+        /* Read more about handling dismissals below */
+        if (result.dismiss === Swal.DismissReason.timer) {
+            console.log("I was closed by the timer");
+        } else {
+            breakTimeInfo(info.nextRound);
+        }
+    });
+});
+
+socket.on("countdown in break", (time) => {
+    if (document.querySelector("#countdown-break") === null) {
+        return;
+    }
+    document.querySelector("#countdown-break").innerHTML = `中場休息倒數時間: ${time} s`;
 });
 
 socket.on("countdown in game", (time) => {
@@ -240,7 +279,7 @@ socket.on("game over", (gameStatInfo) => {
             }).then((result) => {
                 if (result.isConfirmed) {
                     const index = "none";
-                    window.location.href = `/replay.html?gameID=${frontGameID}&&index=${index}`;
+                    window.location.href = `/replay.html?gameID=${frontGameID}&&index=${frontGameID}`;
                 }
             });
         });
@@ -399,4 +438,10 @@ async function getUserPhoto () {
         })
     });
     return await response.json();
+}
+
+function delay (delayTime) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => { resolve("delay"); }, delayTime);
+    });
 }

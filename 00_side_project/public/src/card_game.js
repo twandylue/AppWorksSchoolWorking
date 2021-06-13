@@ -57,16 +57,14 @@ function cardGame (socket, gameID, round, target) { // 第一回合有選中 第
             secondCard.removeEventListener("click", flipCard);
             resetBoard();
         } else { // filped by oppo
-            opponentFirstCard.removeEventListener("click", flipCard);
-            opponentSecondCard.removeEventListener("click", flipCard);
-            [opponentFirstCard, opponentSecondCard] = [null, null];
+            const oppoFirstCard = cards[cardMatchInfo.cardIDs[0]]; // 指定element
+            const oppoSecondCard = cards[cardMatchInfo.cardIDs[1]];
+            oppoFirstCard.removeEventListener("click", flipCard);
+            oppoSecondCard.removeEventListener("click", flipCard);
         }
     });
 
     socket.on("card number not match", (cardMatchInfo) => {
-        // console.log("=====================SELECTER ID: " + cardMatchInfo.selecterID);
-        // console.log("=====================LOCAL ID: " + socket.id);
-
         if (cardMatchInfo.selecterID === socket.id) {
             firstCard = cards[cardMatchInfo.cardIDs[0]]; // 指定element
             secondCard = cards[cardMatchInfo.cardIDs[1]];
@@ -78,12 +76,20 @@ function cardGame (socket, gameID, round, target) { // 第一回合有選中 第
                 resetBoard();
             }, 800);
         } else {
-            opponentFirstCard = cards[cardMatchInfo.cardIDs[0]]; // 指定element
-            opponentSecondCard = cards[cardMatchInfo.cardIDs[1]];
+            // opponentFirstCard = cards[cardMatchInfo.cardIDs[0]]; // 指定element
+            // opponentSecondCard = cards[cardMatchInfo.cardIDs[1]];
+            // setTimeout(() => {
+            //     opponentFirstCard.classList.remove("flip", "card-color-opponent"); //
+            //     opponentSecondCard.classList.remove("flip", "card-color-opponent"); //
+            //     [opponentFirstCard.children[0].innerHTML, opponentSecondCard.children[0].innerHTML] = ["", ""];
+            //     [opponentFirstCard, opponentSecondCard] = [null, null];
+            // }, 800);
+            const oppoFirstCard = cards[cardMatchInfo.cardIDs[0]]; // 指定element
+            const oppoSecondCard = cards[cardMatchInfo.cardIDs[1]];
             setTimeout(() => {
-                opponentFirstCard.classList.remove("flip", "card-color-opponent"); //
-                opponentSecondCard.classList.remove("flip", "card-color-opponent"); //
-                [opponentFirstCard.children[0].innerHTML, opponentSecondCard.children[0].innerHTML] = ["", ""];
+                oppoFirstCard.classList.remove("flip", "card-color-opponent"); //
+                oppoSecondCard.classList.remove("flip", "card-color-opponent"); //
+                [oppoFirstCard.children[0].innerHTML, oppoSecondCard.children[0].innerHTML] = ["", ""];
                 [opponentFirstCard, opponentSecondCard] = [null, null];
             }, 800);
         }

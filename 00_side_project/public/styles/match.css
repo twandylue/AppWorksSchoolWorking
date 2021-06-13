@@ -66,9 +66,6 @@ img {
 }
 
 #user_photo {
-    /* height: 80px;
-    width: 80px;
-    margin-bottom: 10px; */
     margin: 5px;
 }
 
@@ -86,16 +83,43 @@ img {
 
 #left {
     display: flex;
-    justify-content: space-between;
     flex-direction: column;
     align-items: center;
-    /* border: black 2px solid; */
     border-radius: 10px;
     background-color: #EAE9F2;
     -webkit-filter: drop-shadow(8px 8px 3px rgba(0, 0, 0, 0.7));
     filter: drop-shadow(8px 8px 3px rgba(0, 0, 0, 0.7));
     width: 20%;
+    height: 100%;
     font-family: 'Potta One', cursive;
+}
+
+#user-title {
+    margin-top: 20px;
+    width: 90%;
+    font-size: 1.7rem;
+    text-align: center;
+}
+
+#user_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+    height: 150px;
+    margin-bottom: 10px;
+}
+
+#user-photo-container {
+    position: relative;
+}
+
+#camera {
+    width: 23px;
+    height: 23px;
+    position: absolute;
+    left: 77.5px;
+    top: 87px;
 }
 
 .user {
@@ -111,11 +135,20 @@ img {
     margin: 0 auto 9px;
 }
 
-#user_container {
+.video-cont{
+    width: 180px;
+    height: 180px;
+}
+
+.video-mask{
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* width: 80%; */
+    width: 160px;
+    border-radius: 10px; 
+    border:black solid 2px;
+    overflow: hidden; 
+    cursor: pointer;
 }
 
 .points { 
@@ -134,7 +167,7 @@ img {
     flex-direction: column;
     justify-content: space-between;
     margin-top: 1rem;
-    height: 75%;
+    height: 60%;
     width: 100%;;
 }
 
@@ -146,11 +179,8 @@ img {
     background: #eaba6b;
     border-radius: 8px 8px 0px 0px;
     border-bottom: #191828 solid 2.5px;
-    /* transform: rotate(180deg); */
-    /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; */
 }
 
-/* #messages { list-style-type: none; margin: 0; padding: 0; } */
 #messages > li { padding: 0.5rem 1rem; }
 #messages > li:nth-child(odd) { background: #efefef; }
 
@@ -159,9 +189,7 @@ img {
     flex-direction: row;
     justify-content: space-between;
     margin-top: 1.7px;
-    /* border-top: #191828 solid 2px; */
     height: 2.0em;
-    /* background-color: rgb(201, 162, 7); */
 }
 
 #input {
@@ -186,6 +214,12 @@ img {
     background-color: #e1e5f2;
     -webkit-filter: drop-shadow(3px 3px 2.5px rgba(0, 0, 0, 0.7));
     filter: drop-shadow(3px 3px 2.5px rgba(0, 0, 0, 0.7));
+}
+
+.middle-breakTime {
+    display:flex;
+    flex-direction: column;
+    height: 30%;
 }
 
 #rule_setting {
@@ -283,6 +317,9 @@ img {
 }
 
 #opposite_user_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     width: 90%;
     height: 150px;
     margin-bottom: 10px;
@@ -290,11 +327,9 @@ img {
 
 #opponent-title{
     margin-top: 20px;
-    /* margin-bottom: 30px; */
     width: 90%;
     font-size: 1.7rem;
     text-align: center;
-    
 }
 
 #user_photo_left{
@@ -312,8 +347,6 @@ img {
     font-size: 1.5rem;
     margin: 0 auto;
     text-align: center;
-    /* -webkit-filter: drop-shadow(2px 2px 2.5px #26253C);
-    filter: drop-shadow(2px 2px 2.5px #26253C); */
 }
 
 #mode {
@@ -343,11 +376,7 @@ img {
     border-radius: 8px;
     height: 45%;
     width: 100%;
-    /* 待改 背景顏色 */
-    /* background: radial-gradient(circle,#f1e1c2,#fcbc98);  */
-    /* background: radial-gradient(circle,#fffcf2,#FFF1BF); */
     background-color: #abc4ff;
-    
 }
 
 .game_status {
@@ -388,10 +417,13 @@ img {
     color: #495057;
 }
 
+#countdown-break {
+    font-size: 1.4rem;
+    color: #495057;
+}
+
 #record {    
     margin-bottom: 10px;
-    /* padding-left: 20%; */
-    
 }
 
 #record-title {

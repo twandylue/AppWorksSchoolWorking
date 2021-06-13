@@ -10,7 +10,6 @@
     flex-direction: row;
     flex-wrap: wrap;
     border-radius: 8px;
-    /* background: radial-gradient(circle,#f1e1c2,#fcbc98);  */
     background-color: #90ccf4;
     /* 顏色待改 */
     font-family: 'Nanum Pen Script', cursive;
@@ -109,17 +108,11 @@
     padding: 20px;
     position: absolute;
     border-radius: 5px;
-    /* background: radial-gradient(circle,#9BB2E5,#7D9BCE); */
     background-color: #ececec;
      /* 顏色待改 */
     backface-visibility: hidden;
     border-radius: 8px;
 }
-
-/* 關閉 for ready */
-/* .front-face { 
-    transform: rotateY(180deg);
-} */
 
 .front-face_start {
     transform: rotateY(180deg);
@@ -138,12 +131,9 @@
 }
 
 .card-color > .front-face {
-    /* background: radial-gradient(circle,#f9ab8f,#f40752); */
     background-color: #f78888;
 }
 
 .card-color-opponent > .front-face {
-    /* background: radial-gradient(circle,#00a6ed,#0061ff); */
     background-color: #f3d250;
-
 }

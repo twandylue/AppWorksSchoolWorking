@@ -86,8 +86,28 @@ img {
     align-items: center;
 }
 
+#user-photo-container {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
 #user-photo {
-    margin: 15px;
+    width: 150px;
+    height: 150px;
+    margin: 20px;
+}
+
+#photo-info {
+    position: absolute;
+    font-size: 6px;
+    left: 85px;
+    top: 178px;
+    width: 80px;
+    opacity: 0.7;
+    text-align: center;
+    border-radius: 5px;
+    background-color: #e1e5f2;
 }
 
 .info {

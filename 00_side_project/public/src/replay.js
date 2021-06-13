@@ -48,6 +48,7 @@ async function main () {
     const cardsSettingRound2 = [];
     const cardsSettingRound3 = [];
 
+    //
     for (const i in stepList) {
         if (stepList[i].round === 1) {
             stepRound1.push(stepList[i]);
@@ -88,6 +89,7 @@ async function main () {
         cardsSettingList.push(cardsSettingRound3);
     }
     // console.log(cardsSettingList);
+    // oppo
 
     for (const i in members) {
         if (members[i].player_email === userInfo.data.email) {

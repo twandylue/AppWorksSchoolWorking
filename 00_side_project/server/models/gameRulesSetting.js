@@ -11,7 +11,6 @@ const saveGameRules = async (room, members, rules) => {
     const sql = "INSERT INTO game_setting_info (room_id, type, number, rounds, targets_1, targets_2, targets_3, ready_number, again_number, player_1, player_2) VALUES ?";
 
     const result = await conn.query(sql, [[data]]);
-    // console.log(result[0].insertId);
     await conn.release();
     return (result[0].insertId);
 };

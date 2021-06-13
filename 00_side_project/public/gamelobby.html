@@ -24,8 +24,9 @@
                 <div class = "title" id = "rule-introduction"></div>
                 <div id = "rule-info">
                     <!-- <img id = "working-img" src = "./images/Working.jpeg" alt = "working"> -->
+                    <div id = "online-members">在線人數: ? 人</div>
                     <img id = "rules-img" src = "./images/rules_2.png" alt = "working">
-                    <ul id = 'rule-intro'>
+                    <!-- <ul id = 'rule-intro'>
                         <br>
                         <li>
                             >支援單人模式與多人對戰！
@@ -42,10 +43,17 @@
                         <li>
                             得分最多者是贏家！
                         </li>
-                    </ul>
+                    </ul> -->
+                    <div id = "chat_room_lobby">
+                        <ul id = "messages"></ul>
+                        <div id = "sendmsg">
+                            <input id="input" autocomplete="off" placeholder="請輸入聊天訊息..." />
+                            <button style="cursor: pointer" id = "send">送出</button>
+                        </div>
+                    </div>
                 </div>
-                <div style="cursor: pointer" id = "mode-select">
-                    <li id = "single">
+                <div id = "mode-select">
+                    <li style="cursor: pointer" id = "single">
                         單人模式
                         <span></span><span></span><span></span><span></span>
                     </li>
@@ -54,83 +62,118 @@
             <div id = "right">
                 <div id = "room-list">
                     <div id = "room1" class = "room">
-                        <div class = "upper">
-                            <div class = "room-name"></div>
-                            <div class = "room-state"></div>
+                        <div class = "room-left">
+                            <div class = "upper">
+                                <div class = "room-name"></div>
+                                <div class = "room-state"></div>
+                            </div>
+                            <div class = "down">
+                                <div style="cursor: pointer" class = "join">
+                                    加入
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
+                                <div style="cursor: pointer" class = "watch">
+                                    觀戰
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
+                            </div>
                         </div>
-                        <div class = "down">
-                            <div style="cursor: pointer" class = "join">
-                                加入
-                                <span></span><span></span><span></span><span></span>
-                            </div>
-                            <div style="cursor: pointer" class = "watch">
-                                觀戰
-                                <span></span><span></span><span></span><span></span>
-                            </div>
+                        <div class = "room-right">
+                            <div class = "members-list-title">房間成員</div>
+                            <div class = "members-list"></div>
+                            <div class = "members-list"></div>
                         </div>
                     </div>
                     <div id = "room2" class = "room">
-                        <div class = "upper">
-                            <div class = "room-name"> </div>
-                            <div class = "room-state"> </div>
+                        <div class = "room-left">
+                            <div class = "upper">
+                                <div class = "room-name"></div>
+                                <div class = "room-state"></div>
+                            </div>
+                            <div class = "down">
+                                <div style="cursor: pointer" class = "join">
+                                    加入
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
+                                <div style="cursor: pointer" class = "watch">
+                                    觀戰
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
+                            </div>
                         </div>
-                        <div class = "down">
-                            <div style="cursor: pointer" class = "join">
-                                加入
-                                <span></span><span></span><span></span><span></span>
-                            </div>
-                            <div style="cursor: pointer" class = "watch">
-                                觀戰
-                                <span></span><span></span><span></span><span></span>
-                            </div>
+                        <div class = "room-right">
+                            <div class = "members-list-title">房間成員</div>
+                            <div class = "members-list"></div>
+                            <div class = "members-list"></div>
                         </div>
                     </div>
                     <div id = "room3" class = "room">
-                        <div class = "upper">
-                            <div class = "room-name"> </div>
-                            <div class = "room-state"> </div>
+                        <div class = "room-left">
+                            <div class = "upper">
+                                <div class = "room-name"></div>
+                                <div class = "room-state"></div>
+                            </div>
+                            <div class = "down">
+                                <div style="cursor: pointer" class = "join">
+                                    加入
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
+                                <div style="cursor: pointer" class = "watch">
+                                    觀戰
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
+                            </div>
                         </div>
-                        <div class = "down">
-                            <div style="cursor: pointer" class = "join">
-                                加入
-                                <span></span><span></span><span></span><span></span>
-                            </div>
-                            <div style="cursor: pointer" class = "watch">
-                                觀戰
-                                <span></span><span></span><span></span><span></span>
-                            </div>
+                        <div class = "room-right">
+                            <div class = "members-list-title">房間成員</div>
+                            <div class = "members-list"></div>
+                            <div class = "members-list"></div>
                         </div>
                     </div>
                     <div id = "room4" class = "room">
-                        <div class = "upper">
-                            <div class = "room-name"> </div>
-                            <div class = "room-state"> </div>
+                        <div class = "room-left">
+                            <div class = "upper">
+                                <div class = "room-name"></div>
+                                <div class = "room-state"></div>
+                            </div>
+                            <div class = "down">
+                                <div style="cursor: pointer" class = "join">
+                                    加入
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
+                                <div style="cursor: pointer" class = "watch">
+                                    觀戰
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
+                            </div>
                         </div>
-                        <div class = "down">
-                            <div style="cursor: pointer" class = "join">
-                                加入
-                                <span></span><span></span><span></span><span></span>
-                            </div>
-                            <div style="cursor: pointer" class = "watch">
-                                觀戰
-                                <span></span><span></span><span></span><span></span>
-                            </div>
+                        <div class = "room-right">
+                            <div class = "members-list-title">房間成員</div>
+                            <div class = "members-list"></div>
+                            <div class = "members-list"></div>
                         </div>
                     </div>
                     <div id = "room5" class = "room">
-                        <div class = "upper">
-                            <div class = "room-name"> </div>
-                            <div class = "room-state"> </div>
+                        <div class = "room-left">
+                            <div class = "upper">
+                                <div class = "room-name"></div>
+                                <div class = "room-state"></div>
+                            </div>
+                            <div class = "down">
+                                <div style="cursor: pointer" class = "join">
+                                    加入
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
+                                <div style="cursor: pointer" class = "watch">
+                                    觀戰
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
+                            </div>
                         </div>
-                        <div class = "down">
-                            <div style="cursor: pointer" class = "join">
-                                加入
-                                <span></span><span></span><span></span><span></span>
-                            </div>
-                            <div style="cursor: pointer" class = "watch">
-                                觀戰
-                                <span></span><span></span><span></span><span></span>
-                            </div>
+                        <div class = "room-right">
+                            <div class = "members-list-title">房間成員</div>
+                            <div class = "members-list"></div>
+                            <div class = "members-list"></div>
                         </div>
                     </div>
                 </div>

@@ -80,6 +80,7 @@ const signIn = async (req, res) => {
         });
         return;
     } catch (error) {
+        console.log(`error in singin: ${error}`);
         return { error };
     }
 };

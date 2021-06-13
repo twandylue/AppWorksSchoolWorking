@@ -1,9 +1,8 @@
 import { updateLobby } from "./update_lobby.js";
 
 const token = localStorage.getItem("access_token");
-localStorage.removeItem("rules");
-localStorage.removeItem("gameID");
-localStorage.removeItem("roomID");
+localStorage.removeItem("oppoPhoto");
+
 const socket = io({
     auth: { token: token },
     reconnect: true
@@ -11,97 +10,102 @@ const socket = io({
 
 socket.on("connect", () => {
     console.log("socketID: " + socket.id);
-});
 
-socket.on("connect_error", (err) => {
-    console.log(err.message);
-    if (err.message) {
+    socket.on("connect_error", (err) => {
+        console.log(err.message);
+        if (err.message) {
+            Swal.fire({
+                icon: "warning",
+                title: "你斷線囉",
+                text: err.message,
+                confirmButtonText: "確認"
+            }).then(() => {
+                main();
+                socket.emit("update room info", "need to update room info"); // 後端沒建立on時 會導致沒有觸發此事件 待改 改成用api的形式
+            });
+        }
+    });
+
+    socket.on("update online number", (numbers) => {
+        document.querySelector("#online-members").innerHTML = `在線人數: ${numbers} 人`;
+    });
+
+    // socket.emit("get user name", "get my name");
+
+    // socket.on("show my info", (info) => {
+    //     document.querySelector("#user_name").innerHTML = `Hi! ${info.name}`;
+    // });
+
+    // socket.emit("update room info", "need to update room info"); // 後端沒建立on時 會導致沒有觸發此事件 待改 改成用api的形式
+
+    socket.on("room info", (roomInfo) => {
+        updateLobby(roomInfo);
+    });
+
+    socket.on("join success", (info) => {
+        localStorage.setItem("access_token", info.token); // 此token第一次帶有roomID資訊
+        window.location.href = `/match.html?roomID=${info.roomID}`;
+    });
+
+    socket.on("watcher join room success", (info) => {
+        localStorage.setItem("access_token", info.token); // 此token第一次帶有roomID資訊
+        window.location.href = `/watcher.html?roomID=${info.roomID}`;
+    });
+
+    socket.on("join room with robot success", info => {
+        localStorage.setItem("access_token", info.token); // 此token第一次帶有roomID資訊 單人模式
+        window.location.href = `/match_robot.html?roomID=${info.roomID}`;
+    });
+
+    socket.on("join failed", (info) => {
         Swal.fire({
-            icon: "warning",
-            title: "你斷線囉",
-            text: err.message,
-            confirmButtonText: "確認"
-        }).then(() => {
-            main();
-            socket.emit("update room info", "need to update room info"); // 後端沒建立on時 會導致沒有觸發此事件 待改 改成用api的形式
+            icon: "error",
+            title: "加入房間失敗",
+            text: "請重新加入房間!",
+            confirmButtonText: "好的"
+        });
+    });
+
+    const joinButtons = document.querySelectorAll(".join");
+    joinButtons.forEach(joinButton => joinButton.addEventListener("click", joinRoom));
+    function joinRoom () {
+        const button = this;
+        let roomID = button.parentElement.parentElement.parentElement.id;
+        roomID = roomID.split("_")[1];
+        const info = { roomID: roomID };
+        socket.emit("join room", info);
+    }
+
+    const watcherButtons = document.querySelectorAll(".watch");
+    watcherButtons.forEach(watcherButton => watcherButton.addEventListener("click", watchRoom));
+    function watchRoom () {
+        const button = this;
+        const roomID = button.parentElement.parentElement.id;
+        const info = { roomID: roomID };
+        // socket.emit("join room", info);
+        // socket.emit("watcher join room", info);
+        Swal.fire({
+            icon: "error",
+            title: "施工中",
+            text: "此路不通!",
+            confirmButtonText: "好的"
         });
     }
-});
 
-socket.emit("get user name", "get my name");
-
-socket.on("show my info", (info) => {
-    document.querySelector("#user_name").innerHTML = `Hi! ${info.name}`;
-});
-
-socket.emit("update room info", "need to update room info"); // 後端沒建立on時 會導致沒有觸發此事件 待改 改成用api的形式
-
-socket.on("room info", (roomInfo) => {
-    updateLobby(roomInfo);
-});
-
-socket.on("join success", (info) => {
-    localStorage.setItem("access_token", info.token); // 此token第一次帶有roomID資訊
-    window.location.href = `/match.html?roomID=${info.roomID}`;
-});
-
-socket.on("watcher join room success", (info) => {
-    localStorage.setItem("access_token", info.token); // 此token第一次帶有roomID資訊
-    window.location.href = `/watcher.html?roomID=${info.roomID}`;
-});
-
-socket.on("join room with robot success", info => {
-    localStorage.setItem("access_token", info.token); // 此token第一次帶有roomID資訊 單人模式
-    window.location.href = `/match_robot.html?roomID=${info.roomID}`;
-});
-
-socket.on("join failed", (info) => {
-    Swal.fire({
-        icon: "error",
-        title: "加入房間失敗",
-        text: "請重新加入房間!",
-        confirmButtonText: "好的"
-    });
-});
-
-const joinButtons = document.querySelectorAll(".join");
-joinButtons.forEach(joinButton => joinButton.addEventListener("click", joinRoom));
-function joinRoom () {
-    const button = this;
-    const roomID = button.parentElement.parentElement.id;
-    const info = { roomID: roomID };
-    socket.emit("join room", info);
-}
-
-const watcherButtons = document.querySelectorAll(".watch");
-watcherButtons.forEach(watcherButton => watcherButton.addEventListener("click", watchRoom));
-function watchRoom () {
-    const button = this;
-    const roomID = button.parentElement.parentElement.id;
-    const info = { roomID: roomID };
-    // socket.emit("join room", info);
-    // socket.emit("watcher join room", info);
-    Swal.fire({
-        icon: "error",
-        title: "施工中",
-        text: "此路不通!",
-        confirmButtonText: "好的"
-    });
-}
-
-const singleButton = document.querySelector("#mode-select");
-singleButton.addEventListener("click", () => {
-    Swal.fire({
-        icon: "question",
-        title: "單人模式",
-        text: "要跟機器人一起遊玩嗎？",
-        showCancelButton: true,
-        confirmButtonText: "確定",
-        cancelButtonText: "取消"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            socket.emit("join room with robot", "want to play with robot");
-        }
+    const singleButton = document.querySelector("#single");
+    singleButton.addEventListener("click", () => {
+        Swal.fire({
+            icon: "question",
+            title: "單人模式",
+            text: "要跟機器人一起遊玩嗎？",
+            showCancelButton: true,
+            confirmButtonText: "確定",
+            cancelButtonText: "取消"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                socket.emit("join room with robot", "want to play with robot");
+            }
+        });
     });
 });
 
@@ -133,7 +137,10 @@ logo.addEventListener("click", () => {
 
 async function main () {
     const userInfo = await checkLogin();
+    const lobbyInfo = await getLobbyInfo();
+    updateLobby(lobbyInfo);
     document.querySelector("#user_photo").src = userInfo.data.picture;
+    document.querySelector("#user_name").innerHTML = `Hi! ${userInfo.data.name}`;
 }
 main();
 
@@ -271,3 +278,41 @@ async function checkLogin () {
     }
     return await response.json();
 }
+
+async function getLobbyInfo () {
+    const accessToken = localStorage.getItem("access_token");
+    const response = await fetch("api/1.0/lobbyinfo", {
+        method: "GET",
+        headers: new Headers({
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`
+        })
+    });
+    return await response.json();
+}
+
+// for chat room in lobby
+const inputEnter = document.querySelector("#sendmsg #input");
+const sendMsg = document.querySelector("#send");
+const chatroom = document.querySelector("#messages");
+
+sendMsg.addEventListener("click", () => {
+    if (inputEnter.value) {
+        socket.emit("chat lobby message", ": " + inputEnter.value);
+        inputEnter.value = "";
+    }
+});
+
+inputEnter.addEventListener("keyup", (event) => {
+    if (event.keyCode === 13) {
+        event.preventDefault();
+        sendMsg.click();
+    }
+});
+
+socket.on("chat in lobby message", (msg) => {
+    const item = document.createElement("li");
+    item.innerHTML = msg;
+    chatroom.appendChild(item);
+    chatroom.scrollTo(0, chatroom.scrollHeight);
+});

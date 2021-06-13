@@ -5,9 +5,12 @@ function cardGameinSingle (socket, gameID, round, target) { // 第一回合有�
     let firstCard, secondCard;
     let opponentFirstCard, opponentSecondCard;
     const cards = document.querySelectorAll(".memory-card");
+    cards.forEach(card => card.addEventListener("click", flipCard));
 
     socket.on("opposite click card", (oppoInfo) => {
-        cards[oppoInfo.cardID].classList.add("flip", "card-color-opponent");
+        // const cards = document.querySelectorAll(".memory-card"); // 防止全域變數污染
+        // console.log(cards);
+        cards[oppoInfo.cardID].classList.add("flip", "card-color-opponent"); // card flipped by oppo
         if (!opponentFirstCard) {
             opponentFirstCard = cards[oppoInfo.cardID];
         } else {
@@ -44,12 +47,14 @@ function cardGameinSingle (socket, gameID, round, target) { // 第一回合有�
                 if (secondCard) {
                     hasEmitedTwice = true;
                 }
+                console.log(`info.cardID: ${info.cardID}`);
                 socket.emit("click card in single mode", info);
             }
         }
     }
 
     socket.on("card number match", (cardMatchInfo) => {
+        // const cards = document.querySelectorAll(".memory-card");
         if (cardMatchInfo.selecterID === socket.id) { // fliped by local
             firstCard = cards[cardMatchInfo.cardIDs[0]];
             secondCard = cards[cardMatchInfo.cardIDs[1]];
@@ -57,16 +62,15 @@ function cardGameinSingle (socket, gameID, round, target) { // 第一回合有�
             secondCard.removeEventListener("click", flipCard);
             resetBoard();
         } else { // filped by oppo
-            opponentFirstCard.removeEventListener("click", flipCard);
-            opponentSecondCard.removeEventListener("click", flipCard);
-            [opponentFirstCard, opponentSecondCard] = [null, null];
+            const oppoFirstCard = cards[cardMatchInfo.cardIDs[0]]; // 指定element
+            const oppoSecondCard = cards[cardMatchInfo.cardIDs[1]];
+            oppoFirstCard.removeEventListener("click", flipCard);
+            oppoSecondCard.removeEventListener("click", flipCard);
         }
     });
 
     socket.on("card number not match", (cardMatchInfo) => {
-        // console.log("=====================SELECTER ID: " + cardMatchInfo.selecterID);
-        // console.log("=====================LOCAL ID: " + socket.id);
-
+        // const cards = document.querySelectorAll(".memory-card");
         if (cardMatchInfo.selecterID === socket.id) {
             firstCard = cards[cardMatchInfo.cardIDs[0]]; // 指定element
             secondCard = cards[cardMatchInfo.cardIDs[1]];
@@ -78,12 +82,12 @@ function cardGameinSingle (socket, gameID, round, target) { // 第一回合有�
                 resetBoard();
             }, 800);
         } else {
-            opponentFirstCard = cards[cardMatchInfo.cardIDs[0]]; // 指定element
-            opponentSecondCard = cards[cardMatchInfo.cardIDs[1]];
+            const oppoFirstCard = cards[cardMatchInfo.cardIDs[0]]; // 指定element
+            const oppoSecondCard = cards[cardMatchInfo.cardIDs[1]];
             setTimeout(() => {
-                opponentFirstCard.classList.remove("flip", "card-color-opponent"); //
-                opponentSecondCard.classList.remove("flip", "card-color-opponent"); //
-                [opponentFirstCard.children[0].innerHTML, opponentSecondCard.children[0].innerHTML] = ["", ""];
+                oppoFirstCard.classList.remove("flip", "card-color-opponent"); //
+                oppoSecondCard.classList.remove("flip", "card-color-opponent"); //
+                [oppoFirstCard.children[0].innerHTML, oppoSecondCard.children[0].innerHTML] = ["", ""];
                 [opponentFirstCard, opponentSecondCard] = [null, null];
             }, 800);
         }
@@ -94,7 +98,7 @@ function cardGameinSingle (socket, gameID, round, target) { // 第一回合有�
         [hasEmitedTwice, lockBoard] = [false, false];
     }
 
-    cards.forEach(card => card.addEventListener("click", flipCard));
+    // cards.forEach(card => card.addEventListener("click", flipCard));
 }
 
 export { cardGameinSingle };

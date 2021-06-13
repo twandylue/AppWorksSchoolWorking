@@ -49,7 +49,7 @@ const signUp = async (name, roleId, email, password) => {
         await conn.query("COMMIT");
         return { user };
     } catch (error) {
-        console.log(error);
+        console.log(`error in sign up: ${error}`);
         await conn.query("ROLLBACK");
         return { error };
     } finally {
@@ -88,6 +88,7 @@ const nativeSignIn = async (email, password) => {
 
         return { user };
     } catch (error) {
+        console.log(`error in nativeSignIn: ${error}`);
         await conn.query("ROLLBACK");
         return { error };
     } finally {
@@ -105,6 +106,7 @@ const getUserDetail = async (email, roleId) => {
             return users[0][0];
         }
     } catch (e) {
+        console.log(`error in getUserDetail: ${e}`);
         return null;
     }
 };

@@ -22,7 +22,7 @@ const joinRoom = async (roomID, email) => {
         await conn.query("COMMIT");
         return true;
     } catch (err) {
-        console.log(err);
+        console.log(`error in join room model ${err}`);
         await conn.query("ROLLBACK");
         return false;
     } finally {
@@ -31,11 +31,16 @@ const joinRoom = async (roomID, email) => {
 };
 
 const joinRoomwithRobot = async (roomID, email) => {
-    const conn = await pool.getConnection();
-    const inserts = [roomID, email, 1];
-    await conn.query("INSERT INTO room (room_id, email, count) VALUES ?;", [[inserts]]);
-    await conn.release();
-    return true;
+    try {
+        const conn = await pool.getConnection();
+        const inserts = [roomID, email, 1];
+        await conn.query("INSERT INTO room (room_id, email, count) VALUES ?;", [[inserts]]);
+        await conn.release();
+        return true;
+    } catch (err) {
+        console.log(`error in joinRoomwithRobot: ${err}`);
+        return false;
+    }
 };
 
 const leaveRoomwithRobot = async (email) => {
@@ -55,7 +60,7 @@ const leaveRoomwithRobot = async (email) => {
         console.log(email + " 第一次之後的斷線 算離開房間");
         return (true);
     } catch (err) {
-        console.log(err);
+        console.log(`error in leaveRoomwithRobot ${err}`);
         await conn.query("ROLLBACK");
     } finally {
         await conn.release();
@@ -78,14 +83,16 @@ const leaveRoom = async (email) => {
 
         const roomID = result[0][0].room_id;
         await conn.query("START TRANSACTION");
-        await conn.query("UPDATE lobby_table SET player = player - 1 WHERE room_id = ?", roomID);
-        await conn.query("DELETE FROM room WHERE email = ?;", email);
+        // await conn.query("UPDATE lobby_table SET player = player - 1 WHERE room_id = ?", roomID);
+        // await conn.query("DELETE FROM room WHERE email = ?;", email);
+        await conn.query("UPDATE lobby_table SET player = 0 WHERE room_id = ?", roomID);
+        await conn.query("DELETE FROM room WHERE room_id = ?", roomID);
 
         await conn.query("COMMIT");
         console.log(email + " 第一次之後的斷線 算離開房間");
         return (roomID);
     } catch (err) {
-        console.log(err);
+        console.log(`error in leaveRoom: ${err}`);
         await conn.query("ROLLBACK");
     } finally {
         await conn.release();
@@ -120,6 +127,9 @@ const findGameID = async (email) => {
         const conn = await pool.getConnection();
         const result = await conn.query("SELECT game_id FROM room WHERE email = ?", [email]);
         await conn.release();
+        if (result[0].length === 0) {
+            return (false);
+        }
         return (result[0][0].game_id);
     } catch (err) {
         console.log(`error in findGameID: ${err}`);
@@ -146,7 +156,7 @@ const findRoomMember = async (roomID) => {
         const result = await conn.query("SELECT user.name, room.email, user.photo_src FROM room INNER JOIN user ON room.email = user.email WHERE room_id = ?", roomID);
         return (result[0]);
     } catch (err) {
-        console.log(err);
+        console.log(`error in findRoomMember: ${findRoomMember}`);
     } finally {
         await conn.release();
     }
@@ -154,10 +164,37 @@ const findRoomMember = async (roomID) => {
 
 const getRoomLobbyInfo = async () => {
     const conn = await pool.getConnection();
-    const sql = "SELECT room_id, player, player_limit, watcher FROM lobby_table;";
-    const results = await conn.query(sql);
+    let sql = "SELECT room_id, player, player_limit, watcher FROM lobby_table;";
+    // const sql = "SELECT user.name, lobby_table.room_id, lobby_table.player, lobby_table.player_limit, lobby_table.watcher FROM room INNER JOIN user ON user.email = room.email INNER JOIN lobby_table ON room.room_id = lobby_table.room_id;";
+    const basicInfo = await conn.query(sql);
+    sql = "SELECT user.name, room.room_id FROM room INNER JOIN user ON user.email = room.email;";
+    const members = await conn.query(sql);
+
+    const membersMap = new Map();
+    if (members[0].length !== 0) {
+        for (const i in members[0]) {
+            if (!membersMap.has(members[0][i].room_id)) {
+                membersMap.set(members[0][i].room_id, [members[0][i]]);
+            } else {
+                const arr = membersMap.get(members[0][i].room_id);
+                arr.push(members[0][i]);
+                membersMap.set(members[0][i].room_id, arr);
+            }
+        }
+    }
+
+    const obj = {};
+    for (const [key, value] of membersMap) {
+        obj[key] = value;
+    }
+    // console.log(Object.keys(obj));
+    const list = [];
+    for (const i of Object.keys(obj)) {
+        list.push({ room_id: i, memberlist: obj[i] });
+    }
+    // console.log(list);
     await conn.release();
-    return results[0];
+    return { basicInfo: basicInfo[0], members: list };
 };
 
 const isReadyNumberOK = async (gameID) => {
@@ -176,7 +213,7 @@ const isReadyNumberOK = async (gameID) => {
         const err = "opponent is not ready";
         throw err;
     } catch (err) {
-        console.log(err);
+        console.log(`error in isReadyNumberOK: ${err}`);
         await conn.query("COMMIT");
         return (false);
     } finally {
@@ -198,7 +235,7 @@ const isAgainNumberOK = async (gameID) => {
         const err = "opponent has not click again yet";
         throw err;
     } catch (err) {
-        console.log(err);
+        console.log(`error in isAgainNumberOK: ${err}}`);
         await conn.query("COMMIT");
         return (false);
     } finally {

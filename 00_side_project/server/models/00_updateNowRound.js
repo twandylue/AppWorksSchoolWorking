@@ -40,6 +40,7 @@ const updateNowRound = async (socket, io) => {
         // console.log(newdata);
         return nextRound;
     } catch (err) {
+        console.log(`error in updateNowRound: ${err}`);
         await conn.query("ROLLBACK");
         return err;
     }

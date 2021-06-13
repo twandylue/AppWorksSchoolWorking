@@ -5,6 +5,7 @@ import { gameStat } from "./game_stat.js";
 import { updatePoints } from "./update_points.js";
 import { showGameRules } from "./showGameRules.js";
 import { combineMatchPageforAgain } from "./combMatchPage.js";
+import { breakTimeInfo } from "./break_time.js";
 
 let frontGameID; // 儲存遊戲ID
 let frontRules; // 儲存遊戲規則
@@ -116,6 +117,45 @@ socket.on("countdown in ready", (time) => {
     document.querySelector("#countdown").innerHTML = `遊戲倒數時間: ${time} s`;
 });
 
+socket.on("break", (info) => {
+    let timerInterval;
+    Swal.fire({
+        title: "此回合結束！",
+        html: `休息一下吧！ <b></b> 秒後進入第${info.nextRound}回合`,
+        timer: (info.breakTime) * 1000,
+        timerProgressBar: true,
+        didOpen: () => {
+            Swal.showLoading();
+            timerInterval = setInterval(() => {
+                const content = Swal.getHtmlContainer();
+                if (content) {
+                    const b = content.querySelector("b");
+                    if (b) {
+                        b.textContent = parseFloat(parseInt(Swal.getTimerLeft()) / 1000).toFixed(0);
+                    }
+                }
+            }, 100);
+        },
+        willClose: () => {
+            clearInterval(timerInterval);
+        }
+    }).then((result) => {
+        /* Read more about handling dismissals below */
+        if (result.dismiss === Swal.DismissReason.timer) {
+            console.log("I was closed by the timer");
+        } else {
+            breakTimeInfo(info.nextRound);
+        }
+    });
+});
+
+socket.on("countdown in break", (time) => {
+    if (document.querySelector("#countdown-break") === null) {
+        return;
+    }
+    document.querySelector("#countdown-break").innerHTML = `中場休息倒數時間: ${time} s`;
+});
+
 socket.on("countdown in game", (time) => {
     if (document.querySelector("#countdown") === null) {
         return;
@@ -141,7 +181,10 @@ socket.on("start game", (info) => { // 翻牌(問號面)
 
 socket.on("fill card number", (cardfilledInfo) => {
     const cardFrontFaces = document.querySelectorAll(".front-face");
-    cardFrontFaces[cardfilledInfo.cardID].innerHTML = cardfilledInfo.number;
+    if (cardFrontFaces[cardfilledInfo.cardID]) {
+        cardFrontFaces[cardfilledInfo.cardID].innerHTML = cardfilledInfo.number;
+    }
+    // cardFrontFaces[cardfilledInfo.cardID].innerHTML = cardfilledInfo.number;
 });
 
 socket.on("next round execute rules", (info) => {

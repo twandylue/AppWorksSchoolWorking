@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { STANDBYTIME, ROUNDTIME, ROBOTSTEP } = process.env;
+const { STANDBYTIME, BREAKTIME, ROUNDTIME, ROBOTSTEP } = process.env;
 const { POINTS } = process.env;
 const { TOKEN_SECRET } = process.env;
 console.log({ STANDBYTIME, ROUNDTIME, POINTS });
@@ -16,13 +16,20 @@ const { saveUserPhoto } = require("./saveChoosePhoto");
 const roomModule = require("./Room_model");
 const { client, getCache, getCardNumberinCache } = require("./cache_model");
 
+const updateOnlineNumbers = async function (socket, io) {
+    const onlineNumbers = socket.adapter.sids.size;
+    client.set("online_number", onlineNumbers);
+    io.emit("update online number", onlineNumbers);
+};
+
 const getUserInfo = function (socket, io) {
-    socket.on("get user name", () => {
-        socket.emit("show my info", { name: socket.info.name, email: socket.info.email });
-    });
+    // socket.on("get user name", () => {
+    //     socket.emit("show my info", { name: socket.info.name, email: socket.info.email });
+    // });
 
     socket.on("get user room", () => {
-        socket.emit("show roomID", { roomID: socket.info.roomID });
+        const { roomID } = socket.info;
+        io.to(roomID).emit("show roomID", { roomID: socket.info.roomID });
     });
 };
 
@@ -36,9 +43,8 @@ const updateRoomLobbyinfo = function (socket, io) {
 const Room = function (socket, io) { // join room
     socket.on("join room", async (info) => {
         try {
-            const pass = await roomModule.joinRoom(info.roomID, socket.info.email);
+            const pass = await roomModule.joinRoom(info.roomID, socket.info.email); // 檢查是否有超過上限制人數
             if (pass) {
-                // socket.join(info.roomID); // 需要嗎！？ 因為轉跳頁面會斷線 所以現在join沒有用 所以不需要
                 console.log(`join room: ${info.roomID}`);
                 const accessToken = jwt.sign({ provider: socket.info.provider, name: socket.info.name, email: socket.info.email, picture: socket.info.picture, roomID: info.roomID, status: 2 }, TOKEN_SECRET); // status: 2 play with opponent
                 socket.emit("join success", { token: accessToken, roomID: info.roomID }); // 此token第一次帶有roomID
@@ -46,6 +52,7 @@ const Room = function (socket, io) { // join room
                 socket.emit("join failed", { error: "Forbidden" });
             }
         } catch (err) {
+            console.log(`error in join room ${err}`);
             socket.emit("join failed", { error: "Forbidden" });
         }
         const roomInfo = await roomModule.getRoomLobbyInfo();
@@ -54,29 +61,35 @@ const Room = function (socket, io) { // join room
 
     socket.on("in room", async () => { // 這邊可能出問題 有時候會來不及建立on
         try {
+            // check 有沒有在房間內
             const user = socket.info; // token中應該已帶有roomID資訊
             const { roomID } = user;
             socket.join(roomID);
             console.log(`in the room: ${roomID}`);
             socket.emit("fill name", user.name);
             const members = await roomModule.findRoomMember(roomID);
+            console.log("members:");
             console.log(members);
+            let isInRoom = false;
             for (const i in members) {
                 if (members[i].email === user.email) {
                     socket.emit("fill name", members[i].name);
                     socket.to(roomID).emit("fill opponent info", { name: members[i].name, picture: members[i].photo_src });
+                    isInRoom = true;
                 } else {
                     socket.emit("fill opponent info", { name: members[i].name, picture: members[i].photo_src });
                 }
             }
 
-            // console.log(socket.adapter);
+            if (!isInRoom) {
+                io.to(roomID).emit("opponent leave room", "oppo leave the room"); // 重新整理頁面後 自己不會在房間內 db已刪除紀錄 故把自己踢掉
+                return;
+            }
 
             if (members.length === 1) {
                 console.log(`wait for opponen in ${roomID}`);
                 socket.emit("wait for opponent", "wait for opponent");
-            }
-            if (members.length === 2) { // 一個房間內只能有2人
+            } else if (members.length === 2) { // 一個房間內只能有2人
                 const rules = await getRandomRules(); // 隨機產生遊戲規則
                 const gameRules = { type: rules.type, number: rules.card_number, rounds: rules.rounds, targets: rules.targets };
                 const gameID = await saveGameRules(roomID, members, gameRules); // gameID 第一次出現
@@ -85,7 +98,7 @@ const Room = function (socket, io) { // join room
                 io.to(roomID).emit("both of you in ready", { rules: gameRules, gameID: gameID }); // 讓雙方都能看到規則 and 讓前端能點選開始鈕 此處第一次出現gameID
             }
         } catch (err) {
-            console.log(err);
+            console.log(`error in in room: ${err}`);
             socket.emit("join failed", { error: "Forbidden" });
         }
     });
@@ -221,6 +234,7 @@ const gameloopwithRobot = async function (gameID, rules, roomID, members, socket
         const objinCache = {}; // 一份存cache
         objinCache[round] = cardsSetting;
         const CardSettinginCache = JSON.stringify(objinCache);
+        // const CardSettinginCache = JSON.stringify({round: cardsSetting}); // 換個寫法
         client.set(gameID, CardSettinginCache); // 儲存卡片編號和對應數字
 
         const info = {
@@ -270,6 +284,20 @@ const gameloopwithRobot = async function (gameID, rules, roomID, members, socket
         // round結束
         for (const i in members) { // 每回合結束時 初始化cahce 去除上回合點擊過的卡片 包含機器人和玩家
             client.del(members[i].email);
+        }
+
+        if (round < rules.rounds) { // 遊戲結束 跳過break time
+            let breakTime = parseInt(BREAKTIME);
+            io.to(roomID).emit("break", { breakTime: breakTime, nextRound: round + 1 });
+            while (breakTime >= 0) {
+                io.to(roomID).emit("countdown in break", breakTime);
+                await delay(1000);
+                breakTime--;
+                const status = await getCache(roomID); // 倒數計時器終止 如果有人中離
+                if (status !== "working") {
+                    return; // 終止
+                }
+            }
         }
     }
     console.log("========game over========");
@@ -338,6 +366,20 @@ const gameloop = async function (gameID, rules, room, socket, io) {
         for (const i in members) { // 每回合結束時 初始化cahce 去除上回合點擊過的卡片
             client.del(members[i].email);
         }
+
+        if (round < rules.rounds) { // 遊戲結束 跳過break time
+            let breakTime = parseInt(BREAKTIME);
+            io.to(room).emit("break", { breakTime: breakTime, nextRound: round + 1 });
+            while (breakTime >= 0) {
+                io.to(room).emit("countdown in break", breakTime);
+                await delay(1000);
+                breakTime--;
+                const status = await getCache(room); // 倒數計時器終止 如果有人中離
+                if (status !== "working") {
+                    return; // 終止
+                }
+            }
+        }
     }
     console.log("========game over========");
     const rounds = rules.rounds;
@@ -354,6 +396,7 @@ function delay (delayTime) {
 const ClickCardinGame = function (socket, io) {
     // 等等將socketid用email代替 並配合sql可以得知房內email 以此可以初始化cache
     // 回合轉換後 應該初始化redis
+    // 要設置點擊頻率 用redis記錄點擊時間 單人模式也要注意
 
     socket.on("click card", async (info) => { // race condition
         // select card value from cahce and check if they are in pair.
@@ -361,11 +404,11 @@ const ClickCardinGame = function (socket, io) {
             const { gameID, source, cardID, round, target, time } = info; // for record time: countdown time // 此處token中已有roomID gameID資訊
             const user = socket.info;
             const room = user.roomID;
-            console.log("===========in click card============");
+            // console.log("===========in click card============");
             const oppoInfo = { source: source, cardID: cardID };
             socket.to(room).emit("opposite click card", oppoInfo); // 對其他人 此處效能待改 送出卡片和數字分離了 如是用cache 就沒啥差 因為cache很快
             const number = await getCardNumberinCache(gameID, info.round, info.cardID); // use cache
-            console.log(`socketID: ${socket.id} | email: ${user.email} in room: ${room} click: ${number}`);
+            // console.log(`socketID: ${socket.id} | email: ${user.email} in room: ${room} click: ${number}`);
             const CardfilledInfo = { cardID: cardID, number: number };
             io.to(room).emit("fill card number", CardfilledInfo);
 
@@ -376,8 +419,25 @@ const ClickCardinGame = function (socket, io) {
             const selectedHis = JSON.parse(await getCache(user.email));
             if (selectedHis !== null) {
                 const numberSelected = selectedHis.number;
+                const doubleFlipHis = JSON.parse(await getCache(socket.id));
+                let lastdoubleFlipTime;
+                if (doubleFlipHis === null) { // first time in double flip
+                    lastdoubleFlipTime = 0;
+                } else {
+                    lastdoubleFlipTime = doubleFlipHis.doubleFlipTime;
+                }
                 const ans = number * numberSelected;
-                const MatchInfo = { selecterID: socket.id, cardIDs: [selectedHis.cardID, info.cardID] }; // 點擊兩次後送出的資料封包 // 有時候前端番卡出現問題 應該是此處有問題
+                const MatchInfo = { selecterID: socket.id, cardIDs: [selectedHis.cardID, info.cardID] }; // 點擊兩次後送出的資料封包
+
+                console.log(`utsOrder: ${utsOrder}`);
+                console.log(`lastdoubleFlipTime: ${parseInt(lastdoubleFlipTime)}`);
+                console.log(`(utsOrder - parseInt(lastdoubleFlipTime)): ${(utsOrder - parseInt(lastdoubleFlipTime))}`);
+                if ((utsOrder - parseInt(lastdoubleFlipTime)) < 800) { // 800ms 為前端選取兩張後翻牌的時間差 點擊鎖
+                    io.to(room).emit("card number not match", MatchInfo);
+                    client.del(user.email); // redis delete 翻兩張牌後初始化
+                    return;
+                }
+
                 if (parseInt(target) === ans) {
                     io.to(room).emit("card number match", MatchInfo);
                     io.to(room).emit("update points", { playerID: socket.id, point: parseInt(POINTS) }); // 讓前端計分 配對成功 +10分
@@ -385,13 +445,16 @@ const ClickCardinGame = function (socket, io) {
                 } else {
                     io.to(room).emit("card number not match", MatchInfo);
                 }
-                client.del(user.email); // redis delete
+                client.del(user.email); // redis delete 翻兩張牌後初始化
+                client.set(socket.id, JSON.stringify({ doubleFlipTime: utsOrder })); // for click lick
             } else {
-                client.set(user.email, JSON.stringify({ cardID: cardID, number: number, gameID: gameID })); // gameID for cache init after each round over
+                // client.set(user.email, JSON.stringify({ cardID: cardID, number: number, gameID: gameID })); // gameID for cache init after each round over
+                // const clickTime = new Date().getTime();
+                client.set(user.email, JSON.stringify({ cardID: cardID, number: number, gameID: gameID, clickTime: utsOrder })); // gameID for cache init after each round over
             }
             await recordEveryStep(stepInfo); // 可否改為遊戲結束後一次insert? 待改
         } catch (err) {
-            console.log(err);
+            console.log(`error in click card ${err}`);
             socket.emit("join failed", { err: "join failed" });
         }
     });
@@ -416,9 +479,26 @@ const ClickCardinGame = function (socket, io) {
         // use cache
         const selectedHis = JSON.parse(await getCache(user.email));
         if (selectedHis !== null) {
-            const numberSelected = selectedHis.number;
+            const numberSelected = selectedHis.number[0];
+            const doubleFlipHis = JSON.parse(await getCache(socket.id));
+            let lastdoubleFlipTime;
+            if (doubleFlipHis === null) { // first time in double flip
+                lastdoubleFlipTime = 0;
+            } else {
+                lastdoubleFlipTime = doubleFlipHis.doubleFlipTime;
+            }
             const ans = number * numberSelected;
-            const MatchInfo = { selecterID: socket.id, cardIDs: [selectedHis.cardID, info.cardID] }; // 點擊兩次後送出的資料封包 // 有時候前端番卡出現問題 應該是此處有問題
+            const MatchInfo = { selecterID: socket.id, cardIDs: [selectedHis.cardIDs[0], info.cardID] }; // 點擊兩次後送出的資料封包
+
+            // console.log(`utsOrder: ${utsOrder}`);
+            // console.log(`lastdoubleFlipTime: ${parseInt(lastdoubleFlipTime)}`);
+            // console.log(`(utsOrder - parseInt(lastdoubleFlipTime)): ${(utsOrder - parseInt(lastdoubleFlipTime))}`);
+            if ((utsOrder - parseInt(lastdoubleFlipTime)) < 800) { // 800ms 為前端選取兩張後翻牌的時間差 點擊鎖
+                io.to(room).emit("card number not match", MatchInfo);
+                client.del(user.email); // redis delete 翻兩張牌後初始化
+                return;
+            }
+
             if (parseInt(target) === ans) {
                 // 記錄配對成功的卡片
                 const matchNumber = JSON.parse(await getCache(`${gameID}_matchNumberList`));
@@ -433,12 +513,19 @@ const ClickCardinGame = function (socket, io) {
                 io.to(room).emit("card number match", MatchInfo);
                 io.to(room).emit("update points", { playerID: socket.id, point: parseInt(POINTS) }); // 讓前端計分 配對成功 +10分
                 stepInfo.addPoints = parseInt(POINTS); // 得分
+                client.del(user.email); // redis delete 如果有配對成功 可以立刻刪除
             } else {
                 io.to(room).emit("card number not match", MatchInfo);
+                client.set(user.email, JSON.stringify({ cardIDs: [selectedHis.cardIDs[0], info.cardID], number: number, gameID: gameID, clickTime: utsOrder })); // 沒有配對成功 800 ms 後刪除
+                await delay(800); // 800 ms 後刪除
+                client.del(user.email); // redis delete 應該800ms後才能刪除 配合前端規則
             }
-            client.del(user.email); // redis delete
+            client.set(socket.id, JSON.stringify({ doubleFlipTime: utsOrder })); // for click lock
         } else {
-            client.set(user.email, JSON.stringify({ cardID: cardID, number: number, gameID: gameID })); // gameID for cache init after each round over
+            // client.set(user.email, JSON.stringify({ cardID: cardID, number: number, gameID: gameID })); // gameID for cache init after each round over
+            // client.set(user.email, JSON.stringify({ cardID: cardID, number: number, gameID: gameID, clickTime: utsOrder })); // gameID for cache init after each round over
+            client.set(user.email, JSON.stringify({ cardIDs: [cardID], number: [number], gameID: gameID, clickTime: utsOrder })); // gameID for cache init after each round over
+            /// 改
         }
         await recordEveryStep(stepInfo); // 可否改為遊戲結束後一次insert? 待改
     });
@@ -454,17 +541,21 @@ const robotClicker = async function (cardNumber, gameID, roomID, robotName, play
             return; // 關閉robotClicker
         }
 
-        let playerHisCardID; // 玩家點擊過的卡片
+        let playerHisCardID = null; // 玩家點擊過的卡片
         const playerCard = JSON.parse(await getCache(player)); // 玩家點擊過的卡片
         if (playerCard !== null) {
-            playerHisCardID = playerCard.cardID;
-            console.log("======================playerHisCardID: " + playerHisCardID);
+            playerHisCardID = playerCard.cardIDs.map((ele) => {
+                return (parseInt(ele));
+            }); // arr
+            console.log("======================playerHisCardIDs: " + playerHisCardID);
         }
 
-        let robotHisCardID; // robot點擊過的卡片
+        let robotHisCardID = null; // robot點擊過的卡片
         const robotHis = JSON.parse(await getCache(robotName));
         if (robotHis !== null) {
-            robotHisCardID = robotHis.cardID;
+            robotHisCardID = robotHis.cardIDs.map((ele) => {
+                return (parseInt(ele));
+            }); // arr
             console.log("======================robotHisCardID: " + robotHisCardID);
         }
 
@@ -476,27 +567,63 @@ const robotClicker = async function (cardNumber, gameID, roomID, robotName, play
         let cardID;
         let isCardIDAllowed;
         while (true) {
+            const allCardID = [];
+            for (let i = 0; i < cardNumber; i++) {
+                allCardID.push(i);
+            }
+
+            let playerHisCardIDArr = [];
+            let robotHisCardIDArr = [];
+            if (playerHisCardID !== null) {
+                playerHisCardIDArr = playerHisCardID;
+            }
+
+            if (robotHisCardID !== null) {
+                robotHisCardIDArr = robotHisCardID;
+            }
+
+            const unionHis = playerHisCardIDArr.concat(robotHisCardIDArr.filter((e) => {
+                return playerHisCardIDArr.indexOf(e) === -1;
+            }));
+
+            const union = matchNumberList.concat(unionHis.filter((e) => {
+                return matchNumberList.indexOf(e) === -1;
+            })); // 連集
+
+            const allowNumberArr = allCardID.filter((e) => {
+                return union.indexOf(e) === -1;
+            }).concat(union.filter((f) => {
+                return allCardID.indexOf(f) === -1;
+            })); // 可以選擇的數字(arr) 差集
+
             const cardIDArr = randomNumberforArrayIndex(cardNumber, 1); // return array e.g. [3] 隨機選卡
-            isCardIDAllowed = cardIDArr[0] !== parseInt(playerHisCardID) && cardIDArr[0] !== parseInt(robotHisCardID) && !matchNumberList.includes(cardIDArr[0]);
+            isCardIDAllowed = !playerHisCardIDArr.includes(cardIDArr[0]) && !robotHisCardIDArr.includes(cardIDArr[0]) && !matchNumberList.includes(cardIDArr[0]);
             console.log(`cardID: ${cardIDArr[0]}`);
             console.log("matchNumberList: ");
             console.log(matchNumberList);
-            console.log(`cardIDArr[0] !== parseInt(playerHisCardID): ${cardIDArr[0] !== parseInt(playerHisCardID)}`);
-            console.log(`cardIDArr[0] !== parseInt(robotHisCardID): ${cardIDArr[0] !== parseInt(robotHisCardID)}`);
+            console.log("allowNumberArr: ");
+            console.log(allowNumberArr);
+            console.log(`!playerHisCardIDArr.includes(cardIDArr[0]): ${playerHisCardIDArr.includes(cardIDArr[0])}`);
+            console.log(`!robotHisCardIDArr.includes(cardIDArr[0]): ${!robotHisCardIDArr.includes(cardIDArr[0])}`);
             console.log(`matchNumberList.includes[cardIDArr[0]]: ${matchNumberList.includes(cardIDArr[0])}`);
             console.log(`isCardIDAllowed: ${isCardIDAllowed}`);
+
+            console.log(`cardNumber: ${cardNumber}`);
+            console.log(`matchNumberList.length: ${matchNumberList.length}`);
+            console.log(`allowNumberArr.length: ${allowNumberArr.length}`);
+
+            if (allowNumberArr.length === 0) {
+                console.log("======================All match");
+                isCardAllMatch = true;
+                cardID = cardIDArr[0];
+                // break;
+                return;
+            }
 
             if (isCardIDAllowed) {
                 cardID = cardIDArr[0];
                 console.log("======================robot choose CardID: " + cardID);
                 break;
-            }
-
-            console.log(`cardNumber: ${cardNumber}`);
-            console.log(`matchNumberList.length: ${matchNumberList.length}`);
-            if (cardNumber === matchNumberList.length) {
-                isCardAllMatch = true;
-                break; // 卡片全部配對完成
             }
         }
         const oppoInfo = { source: "robot", cardID: cardID };
@@ -513,7 +640,7 @@ const robotClicker = async function (cardNumber, gameID, roomID, robotName, play
         if (selectedHis !== null) {
             const numberSelected = selectedHis.number;
             const ans = number * numberSelected;
-            const MatchInfo = { selecterID: "robot", cardIDs: [selectedHis.cardID, cardID] };
+            const MatchInfo = { selecterID: "robot", cardIDs: [selectedHis.cardIDs, cardID] };
             if (parseInt(target) === ans) {
                 // 記錄配對成功的卡片
                 const matchNumber = JSON.parse(await getCache(`${gameID}_matchNumberList`));
@@ -528,33 +655,82 @@ const robotClicker = async function (cardNumber, gameID, roomID, robotName, play
                 io.to(roomID).emit("card number match", MatchInfo);
                 io.to(roomID).emit("update points", { playerID: robotName, point: parseInt(POINTS) }); // 讓前端計分 配對成功 +10分
                 stepInfo.addPoints = parseInt(POINTS); // 得分
+                client.del(robotName); // redis delete 配對成功
             } else {
                 io.to(roomID).emit("card number not match", MatchInfo);
+                // client.set(user.email, JSON.stringify({ cardIDs: [selectedHis.cardIDs[0], info.cardID], number: number, gameID: gameID, clickTime: utsOrder })); // 沒有配對成功 800 ms 後刪除
+                client.set(robotName, JSON.stringify({ cardIDs: [selectedHis.cardIDs, cardID], number: number, gameID: gameID })); // 沒有配對成功 800 ms 後刪除
+                await delay(800);
+                client.del(robotName); // redis delete 配對成功
             }
-            client.del(robotName); // redis delete
         } else {
-            client.set(robotName, JSON.stringify({ cardID: cardID, number: number, gameID: gameID })); // gameID for cache init after each round over
+            client.set(robotName, JSON.stringify({ cardIDs: [cardID], number: number, gameID: gameID })); // gameID for cache init after each round over 第一次點擊
         }
         await recordEveryStep(stepInfo); // 可否改為遊戲結束後一次insert? 機器人的記錄
 
         cardClickNumber += 1; // robotClicker點擊次數
         if (cardClickNumber === 2) {
-            await delay(200);
+            await delay(800); // double flip 800ms後 才能選下一張牌
             cardClickNumber = 0;
+        } else {
+            await delay(ROBOTSTEP);
         }
-        await delay(ROBOTSTEP);
     }
     console.log("================================所有卡片被選完==============================="); // 待改 或許可以提早終止？
 };
 
 const chat = function (socket, io) {
     socket.on("chat message", (msg) => {
-        console.log(`FROM ${socket.id} | message ${msg}`);
+        console.log(`FROM ${socket.info.email} | message ${msg}`);
         const room = [];
         for (const i of io.sockets.adapter.sids.get(socket.id)) { // room[1]: room
             room.push(i);
         }
-        io.to(room[1]).emit("chat message", msg);
+        const newMsg = socket.info.name + msg;
+        io.to(socket.info.roomID).emit("chat message", newMsg);
+    });
+
+    socket.on("chat lobby message", (msg) => {
+        console.log(`FROM ${socket.info.email} | message ${msg}`);
+        const newMsg = socket.info.name + msg;
+        io.emit("chat in lobby message", newMsg);
+    });
+};
+
+const vedioChat = function (socket, io) { // 已經在房內 已經join room
+    socket.on("want to video chat", (msg) => {
+        const { roomID } = socket.info;
+        socket.to(roomID).emit("oppo want to video chat", msg);
+    });
+
+    socket.on("vedio chat comfirmed", (msg) => {
+        const { roomID } = socket.info;
+        socket.to(roomID).emit("oppo comfirmed vedio chat", msg);
+    });
+
+    socket.on("vedio chat denide", (msg) => {
+        const { roomID } = socket.info;
+        socket.to(roomID).emit("oppo denied vedio chat", msg);
+    });
+
+    socket.on("close video chat", (msg) => {
+        const { roomID, picture } = socket.info;
+        socket.to(roomID).emit("oppo close video chat", picture);
+    });
+
+    socket.on("offer", (offer) => {
+        const { roomID } = socket.info;
+        socket.to(roomID).emit("offer", offer);
+    });
+
+    socket.on("answer", (answer) => {
+        const { roomID } = socket.info;
+        socket.to(roomID).emit("offer", answer);
+    });
+
+    socket.on("icecandidate", (event) => {
+        const { roomID } = socket.info;
+        socket.to(roomID).emit("icecandidate", event);
     });
 };
 
@@ -582,11 +758,13 @@ const randomNumberforArrayIndex = (range, count) => { // 0
 };
 
 module.exports = {
+    updateOnlineNumbers,
     getUserInfo,
     updateRoomLobbyinfo,
     processinRoom,
     Room,
     ClickCardinGame,
     chat,
+    vedioChat,
     choosePhoto
 };

@@ -1,0 +1,46 @@
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<!-- index.html -->
+<h1>基礎 getUserMedia 影音流播放控制</h1>
+<hr>
+<video autoplay muted></video>
+<!-- 取得media stream -->
+<button onclick="onCapture()">Capture</button>
+<!-- 停止media stream -->
+<button onclick="stopMedia()">Stop</button>
+<script>
+    // ./js/main.js
+const video = document.querySelector('video');
+const constraints = {
+  audio: true,
+  video: true
+};
+
+function handleSuccess(stream) {
+  window.stream = stream; // 方便可以在瀏覽器console
+  video.srcObject = stream;
+}
+
+function handleError(error) {
+  console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
+}
+
+function onCapture () {
+  navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
+}
+
+function stopMedia () {
+  if (window.stream) {
+    const videoStreams = window.stream.getVideoTracks()
+
+    videoStreams.forEach(stream => {
+      stream.stop() // 停止所有media stream
+    });
+
+    // 釋放資源
+    video.src = video.srcObject = null;
+  }
+}
+
+onCapture ()
+</script>
+<!-- <script src="./js/main.js"></script> -->

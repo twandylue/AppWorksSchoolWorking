@@ -22,8 +22,12 @@
         </div>
         <div class = "container" id = "container">
             <div id = "left">
+                <div id = "user-title">User</div>
                 <div class = "user" id = "user_container">
-                    <img id = "user_photo_left" class = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
+                    <div id = "user-photo-container">
+                        <img id = "user_photo_left" class = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
+                        <img style="cursor: pointer" id = "camera" src = "./images/video-camera.png">
+                    </div>
                     <div id = "name"></div>
                 </div>
                 <div class = "points" id = "player_points">目前得分: 0</div>
@@ -71,6 +75,7 @@
                 <div id = "roomID">所在房號: ?</div>
             </div>
         </div>
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script src = "./src/match.js" type="module"></script>
     </body>

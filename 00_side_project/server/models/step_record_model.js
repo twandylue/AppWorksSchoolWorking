@@ -7,7 +7,7 @@ async function recordEveryStep (info) {
         const inserts = [info.gameID, info.room, info.round, info.source, info.email, info.cardID, info.number, info.addPoints, info.time, info.utsOrder, info.status];
         await conn.query(sql, [[inserts]]);
     } catch (err) {
-        console.log(err);
+        console.log(`error in recordEveryStep: ${err}`);
     } finally {
         await conn.release();
     }

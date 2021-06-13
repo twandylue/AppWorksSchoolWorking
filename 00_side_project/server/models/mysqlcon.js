@@ -23,9 +23,10 @@ const mysqlConfig = {
 };
 
 const pool = mysql.createPool(mysqlConfig[env]);
-pool.getConnection((err) => {
+pool.getConnection((err, conn) => {
     if (err) throw err;
     console.log("mysql(pool) connecting...");
+    pool.releaseConnection(conn);
 });
 
 module.exports = {

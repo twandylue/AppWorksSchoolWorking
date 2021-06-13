@@ -1,8 +1,8 @@
 // for record page
 function gameStat (hitRate, totalPointsNumber, roundsPoints, winnerStatus) {
+    document.querySelector("#middle").className = ""; // 初始化
     const deleteItem = document.querySelector("#middle");
     deleteItem.remove();
-
     const middle = document.createElement("div");
     middle.id = "middle";
     middle.className = "middle-Stat";

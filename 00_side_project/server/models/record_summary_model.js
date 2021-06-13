@@ -92,7 +92,6 @@ async function statRecordSingle (gameID, roomID, rounds, members, status) {
         const winner = [];
         for (const i in members) { // gameID and player_email
             const resultTest = await conn.query("SELECT player_ID, player_email, round, SUM(points), COUNT(*) FROM game_history WHERE game_id = ? AND player_email = ? GROUP BY round;", [gameID, members[i].email]);
-            console.log(pool.format("SELECT player_ID, player_email, round, SUM(points), COUNT(*) FROM game_history WHERE game_id = ? AND player_email = ? GROUP BY round;", [gameID, members[i].email]));
             // console.log(resultTest[0]);
             if (resultTest[0].length !== 0) { // 有點擊記錄
                 let totalPoints = 0;
@@ -150,7 +149,7 @@ async function statRecordSingle (gameID, roomID, rounds, members, status) {
         console.log({ results: stat, winner: winner });
         return ({ results: stat, winner: winner });
     } catch (err) {
-        console.log(err);
+        console.log(`error in ${err}`);
     } finally {
         await conn.release();
     }
