@@ -89,7 +89,23 @@ function videoChet (socket) {
 
     function createPeerConnection () {
         console.log("create peer connection ...");
-        peer = new RTCPeerConnection();
+        peer = new RTCPeerConnection({
+            iceServers: [
+                {
+                    urls: "stun:stun.l.google.com:19302"
+                },
+                {
+                    urls: "turn:192.158.29.39:3478?transport=udp",
+                    credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+                    username: "28224511:1379330808"
+                },
+                {
+                    urls: "turn:192.158.29.39:3478?transport=tcp",
+                    credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+                    username: "28224511:1379330808"
+                }
+            ]
+        });
         peer.onicecandidate = handleIceCandidate;// 有新的ICE candidate 時觸發 我方找到
         peer.ontrack = handleRemoteStream; // connection中發現“對方”新的 MediaStreamTrack時觸發
         peer.onnegotiationneeded = handleNegotiationNeeded; // offer
