@@ -11,10 +11,10 @@ function addGameInfo (type, number, rounds, targets) {
     }
     const infoAmount = document.createElement("div");
     infoAmount.className = "info";
-    infoAmount.innerHTML = `卡牌總數:  ${number}`;
+    infoAmount.innerHTML = `總數:  ${number} 張`;
     const infoTotal = document.createElement("div");
     infoTotal.className = "info";
-    infoTotal.innerHTML = `總回合數:  ${rounds}`;
+    infoTotal.innerHTML = `總回合數:  ${rounds} 回合`;
     const infoTargets = document.createElement("div");
     infoTargets.className = "info";
     const pureArr = [];
@@ -23,7 +23,7 @@ function addGameInfo (type, number, rounds, targets) {
             pureArr.push(targets[i]);
         }
     }
-    let str = "目標分數: ";
+    let str = "目標數字: ";
     for (let i = 0; i < pureArr.length; i++) {
         if (i === pureArr.length - 1) {
             str += `${targets[i]}`;

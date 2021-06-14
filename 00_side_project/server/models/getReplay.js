@@ -18,7 +18,7 @@ const getReplay = async (gameID) => {
             cardsSetting = await conn.query("SELECT game_id, room_id, round, card_ID, number, selecter FROM cards_setting_info WHERE game_id = ?", [gameID]);
             gameStat = await conn.query("SELECT user.name AS winnerName, game_results.game_id, game_results.player_email, game_results.round1_points, game_results.round2_points, game_results.round3_points, game_results.total_points, game_results.hit_rate, game_results.winner_email FROM game_results INNER JOIN user ON user.email = game_results.winner_email WHERE game_id = ?;", [gameID]);
 
-            if (gameStat[0].length === 0) { // 中途離開 沒有贏家
+            if (gameStat[0].length === 0) { // 中途離開 沒有贏家 平手 tie 也會有問題
                 stat = 0;
             } else {
                 stat = gameStat[0];

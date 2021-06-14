@@ -33,7 +33,7 @@ function combineMatchPageforAgain () {
     numberofCards.className = "details";
     const numberofCardsTitle = document.createElement("div");
     numberofCardsTitle.className = "setting-details-title";
-    numberofCardsTitle.innerHTML = "卡牌總數:";
+    numberofCardsTitle.innerHTML = "總數:";
     const numberofCardsContent = document.createElement("div");
     numberofCardsContent.className = "setting-details-content";
     numberofCardsContent.innerHTML = "Waiting...";
@@ -55,7 +55,7 @@ function combineMatchPageforAgain () {
     target.className = "details";
     const targetTitle = document.createElement("div");
     targetTitle.className = "setting-details-title";
-    targetTitle.innerHTML = "目標分數(/每回合):";
+    targetTitle.innerHTML = "目標數字(/每回合):";
     const targetContent = document.createElement("div");
     targetContent.className = "setting-details-content";
     targetContent.innerHTML = "Waiting...";

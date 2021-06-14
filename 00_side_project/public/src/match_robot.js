@@ -89,7 +89,7 @@ socket.on("show my info", (info) => {
 });
 
 socket.on("show roomID", (info) => {
-    document.querySelector("#roomID").innerHTML = `所在房號: ${info.roomID}`;
+    document.querySelector("#roomID").innerHTML = `房號: ${info.roomID}`;
 });
 
 socket.on("ready in single mode", (info) => { // gameID 第一次出現 在info中

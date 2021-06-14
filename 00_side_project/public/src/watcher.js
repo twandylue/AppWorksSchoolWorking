@@ -91,7 +91,7 @@ socket.on("show my info", (info) => {
 });
 
 socket.on("show roomID", (info) => {
-    document.querySelector("#roomID").innerHTML = `所在房號: ${info.roomID}`;
+    document.querySelector("#roomID").innerHTML = `房號: ${info.roomID}`;
 });
 
 socket.on("fill name", (name) => {

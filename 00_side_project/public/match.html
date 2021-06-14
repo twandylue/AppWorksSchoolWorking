@@ -8,16 +8,17 @@
         <link rel="stylesheet" type="text/css" href="/styles/match.css" media="all">
         <link rel="stylesheet" type="text/css" href="./styles/game.css">
         <link rel="shortcut icon" href="#">
+        <link rel="icon" href="./images/favicon.ico">
     </head>
     <body>
         <div id = "header" class = "header">
             <div style="cursor: pointer" id = "logo-container-header">
-                <img id = "logo" src = "./images/logo_MemoryGuess.jpeg" alt = "logo">
+                <img id = "logo" src = "https://memoryguess.s3.ap-northeast-1.amazonaws.com/logo_MemoryGuess.jpeg" alt = "logo">
                 <div id = "logo-header">Back to homepage</div>
             </div>
             <div class = "title" id = "project-name">MEMORY & GUESS</div>
             <div style="cursor: pointer" id = "user_profile">
-                <img id = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
+                <img id = "user_photo" src = "https://memoryguess.s3.ap-northeast-1.amazonaws.com/profile.jpeg" alt = "user_photo">
                 <div id = "user_name"></div>
             </div>
         </div>
@@ -26,8 +27,8 @@
                 <div id = "user-title">User</div>
                 <div class = "user" id = "user_container">
                     <div id = "user-photo-container">
-                        <img id = "user_photo_left" class = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
-                        <img style="cursor: pointer" id = "camera" src = "./images/video-camera.png">
+                        <img id = "user_photo_left" class = "user_photo" src = "https://memoryguess.s3.ap-northeast-1.amazonaws.com/profile.jpeg" alt = "user_photo">
+                        <img style="cursor: pointer" id = "camera" src = "https://memoryguess.s3.ap-northeast-1.amazonaws.com/video-camera.png">
                     </div>
                     <div id = "name"></div>
                 </div>
@@ -56,7 +57,7 @@
                         <div class="setting-details-content">Waiting...</div>
                     </div>
                     <div class = "details" id = "target">
-                        <div class = "setting-details-title">目標分數(/每回合):</div>
+                        <div class = "setting-details-title">目標數字(/每回合):</div>
                         <div class="setting-details-content">Waiting...</div>
                     </div>
                 </div>
@@ -68,12 +69,12 @@
             <div id = "right">
                 <div id = "opponent-title">Opponent</div>
                 <div class = "user" id = "opposite_user_container">
-                    <img id = "user_photo_right" class = "user_photo" src = "./images/profile.jpeg" alt = "user_photo">
+                    <img id = "user_photo_right" class = "user_photo" src = "https://memoryguess.s3.ap-northeast-1.amazonaws.com/profile.jpeg" alt = "user_photo">
                     <div id = "opposite_user_name">Waiting...</div>
                 </div>
                 <div class = "points" id = "oppo_player_points">對手得分: 0</div>
                 <div id = "mode">對戰模式</div>
-                <div id = "roomID">所在房號: ?</div>
+                <div id = "roomID">房號: ?</div>
             </div>
         </div>
         <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>

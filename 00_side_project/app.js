@@ -5,6 +5,7 @@ const { TOKEN_SECRET, REDISHOST } = process.env;
 const jwt = require("jsonwebtoken");
 const path = require("path");
 const cors = require("cors");
+const favicon = require("serve-favicon");
 
 // Express initialization
 const express = require("express");
@@ -21,6 +22,7 @@ const io = new Server(server);
 //     }
 // });
 
+// for socket io scaling
 const redisAdapter = require("socket.io-redis");
 io.adapter(redisAdapter({ host: REDISHOST, port: 6379 }));
 
@@ -28,6 +30,7 @@ app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+// app.use(favicon(path.join(__dirname, "public", "images", "favicon.ico")));
 
 // app.get("/test", async (req, res) => {
 //     // // console.log({ gameID, roomID, rounds });
@@ -73,7 +76,6 @@ io.use((socket, next) => { // socket middleware
 const roomModule = require("./server/models/Room_model");
 const socketModule = require("./server/models/socket_model");
 const { client } = require("./server/models/cache_model");
-const { rejects } = require("assert");
 io.on("connection", async (socket) => {
     // console.log(socket.info);
     console.log(`user: ${socket.info.email} connected`);

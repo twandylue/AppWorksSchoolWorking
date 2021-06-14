@@ -116,11 +116,10 @@ photo.addEventListener("click", () => {
         title: "請選擇大頭貼",
         icon: "info",
         html:
-          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_1.png\" alt = \"logo\">" +
-          //   "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_2.png\" alt = \"logo\">" +
-          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_3.png\" alt = \"logo\">" +
-          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_4.png\" alt = \"logo\">" +
-          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"/images/userphoto_5.jpeg\" alt = \"logo\">",
+          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"https://memoryguess.s3.ap-northeast-1.amazonaws.com/userphoto_1.png\" alt = \"logo\">" +
+          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"https://memoryguess.s3.ap-northeast-1.amazonaws.com/userphoto_3.png\" alt = \"logo\">" +
+          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"https://memoryguess.s3.ap-northeast-1.amazonaws.com/userphoto_4.png\" alt = \"logo\">" +
+          "<img id = \"logo\" class = \"user-photo-option\" style = \"cursor: pointer\" src = \"https://memoryguess.s3.ap-northeast-1.amazonaws.com/userphoto_5.jpeg\" alt = \"logo\">",
         showCloseButton: true,
         showCancelButton: true,
         focusConfirm: false,
@@ -133,13 +132,13 @@ photo.addEventListener("click", () => {
                     photoChooseds[i].classList.remove("user-photo-choose");
                 }
                 event.target.className = "user-photo-choose";
-                const strArr = event.target.src.split("/");
-                userPhoto = `/images/${strArr[strArr.length - 1]}`;
+                // const strArr = event.target.src.split("/");
+                // userPhoto = `/images/${strArr[strArr.length - 1]}`;
+                userPhoto = event.target.src;
             }));
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            console.log(userPhoto);
             socket.emit("select user photo", userPhoto);
         }
     });

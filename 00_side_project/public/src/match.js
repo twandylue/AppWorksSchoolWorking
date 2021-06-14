@@ -87,7 +87,7 @@ socket.on("join failed", (msg) => {
 socket.emit("in room", "in the room"); // 較不安全的寫法 應該等後端建立好on事件 and 到此處時 理應上token中已帶有roomID資訊
 socket.emit("get user room", "get my roomID");
 
-Swal.fire({ // sweet alert寫法 不同體驗 先保留
+Swal.fire({
     icon: "warning",
     title: "準備好了嗎？",
     text: "要開始了唷!",
@@ -95,7 +95,7 @@ Swal.fire({ // sweet alert寫法 不同體驗 先保留
 });
 
 socket.on("show roomID", (info) => {
-    document.querySelector("#roomID").innerHTML = `所在房號: ${info.roomID}`;
+    document.querySelector("#roomID").innerHTML = `房號: ${info.roomID}`;
 });
 
 socket.on("fill name", (name) => {

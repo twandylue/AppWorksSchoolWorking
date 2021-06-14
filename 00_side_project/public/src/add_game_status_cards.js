@@ -35,7 +35,7 @@ function addGameStatusandCards (round, number, target, state, cardsSetting) {
             backFace.classList.add("back-face", "back-face_ready");
         }
 
-        backFace.src = "./images/question_mark.svg";
+        backFace.src = "https://memoryguess.s3.ap-northeast-1.amazonaws.com/question_mark.svg";
         backFace.alt = "Memory Card";
         card.append(frontFace, backFace);
         memoryGame.append(card);

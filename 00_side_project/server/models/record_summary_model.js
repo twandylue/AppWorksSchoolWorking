@@ -65,7 +65,7 @@ async function statRecord (gameID, roomID, rounds, status) {
     } else if (stat[0].totalPoints < stat[1].totalPoints) {
         winner.push({ email: stat[1].player_email, name: emailtoNameObj[stat[1].player_email] });
     } else {
-        winner.push({ eamil: "Tie", name: "Tie" });
+        winner.push({ email: "Tie", name: "Tie" });
     }
 
     const inserts = [];
@@ -135,7 +135,7 @@ async function statRecordSingle (gameID, roomID, rounds, members, status) {
         } else if (stat[0].totalPoints < stat[1].totalPoints) {
             winner.push({ email: stat[1].player_email, name: emailtoNameObj[stat[1].player_email] });
         } else {
-            winner.push({ eamil: "Tie", name: "Tie" });
+            winner.push({ email: "Tie", name: "Tie" });
         }
 
         const inserts = [];

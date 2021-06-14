@@ -112,7 +112,7 @@ async function main () {
     let nowRound;
     for (let i = 0; i < roundStepList.length; i++) { // cardSetting 也要放入
         let readyTime = 5;
-        const roundTime = 15;
+        const roundTime = 10;
         nowRound = i + 1;
         addGameStatusReplayInit(nowRound, targets[i], readyTime); // 上方資訊
         showCardsinReplay(rules.number, "in ready", cardsSettingList[i]); // 掀牌
@@ -155,7 +155,7 @@ async function main () {
                 } else if (gameStatData[i].winner_email === oppoEmail) {
                     winnerStatus = oppoName;
                 } else {
-                    winnerStatus = "tie";
+                    winnerStatus = "Tie";
                 }
             }
         }
@@ -372,7 +372,7 @@ function showCardsinReplay (number, state, cardsSetting) {
             backFace.classList.add("back-face", "back-face_ready");
         }
 
-        backFace.src = "./images/question_mark.svg";
+        backFace.src = "https://memoryguess.s3.ap-northeast-1.amazonaws.com/question_mark.svg";
         backFace.alt = "Memory Card";
         card.append(frontFace, backFace);
         memoryGame.append(card);

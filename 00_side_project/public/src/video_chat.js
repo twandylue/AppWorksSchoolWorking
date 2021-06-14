@@ -11,7 +11,7 @@ function videoChet (socket) {
     };
 
     const mediaConstraints = {
-        audio: true, // 先關聲音
+        audio: true, // 開關聲音
         video: {
             aspectRatio: {
                 ideal: 1.333333 // 3:2 aspect is preferred
@@ -216,7 +216,7 @@ function videoChet (socket) {
         const userPhoto = document.createElement("img");
         userPhoto.id = "user_photo_left";
         userPhoto.className = "user_photo";
-        userPhoto.src = "./images/profile.jpeg";
+        userPhoto.src = "https://memoryguess.s3.ap-northeast-1.amazonaws.com/profile.jpeg";
         userPhoto.alt = "user_photo";
         const userContainer = document.querySelector("#user_container");
         userContainer.insertBefore(userPhoto, userContainer.firstChild);
@@ -400,7 +400,7 @@ function videoChet (socket) {
         const userPhoto = document.createElement("img");
         userPhoto.id = "user_photo_left";
         userPhoto.className = "user_photo";
-        userPhoto.src = "./images/profile.jpeg";
+        userPhoto.src = "https://memoryguess.s3.ap-northeast-1.amazonaws.com/profile.jpeg";
         userPhoto.alt = "user_photo";
         const userContainer = document.querySelector("#user_container");
         userContainer.insertBefore(userPhoto, userContainer.firstChild);
