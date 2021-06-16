@@ -125,6 +125,10 @@ socket.on("break", (info) => {
         timer: (info.breakTime) * 1000,
         timerProgressBar: true,
         didOpen: () => {
+            const middle = document.querySelector("#middle");
+            while (middle.firstChild) { // 移除middle下 每個項目
+                middle.removeChild(middle.lastChild);
+            };
             Swal.showLoading();
             timerInterval = setInterval(() => {
                 const content = Swal.getHtmlContainer();
@@ -139,13 +143,8 @@ socket.on("break", (info) => {
         willClose: () => {
             clearInterval(timerInterval);
         }
-    }).then((result) => {
-        /* Read more about handling dismissals below */
-        if (result.dismiss === Swal.DismissReason.timer) {
-            console.log("I was closed by the timer");
-        } else {
-            breakTimeInfo(info.nextRound);
-        }
+    }).then(() => {
+        breakTimeInfo(info.nextRound);
     });
 });
 
@@ -196,7 +195,6 @@ socket.on("update points", (pointsInfo) => {
 });
 
 socket.on("game over", (gameStatInfo) => {
-    console.log("test");
     socket.emit("get user name", "get my name");
     Swal.fire({
         icon: "success",
@@ -213,7 +211,16 @@ socket.on("game over", (gameStatInfo) => {
                 totalPoints = gameStatInfo.results[i].totalPoints;
             }
         }
-        const winnerStatus = gameStatInfo.winner[0].name;
+        // let winnerStatus = gameStatInfo.winner[0].name;
+        // console.log(gameStatInfo.winner[0]);
+        let winnerStatus;
+        if (gameStatInfo.winner[0].email === info.email) {
+            winnerStatus = "You Win!";
+        } else if (gameStatInfo.winner[0].name === "Tie") {
+            winnerStatus = "Tie!";
+        } else {
+            winnerStatus = "You Lose!";
+        }
         gameStat(hitRate, totalPoints, roundsPoints, winnerStatus);
         document.querySelector("#replay_title").innerHTML = "與機器人對戰結束";
         document.querySelector("#replay_title").style = "cursor:auto; color:#fbfef9; background-color: #0D1F2D;";

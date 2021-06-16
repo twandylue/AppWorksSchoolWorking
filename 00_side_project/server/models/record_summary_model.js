@@ -10,8 +10,6 @@ async function statRecord (gameID, roomID, rounds, status) {
         members.push(roomMembers[i].email);
     };
 
-    // const members = ["test@email.com", "amy@gmail.com"]; // 測試使用
-
     const names = await conn.query("SELECT email, name FROM user WHERE email in ?", [[members]]);
     const emailtoNameObj = {};
     for (const i in names[0]) {

@@ -5,7 +5,7 @@ const { TOKEN_SECRET, REDISHOST } = process.env;
 const jwt = require("jsonwebtoken");
 const path = require("path");
 const cors = require("cors");
-const favicon = require("serve-favicon");
+const redisAdapter = require("socket.io-redis");
 
 // Express initialization
 const express = require("express");
@@ -14,6 +14,7 @@ const http = require("http");
 const server = http.createServer(app);
 const Server = require("socket.io").Server;
 const io = new Server(server);
+
 // const io = require("socket.io")(server, {
 //     cors: {
 //         origin: "localhost:3000",
@@ -23,24 +24,12 @@ const io = new Server(server);
 // });
 
 // for socket io scaling
-const redisAdapter = require("socket.io-redis");
 io.adapter(redisAdapter({ host: REDISHOST, port: 6379 }));
 
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-// app.use(favicon(path.join(__dirname, "public", "images", "favicon.ico")));
-
-// app.get("/test", async (req, res) => {
-//     // // console.log({ gameID, roomID, rounds });
-//     // // const conn = await pool.getConnection();
-//     // // await conn.query("DELETE FROM cards_setting_info;");
-//     // // await conn.query("DELETE FROM game_history");
-//     // // await conn.query("DELETE FROM game_results");
-//     // // await conn.release();
-//     res.send("finished");
-// });
 
 // API routes
 app.use("/api/" + API_VERSION,
@@ -50,10 +39,6 @@ app.use("/api/" + API_VERSION,
         require("./server/routes/lobby_route")
     ]
 );
-
-app.get(["/", "/index.html"], (req, res) => {
-    res.sendFile(path.join(__dirname, "/public/gamelobby.html"));
-});
 
 io.use((socket, next) => { // socket middleware
     const { token } = socket.handshake.auth;
@@ -71,6 +56,10 @@ io.use((socket, next) => { // socket middleware
             }
         });
     }
+});
+
+app.get(["/", "/index.html"], (req, res) => {
+    res.sendFile(path.join(__dirname, "/public/gamelobby.html"));
 });
 
 const roomModule = require("./server/models/Room_model");
@@ -102,7 +91,7 @@ io.on("connection", async (socket) => {
                 client.del(`${gameID}_matchNumberList`); // 單人模式中有使用 初始化已配對卡片清單
                 client.del(`${gameID}_switch`); // 單人模式中有使用 停止robot運作 關機
                 client.del(`${gameID}_robot`); // 單人模式中使用 玩家中途離開時初始化cache 該遊戲中機器人點擊過的卡片
-                client.del(socket.id); // 初始化點擊鎖
+                client.del(`${socket.info.email}_clickLock`); // 初始化點擊鎖
             }
 
             if (socket.info.status === 1) {

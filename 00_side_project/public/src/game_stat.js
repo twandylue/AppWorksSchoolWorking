@@ -13,7 +13,6 @@ function gameStat (hitRate, totalPointsNumber, roundsPoints, winnerStatus) {
     const goal = document.createElement("div");
     goal.id = "goal-stat";
     goal.className = "game_status";
-    // goal.innerHTML = "Target: card1 x card2 = 144";
     goal.innerHTML = "THANKS!";
     const countdown = document.createElement("div");
     countdown.id = "countdown-stat";

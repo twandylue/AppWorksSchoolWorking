@@ -74,16 +74,8 @@ function cardGame (socket, gameID, round, target) { // 第一回合有選中 第
                 secondCard.classList.remove("flip", "card-color");
                 [firstCard.children[0].innerHTML, secondCard.children[0].innerHTML] = ["", ""];
                 resetBoard();
-            }, 800);
+            }, 400);
         } else {
-            // opponentFirstCard = cards[cardMatchInfo.cardIDs[0]]; // 指定element
-            // opponentSecondCard = cards[cardMatchInfo.cardIDs[1]];
-            // setTimeout(() => {
-            //     opponentFirstCard.classList.remove("flip", "card-color-opponent"); //
-            //     opponentSecondCard.classList.remove("flip", "card-color-opponent"); //
-            //     [opponentFirstCard.children[0].innerHTML, opponentSecondCard.children[0].innerHTML] = ["", ""];
-            //     [opponentFirstCard, opponentSecondCard] = [null, null];
-            // }, 800);
             const oppoFirstCard = cards[cardMatchInfo.cardIDs[0]]; // 指定element
             const oppoSecondCard = cards[cardMatchInfo.cardIDs[1]];
             setTimeout(() => {
@@ -91,7 +83,7 @@ function cardGame (socket, gameID, round, target) { // 第一回合有選中 第
                 oppoSecondCard.classList.remove("flip", "card-color-opponent"); //
                 [oppoFirstCard.children[0].innerHTML, oppoSecondCard.children[0].innerHTML] = ["", ""];
                 [opponentFirstCard, opponentSecondCard] = [null, null];
-            }, 800);
+            }, 400);
         }
     });
 
