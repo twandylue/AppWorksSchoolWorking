@@ -162,6 +162,18 @@ img {
     border-bottom: #adb5bd solid 2px;
 }
 
+#difficulty-selection-title {
+    margin: 30px auto 10px;
+    font-size: 1.4em;
+}
+
+#difficulty-selection {
+    width: 100px;
+    height: 1.5em;
+    font-size: 1.2em;
+    /* margin-top: 20px; */
+}
+
 #chat_room {
     display: flex;
     flex-direction: column;

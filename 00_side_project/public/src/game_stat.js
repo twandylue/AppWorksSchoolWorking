@@ -1,5 +1,5 @@
 // for record page
-function gameStat (hitRate, totalPointsNumber, roundsPoints, winnerStatus) {
+function showGameStat (hitRate, totalPointsNumber, roundsPoints, winnerStatus) {
     document.querySelector("#middle").className = ""; // 初始化
     const deleteItem = document.querySelector("#middle");
     deleteItem.remove();
@@ -99,4 +99,4 @@ function gameStat (hitRate, totalPointsNumber, roundsPoints, winnerStatus) {
     container.insertBefore(middle, container.children[container.children.length - 1]);
 }
 
-export { gameStat };
+export { showGameStat };

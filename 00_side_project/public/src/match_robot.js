@@ -1,11 +1,11 @@
 import { addGameInfo } from "./add_game_info.js";
-import { addGameStatusandCards } from "./add_game_status_cards.js";
-import { cardGameinSingle } from "./card_game_with_robot.js";
-import { gameStat } from "./game_stat.js";
+import { addGameStatusAndCards } from "./add_game_status_cards.js";
+import { cardGameInSingle } from "./card_game_with_robot.js";
+import { showGameStat } from "./game_stat.js";
 import { updatePoints } from "./update_points.js";
-import { showGameRules } from "./showGameRules.js";
-import { combineMatchPageforAgain } from "./combMatchPage.js";
-import { breakTimeInfo } from "./break_time.js";
+import { showGameRules } from "./show_game_rules.js";
+import { combineMatchPageForAgain } from "./comb_match_page.js";
+import { showBreakTimeInfo } from "./show_break_time_info.js";
 
 let frontGameID; // 儲存遊戲ID
 let frontRules; // 儲存遊戲規則
@@ -19,8 +19,7 @@ const socket = io({
 });
 
 socket.on("connect", () => {
-    // 講整段code放入此處 表示連線後才能執行?
-    console.log(socket.id);
+    // console.log(socket.id);
 });
 
 socket.on("connect_error", (err) => {
@@ -32,7 +31,7 @@ socket.on("connect_error", (err) => {
             text: err.message,
             confirmButtonText: "確認"
         }).then(() => {
-            window.location.href = "./gamelobby.html";
+            window.location.href = "./game_lobby.html";
         });
     }
 });
@@ -44,42 +43,29 @@ socket.on("join failed", (msg) => {
         text: "請重新加入房加!",
         confirmButtonText: "好的"
     }).then(() => {
-        window.location.href = "/gamelobby.html";
-    });
-});
-
-socket.on("leave room", (msg) => { // 有問題 聽不到 待改
-    console.log(msg);
-    Swal.fire({
-        icon: "warning",
-        title: "你斷線囉",
-        text: "回到遊戲大廳!",
-        confirmButtonText: "確認"
-    }).then(() => {
-        window.location.href = "./gamelobby.html";
+        window.location.href = "/game_lobby.html";
     });
 });
 
 socket.on("robot leave room", (msg) => {
-    console.log(msg);
     Swal.fire({
         icon: "warning",
         title: "你斷線囉",
         text: "回到遊戲大廳!",
         confirmButtonText: "確認"
     }).then(() => {
-        window.location.href = "./gamelobby.html";
+        window.location.href = "./game_lobby.html";
     });
 });
 
-Swal.fire({ // sweet alert寫法 不同體驗 先保留
+Swal.fire({
     icon: "warning",
     title: "準備好了嗎？",
     text: "要開始了唷!",
     confirmButtonText: "確認"
 }).then(() => {
     socket.emit("in room with robot", "in the room"); // 較安全的寫法 等後端建立好on事件 and 到此處時 理應上token中已帶有roomID資訊
-    socket.emit("get user name", "get my name");
+    socket.emit("get user info", "get my name");
     socket.emit("get user room", "get my roomID");
 });
 
@@ -94,7 +80,7 @@ socket.on("show roomID", (info) => {
 
 socket.on("ready in single mode", (info) => { // gameID 第一次出現 在info中
     const { rules, gameID } = info;
-    frontGameID = gameID; //    第一次儲存gameID
+    frontGameID = gameID; // 第一次儲存gameID
     frontRules = Object.assign({}, rules); // 第一次儲存frontRules(game rules)
     showGameRules(frontRules); // show rules
 
@@ -107,7 +93,7 @@ socket.on("ready in single mode", (info) => { // gameID 第一次出現 在info�
 
 socket.on("execute rules", (info) => {
     addGameInfo(info.rules.type, info.rules.number, info.rules.rounds, info.rules.targets);
-    addGameStatusandCards(info.round, info.rules.number, info.target, info.rules.state, info.cardsSetting);
+    addGameStatusAndCards(info.round, info.rules.number, info.target, info.rules.state, info.cardsSetting);
 });
 
 socket.on("countdown in ready", (time) => {
@@ -144,7 +130,7 @@ socket.on("break", (info) => {
             clearInterval(timerInterval);
         }
     }).then(() => {
-        breakTimeInfo(info.nextRound);
+        showBreakTimeInfo(info.nextRound);
     });
 });
 
@@ -174,7 +160,7 @@ socket.on("start game", (info) => { // 翻牌(問號面)
             cardBackFaces[i].classList.remove("back-face_ready");
         }
 
-        cardGameinSingle(socket, frontGameID, info.round, info.target);
+        cardGameInSingle(socket, frontGameID, info.round, info.target);
     }
 });
 
@@ -183,11 +169,10 @@ socket.on("fill card number", (cardfilledInfo) => {
     if (cardFrontFaces[cardfilledInfo.cardID]) {
         cardFrontFaces[cardfilledInfo.cardID].innerHTML = cardfilledInfo.number;
     }
-    // cardFrontFaces[cardfilledInfo.cardID].innerHTML = cardfilledInfo.number;
 });
 
 socket.on("next round execute rules", (info) => {
-    addGameStatusandCards(info.round, info.rules.number, info.target, info.rules.state, info.cardsSetting);
+    addGameStatusAndCards(info.round, info.rules.number, info.target, info.rules.state, info.cardsSetting);
 });
 
 socket.on("update points", (pointsInfo) => {
@@ -195,7 +180,7 @@ socket.on("update points", (pointsInfo) => {
 });
 
 socket.on("game over", (gameStatInfo) => {
-    socket.emit("get user name", "get my name");
+    socket.emit("get user info", "get my name");
     Swal.fire({
         icon: "success",
         title: "遊戲結束！",
@@ -211,8 +196,6 @@ socket.on("game over", (gameStatInfo) => {
                 totalPoints = gameStatInfo.results[i].totalPoints;
             }
         }
-        // let winnerStatus = gameStatInfo.winner[0].name;
-        // console.log(gameStatInfo.winner[0]);
         let winnerStatus;
         if (gameStatInfo.winner[0].email === info.email) {
             winnerStatus = "You Win!";
@@ -221,7 +204,7 @@ socket.on("game over", (gameStatInfo) => {
         } else {
             winnerStatus = "You Lose!";
         }
-        gameStat(hitRate, totalPoints, roundsPoints, winnerStatus);
+        showGameStat(hitRate, totalPoints, roundsPoints, winnerStatus);
         document.querySelector("#replay_title").innerHTML = "與機器人對戰結束";
         document.querySelector("#replay_title").style = "cursor:auto; color:#fbfef9; background-color: #0D1F2D;";
 
@@ -248,7 +231,7 @@ socket.on("game over", (gameStatInfo) => {
                 text: "再見",
                 confirmButtonText: "Bye"
             }).then(() => {
-                window.location.href = "/gamelobby.html";
+                window.location.href = "/game_lobby.html";
             });
         });
     });
@@ -258,11 +241,12 @@ socket.on("again", (info) => {
     frontGameID = info.gameID; // 更新gameID
     frontRules = Object.assign({}, info.rules); // 儲存新的frontRules
     document.querySelector("#middle").classList.remove("middle-Stat");
-    combineMatchPageforAgain();
+    combineMatchPageForAgain();
     showGameRules(info.rules);
 
     const startButton = document.querySelector("#start");
     startButton.addEventListener("click", () => { // 此callbackfunction 可以簡化 重複使用 start button 待改
+        const diffculty = document.getElementById("difficulty-selection").value;
         startButton.disabled = "disabled";
         Swal.fire({
             icon: "warning",
@@ -270,7 +254,7 @@ socket.on("again", (info) => {
             text: "等待對手準備...",
             confirmButtonText: "確認"
         }).then(() => {
-            socket.emit("I am ready in single mode", { rules: frontRules, gameID: frontGameID });
+            socket.emit("I am ready in single mode", { rules: frontRules, gameID: frontGameID, diffculty: diffculty });
         });
     });
 
@@ -285,7 +269,7 @@ socket.on("again", (info) => {
             denyButtonText: "取消"
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "./gamelobby.html";
+                window.location.href = "./game_lobby.html";
             } else if (result.isDenied) {
                 Swal.fire("留在房間內", "", "info");
             }
@@ -302,6 +286,7 @@ socket.on("again", (info) => {
 
 const start = document.querySelector("#start"); // 規則展示頁面確認按鈕
 start.addEventListener("click", () => {
+    const diffculty = document.getElementById("difficulty-selection").value;
     start.disabled = "disabled";
     leave.disabled = "disabled";
     Swal.fire({
@@ -310,7 +295,7 @@ start.addEventListener("click", () => {
         text: "等待對手準備...",
         confirmButtonText: "確認"
     }).then(() => {
-        socket.emit("I am ready in single mode", { rules: frontRules, gameID: frontGameID });
+        socket.emit("I am ready in single mode", { rules: frontRules, gameID: frontGameID, diffculty: diffculty });
     });
 });
 
@@ -325,7 +310,7 @@ leave.addEventListener("click", () => {
         denyButtonText: "取消"
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = "./gamelobby.html";
+            window.location.href = "./game_lobby.html";
         } else if (result.isDenied) {
             Swal.fire("留在房間內", "", "info");
         }
@@ -345,7 +330,7 @@ profile.addEventListener("click", () => {
         cancelButtonText: "取消"
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = "/userprofile.html";
+            window.location.href = "/user_profile.html";
         } else if (result.isDenied) {
             localStorage.removeItem("access_token");
             window.location.href = "/";

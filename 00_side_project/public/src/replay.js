@@ -1,8 +1,8 @@
 import { addGameInfo } from "./add_game_info.js";
-import { gameStatReplay } from "./game_stat_replay.js";
+import { showGameStatInReplay } from "./game_stat_replay.js";
 
 async function main () {
-    let userName, userEmail, oppoName, oppoEmail, userPhoto, oppoPhoto;
+    let userName, userEmail, oppoName, oppoEmail, oppoPhoto;
     const userInfo = await checkLogin(); // 前端把關
     document.querySelector("#user_photo").src = userInfo.data.picture;
     document.querySelector("#user_photo_left").src = userInfo.data.picture;
@@ -20,21 +20,20 @@ async function main () {
             text: "請重新選擇重播場次",
             confirmButtonText: "確認"
         }).then(() => {
-            window.location.href = "./userprofile.html";
+            window.location.href = "./user_profile.html";
         });
         return;
     }
 
     const replayData = await getReplayData(gameID);
     if (replayData.data === 0) {
-        console.log("test");
         Swal.fire({
             icon: "warning",
             title: "與對手配對成功，但沒有遊玩記錄",
             text: "請重新選擇重播場次",
             confirmButtonText: "確認"
         }).then(() => {
-            window.location.href = "./userprofile.html";
+            window.location.href = "./user_profile.html";
         });
         return;
     }
@@ -48,7 +47,8 @@ async function main () {
     const cardsSettingRound2 = [];
     const cardsSettingRound3 = [];
 
-    //
+    console.log(stepList);
+
     for (const i in stepList) {
         if (stepList[i].round === 1) {
             stepRound1.push(stepList[i]);
@@ -67,7 +67,6 @@ async function main () {
     if (stepRound3.length !== 0) {
         roundStepList.push(stepRound3);
     }
-    // console.log(roundStepList);
 
     for (const i in cardsSetting) {
         if (cardsSetting[i].round === 1) {
@@ -88,14 +87,11 @@ async function main () {
     if (cardsSettingRound3.length !== 0) {
         cardsSettingList.push(cardsSettingRound3);
     }
-    // console.log(cardsSettingList);
-    // oppo
 
     for (const i in members) {
         if (members[i].player_email === userInfo.data.email) {
             userName = members[i].name;
             userEmail = members[i].player_email;
-            // userPhoto = members[i].photo_src;
         } else {
             oppoName = members[i].name;
             oppoEmail = members[i].player_email;
@@ -130,14 +126,12 @@ async function main () {
             text: "讓我們繼續看下去",
             confirmButtonText: "確認"
         });
-        // 回合結束
-        // console.log("======================回合結束=======================");
     }
     // 遊戲結束 顯示統計結果
     let hitRate, totalPointsNumber, winnerStatus;
     const roundsPoints = [];
     if (gameStatData === 0) {
-        gameStatReplay("None", "None", "None", "中途結束 無勝負");
+        showGameStatInReplay("None", "None", "None", "中途結束 無勝負");
     } else {
         for (const i in gameStatData) {
             if (gameStatData[i].player_email === userEmail) {
@@ -159,7 +153,7 @@ async function main () {
                 }
             }
         }
-        gameStatReplay(parseFloat(hitRate), totalPointsNumber, roundsPoints, winnerStatus);
+        showGameStatInReplay(parseFloat(hitRate), totalPointsNumber, roundsPoints, winnerStatus);
     }
     document.querySelector("#replay_title").innerHTML = "重播結束囉！";
     document.querySelector("#replay_title").style = "cursor:auto; color:#fbfef9; background-color: #0D1F2D;";
@@ -175,7 +169,7 @@ async function main () {
         });
         const goodbye = document.querySelector("#goodbye");
         goodbye.addEventListener("click", () => {
-            window.location.href = "./userprofile.html";
+            window.location.href = "./user_profile.html";
         });
     });
 }
@@ -306,7 +300,7 @@ async function getReplayData (gameID) { // 從url中拿資料
             text: "請重新選擇重播場次",
             confirmButtonText: "確認"
         }).then(() => {
-            window.location.href = "./userprofile.html";
+            window.location.href = "./user_profile.html";
         });
     }
     if (response.status === 400) {
@@ -316,7 +310,7 @@ async function getReplayData (gameID) { // 從url中拿資料
             text: "請重新選擇重播場次",
             confirmButtonText: "確認"
         }).then(() => {
-            window.location.href = "./userprofile.html";
+            window.location.href = "./user_profile.html";
         });
     }
     return await response.json();
@@ -406,7 +400,7 @@ profile.addEventListener("click", () => {
         cancelButtonText: "取消"
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = "/userprofile.html";
+            window.location.href = "/user_profile.html";
         } else if (result.isDenied) {
             localStorage.removeItem("access_token");
             window.location.href = "/";

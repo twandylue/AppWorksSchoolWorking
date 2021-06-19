@@ -1,8 +1,7 @@
-const User = require("../server/models/user_model");
 const { TOKEN_SECRET } = process.env; // 30 days by seconds
 const jwt = require("jsonwebtoken");
 
-const authentication = (roleId) => {
+const authentication = () => {
     return async function (req, res, next) {
         let accessToken = req.get("Authorization");
         if (!accessToken) {
@@ -19,24 +18,7 @@ const authentication = (roleId) => {
         try {
             const user = jwt.verify(accessToken, TOKEN_SECRET);
             req.user = user;
-            if (roleId == null) {
-                next();
-            } else {
-                let userDetail;
-                if (roleId === User.USER_ROLE.ALL) {
-                    userDetail = await User.getUserDetail(user.email);
-                } else {
-                    userDetail = await User.getUserDetail(user.email, roleId);
-                }
-                if (!userDetail) {
-                    res.status(403).send({ error: "Forbidden" });
-                } else {
-                    req.user.id = userDetail.id;
-                    req.user.role_id = userDetail.role_id;
-                    next();
-                }
-            }
-            return;
+            next();
         } catch (err) {
             res.status(403).send({ error: "Forbidden" });
         }

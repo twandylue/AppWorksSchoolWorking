@@ -115,31 +115,35 @@ const getRecord = async (email) => {
     const conn = await pool.getConnection();
 
     const sql = "SELECT game_results.game_id, user.name, user.email, game_setting_info.room_id, game_setting_info.type, game_setting_info.number, game_setting_info.rounds, game_setting_info.player_1, game_setting_info.player_2, game_results.round1_points, game_results.round2_points, game_results.round3_points, game_results.total_points, game_results.hit_rate, game_results.winner_email FROM game_results INNER JOIN `user` ON user.email = game_results.player_email INNER JOIN game_setting_info ON game_setting_info.id = game_results.game_id WHERE game_results.player_email = ? AND status = 2;"; // status = 2 只限雙人遊玩可以重播記錄 status = 2 => 只算入與真人對戰的成績
-
     const gameHis = await conn.query(sql, email);
-    // console.log(gameHis[0]);
-
     const personRecord = await conn.query("SELECT user.name, player_email, SUM(total_points), SUM(hit_rate), COUNT(*) FROM game_results INNER JOIN user ON user.email = game_results.player_email WHERE player_email = ? AND status = 2;", email);
-    // console.log(personRecord[0]);
     const hitRate = parseFloat(personRecord[0][0]["SUM(hit_rate)"]) / parseFloat(personRecord[0][0]["COUNT(*)"]);
 
     return ({ totalPoints: personRecord[0][0]["SUM(total_points)"], hitRate: hitRate, gameHis: gameHis[0] });
 };
 
 const getLeaderList = async () => {
-    // use game_results SUM(total_points) GROUP BY (email) JOIN user.name
     const conn = await pool.getConnection();
     const results = await conn.query("SELECT user.name, player_email, SUM(total_points), SUM(hit_rate), COUNT(*) FROM game_results INNER JOIN user ON user.email = game_results.player_email WHERE status = 2 GROUP BY player_email ORDER BY SUM(total_points) DESC;"); // 這裏從game_results拿取資訊 user.name會剔除機器人進入排行榜 status = 2 => 只算入與真人對戰的成績
     await conn.release();
 
     const leaderList = [];
-    // console.log(results[0]);
-
     for (const i in results[0]) {
         leaderList.push({ name: results[0][i].name, player_email: results[0][i].player_email, totalPoints: parseFloat(results[0][i]["SUM(total_points)"]), avgPoints: parseFloat(results[0][i]["SUM(total_points)"]) / parseFloat(results[0][i]["COUNT(*)"]), avgHitRate: parseFloat(results[0][i]["SUM(hit_rate)"]) / parseFloat(results[0][i]["COUNT(*)"]) });
     }
 
     return (leaderList);
+};
+
+const saveUserPhoto = async (email, src) => {
+    const conn = await pool.getConnection();
+    try {
+        await conn.query("UPDATE user SET photo_src = ? WHERE email =?", [src, email]);
+    } catch (err) {
+        console.log(`error in saveUserPhoto ${err}`);
+    } finally {
+        await conn.release();
+    }
 };
 
 module.exports = {
@@ -148,5 +152,6 @@ module.exports = {
     nativeSignIn,
     getUserDetail,
     getRecord,
-    getLeaderList
+    getLeaderList,
+    saveUserPhoto
 };

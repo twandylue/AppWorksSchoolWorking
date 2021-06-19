@@ -1,4 +1,4 @@
-const { getReplay } = require("../models/getReplay");
+const { getReplay } = require("../models/game_model");
 const getReplayRecord = async (req, res) => {
     try {
         const { data } = req.body;

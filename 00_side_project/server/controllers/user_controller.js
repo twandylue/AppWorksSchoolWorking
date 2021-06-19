@@ -55,8 +55,9 @@ const signIn = async (req, res) => {
     try {
         const result = await User.nativeSignIn(email, password);
         if (result.error) {
-            const status_code = result.status ? result.status : 403;
-            res.status(status_code).send({ error: result.error });
+            const statusCode = result.status ? result.status : 403;
+            res.status(statusCode).send({ error: result.error });
+            return;
         }
 
         const user = result.user;
@@ -103,8 +104,8 @@ const getUserRecord = async (req, res) => {
 };
 
 const getLeaderBoard = async (req, res) => {
-    const leaderLit = await User.getLeaderList();
-    res.status(200).send({ data: leaderLit });
+    const leaderList = await User.getLeaderList();
+    res.status(200).send({ data: leaderList });
 };
 
 module.exports = {

@@ -1,12 +1,12 @@
 import { addGameInfo } from "./add_game_info.js";
-import { addGameStatusandCards } from "./add_game_status_cards.js";
+import { addGameStatusAndCards } from "./add_game_status_cards.js";
 import { cardGame } from "./card_game.js";
-import { gameStat } from "./game_stat.js";
+import { showGameStat } from "./game_stat.js";
 import { updatePoints } from "./update_points.js";
-import { showGameRules } from "./showGameRules.js";
-import { combineMatchPageforAgain } from "./combMatchPage.js";
-import { breakTimeInfo } from "./break_time.js";
-import { videoChet } from "./video_chat.js";
+import { showGameRules } from "./show_game_rules.js";
+import { combineMatchPageForAgain } from "./comb_match_page.js";
+import { showBreakTimeInfo } from "./show_break_time_info.js";
+import { setVideoChat } from "./video_chat.js";
 
 let frontGameID; // 儲存遊戲ID
 let frontRules; // 儲存遊戲規則
@@ -28,9 +28,8 @@ const socket = io({
 });
 
 socket.on("connect", () => {
-    // 講整段code放入此處 表示連線後才能執行?
-    console.log(socket.id);
-    videoChet(socket);
+    // console.log(socket.id);
+    setVideoChat(socket);
 });
 
 socket.on("connect_error", (err) => {
@@ -42,35 +41,22 @@ socket.on("connect_error", (err) => {
             text: err.message,
             confirmButtonText: "確認"
         }).then(() => {
-            window.location.href = "./gamelobby.html";
+            window.location.href = "./game_lobby.html";
         });
     }
 });
 
-socket.on("leave room", (msg) => {
-    console.log(msg);
-    Swal.fire({
-        icon: "warning",
-        title: "你斷線囉",
-        text: "回到遊戲大廳!",
-        confirmButtonText: "確認"
-    }).then(() => {
-        window.location.href = "./gamelobby.html";
-    });
-});
-
-socket.on("opponent leave room", async (msg) => {
-    console.log(msg);
+socket.on("opponent leave room", async () => {
     Swal.fire({
         icon: "warning",
         title: "對手斷線了",
         text: "回到遊戲大廳!",
         confirmButtonText: "確認"
     }).then(() => {
-        window.location.href = "./gamelobby.html";
+        window.location.href = "./game_lobby.html";
     });
     await delay(2500); // 2.5秒後自動踢人
-    window.location.href = "./gamelobby.html";
+    window.location.href = "./game_lobby.html";
 });
 
 socket.on("join failed", (msg) => {
@@ -80,11 +66,11 @@ socket.on("join failed", (msg) => {
         text: "請重新加入房加!",
         confirmButtonText: "好的"
     }).then(() => {
-        window.location.href = "/gamelobby.html";
+        window.location.href = "/game_lobby.html";
     });
 });
 
-socket.emit("in room", "in the room"); // 較不安全的寫法 應該等後端建立好on事件 and 到此處時 理應上token中已帶有roomID資訊
+socket.emit("in room", "in the room");
 socket.emit("get user room", "get my roomID");
 
 Swal.fire({
@@ -160,7 +146,7 @@ socket.on("chat message", (msg) => {
 
 socket.on("execute rules", (info) => {
     addGameInfo(info.rules.type, info.rules.number, info.rules.rounds, info.rules.targets);
-    addGameStatusandCards(info.round, info.rules.number, info.target, info.rules.state, info.cardsSetting);
+    addGameStatusAndCards(info.round, info.rules.number, info.target, info.rules.state, info.cardsSetting);
 });
 
 socket.on("countdown in ready", (time) => {
@@ -197,7 +183,7 @@ socket.on("break", (info) => {
             clearInterval(timerInterval);
         }
     }).then(() => {
-        breakTimeInfo(info.nextRound);
+        showBreakTimeInfo(info.nextRound);
     });
 });
 
@@ -239,7 +225,7 @@ socket.on("fill card number", (cardfilledInfo) => {
 });
 
 socket.on("next round execute rules", (info) => {
-    addGameStatusandCards(info.round, info.rules.number, info.target, info.rules.state, info.cardsSetting);
+    addGameStatusAndCards(info.round, info.rules.number, info.target, info.rules.state, info.cardsSetting);
 });
 
 socket.on("update points", (pointsInfo) => {
@@ -247,7 +233,7 @@ socket.on("update points", (pointsInfo) => {
 });
 
 socket.on("game over", (gameStatInfo) => {
-    socket.emit("get user name", "get my name");
+    socket.emit("get user info", "get my name");
     Swal.fire({
         icon: "success",
         title: "遊戲結束！",
@@ -271,7 +257,7 @@ socket.on("game over", (gameStatInfo) => {
         } else {
             winnerStatus = "You Lose!";
         }
-        gameStat(hitRate, totalPoints, roundsPoints, winnerStatus);
+        showGameStat(hitRate, totalPoints, roundsPoints, winnerStatus);
 
         const replay = document.querySelector("#replay_title");
         replay.addEventListener("click", () => {
@@ -311,8 +297,6 @@ socket.on("game over", (gameStatInfo) => {
                 wati.append(watispan1, watispan2, watispan3, watispan4);
                 const wrap = document.querySelector("#wrap");
                 wrap.insertBefore(wati, wrap.firstChild);
-                // middle-Stat
-                // document.querySelector("#middle").classList.remove("middle-Stat");
             });
         });
 
@@ -324,7 +308,7 @@ socket.on("game over", (gameStatInfo) => {
                 text: "再見",
                 confirmButtonText: "Bye"
             }).then(() => {
-                window.location.href = "/gamelobby.html";
+                window.location.href = "/game_lobby.html";
             });
         });
     });
@@ -334,7 +318,7 @@ socket.on("again", (info) => {
     frontGameID = info.gameID; // 更新gameID
     frontRules = Object.assign({}, info.rules); // 儲存新的frontRules
     document.querySelector("#middle").classList.remove("middle-Stat");
-    combineMatchPageforAgain();
+    combineMatchPageForAgain();
     showGameRules(info.rules);
 
     const startButton = document.querySelector("#start");
@@ -361,7 +345,7 @@ socket.on("again", (info) => {
             denyButtonText: "取消"
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "./gamelobby.html";
+                window.location.href = "./game_lobby.html";
             } else if (result.isDenied) {
                 Swal.fire("留在房間內", "", "info");
             }
@@ -401,7 +385,7 @@ leave.addEventListener("click", () => {
         denyButtonText: "取消"
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = "./gamelobby.html";
+            window.location.href = "./game_lobby.html";
         } else if (result.isDenied) {
             Swal.fire("留在房間內", "", "info");
         }
@@ -421,7 +405,7 @@ profile.addEventListener("click", () => {
         cancelButtonText: "取消"
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = "/userprofile.html";
+            window.location.href = "/user_profile.html";
         } else if (result.isDenied) {
             localStorage.removeItem("access_token");
             window.location.href = "/";

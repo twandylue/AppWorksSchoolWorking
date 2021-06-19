@@ -25,7 +25,6 @@ function updateLobby (roomInfo) {
         allRoom[i].innerHTML = "";
     }
 
-    // console.log(roomInfo);
     for (const i in roomInfo.members) {
         const room = document.querySelectorAll(`#room_${roomInfo.members[i].room_id}` + " .room-right" + " .members-list");
         for (let j = 0; j < room.length; j++) {
@@ -36,7 +35,7 @@ function updateLobby (roomInfo) {
             }
         }
     }
-    // console.log(roomInfo.members.length);
+
     if (roomInfo.members.length === 0) {
         const allRoom = document.querySelectorAll(".members-list");
         for (let i = 0; i < allRoom.length; i++) {

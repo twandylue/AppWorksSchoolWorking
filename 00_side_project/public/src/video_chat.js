@@ -1,8 +1,7 @@
-function videoChet (socket) {
+function setVideoChat (socket) {
     let peer = null;
     let cacheStream = null;
     // const candidateTemplates = [];
-    // cacheStream.getVideoTracks().map(tracks => tracks.enabled = false);
     // cacheStream.getVideoTracks.forEach((track) => { track.enbled = false; }); // 關閉視頻
 
     const offerOptions = {
@@ -21,13 +20,13 @@ function videoChet (socket) {
 
     // Media config
     socket.on("offer", async (desc) => { // B方
-        console.log("收到遠方的offer");
+        // console.log("收到遠方的offer");
         try {
             if (!peer) {
                 createPeerConnection(); // create RTCPeerConnection instance
             }
 
-            console.log(" = 設定 remote description = ");
+            // console.log(" = 設定 remote description = ");
             await peer.setRemoteDescription(desc);
             if (!cacheStream) {
                 await addStreamProcess(); // getUserMedia & addTrack
@@ -39,9 +38,9 @@ function videoChet (socket) {
     });
 
     socket.on("answer", async (desc) => { // A方
-        console.log("*** 遠端接受我們的offer並發送answer回來");
+        // console.log("*** 遠端接受我們的offer並發送answer回來");
         try {
-            console.log("setRemoteDescription ...");
+            // console.log("setRemoteDescription ...");
             await peer.setRemoteDescription(desc);
         } catch (error) {
             console.log(`Error ${error.name}: ${error.message}`);
@@ -49,7 +48,7 @@ function videoChet (socket) {
     });
 
     socket.on("icecandidate", async (candidate) => { // A方 Ｂ方
-        console.log(`*** 加入新取得的 ICE candidate: ${JSON.stringify(candidate)}`);
+        // console.log(`*** 加入新取得的 ICE candidate: ${JSON.stringify(candidate)}`);
         try {
             // candidateTemplates.push(candidate);
             await peer.addIceCandidate(candidate); // 注意先後順序 after setRemoteDescription
@@ -59,7 +58,7 @@ function videoChet (socket) {
     });
 
     async function getUserStream () {
-        console.log("getUserMedia ...");
+        // console.log("getUserMedia ...");
         if ("mediaDevices" in navigator) {
             const stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
             cacheStream = stream;
@@ -88,7 +87,7 @@ function videoChet (socket) {
     }
 
     function createPeerConnection () {
-        console.log("create peer connection ...");
+        // console.log("create peer connection ...");
         peer = new RTCPeerConnection({
             iceServers: [
                 {
@@ -123,11 +122,10 @@ function videoChet (socket) {
     }
 
     async function handleNegotiationNeeded () {
-        console.log("*** handleNegotiationNeeded fired!");
+        // console.log("*** handleNegotiationNeeded fired!");
         try {
-            console.log("start createOffer ...");
+            // console.log("start createOffer ...");
             await peer.setLocalDescription(await peer.createOffer(offerOptions));
-            // sendSDPBySignaling("offer", peer.localDescription); // ??
             socket.emit("offer", peer.localDescription);
         } catch (error) {
             console.log(`Error ${error.name}: ${error.message}`);
@@ -136,12 +134,11 @@ function videoChet (socket) {
 
     async function createAnswer () {
         try {
-            console.log("createAnswer ...");
+            // console.log("createAnswer ...");
             const answer = await peer.createAnswer();
-            console.log("setLocalDescription ...");
+            // console.log("setLocalDescription ...");
             await peer.setLocalDescription(answer);
-            console.log("signaling answer ...");
-            // sendSDPBySignaling("answer", answer);
+            // console.log("signaling answer ...");
             socket.emit("answer", answer);
         } catch (error) {
             const errMsg = "Create Answer error ===> " + error.toString();
@@ -168,7 +165,7 @@ function videoChet (socket) {
     }
 
     function closing () {
-        console.log("Closing connection call");
+        // console.log("Closing connection call");
         if (!peer) return; // 防呆機制
 
         // 1. 移除事件監聽
@@ -267,30 +264,9 @@ function videoChet (socket) {
 
                 const videoCont = "<video autoplay muted class = \"video-cont\" id = \"localVideo\"></video>";
 
-                // const video = document.createElement("video");
-                // console.log(video);
-                // console.log("1 " + video.muted); // false
-                // console.log(video);
-
-                // video.muted = true; // 己方 關聲音 // true
-                // console.log("2 " + video.muted);
-                // console.log(video);
-
-                // video.autoplay = true;
-                // console.log("3 " + video.muted);
-                // console.log(video);
-
-                // video.id = "localVideo";
-                // video.className = "video-cont";
-
                 const userContainer = document.querySelector("#user_container");
-                // videoMask.append(video);
                 videoMask.insertAdjacentHTML("afterbegin", videoCont);
                 userContainer.insertBefore(videoMask, userContainer.firstChild);
-                // console.log("4 " + video.muted);
-                // console.log(video);
-                // console.log(videoMask);
-                // console.log(userContainer);
 
                 // for oppo
                 const oppoPhoto = document.querySelector("#user_photo_right");
@@ -299,7 +275,6 @@ function videoChet (socket) {
                 oppovideoMask.className = "video-mask";
                 const oppovideo = document.createElement("video");
                 oppovideo.id = "remoteVideo";
-                // oppovideo.muted = true; // 有問題 oppo要有聲音
                 oppovideo.autoplay = true;
                 oppovideo.className = "video-cont";
                 const oppouserContainer = document.querySelector("#opposite_user_container");
@@ -331,23 +306,8 @@ function videoChet (socket) {
 
         const videoCont = "<video autoplay muted class = \"video-cont\" id = \"localVideo\"></video>";
 
-        // const video = document.createElement("video");
-        // video.id = "localVideo";
-
-        // console.log("1" + video.muted);
-        // console.log(video);
-        // video.muted = true; // 己方 關聲音
-        // console.log("2" + video.muted);
-        // console.log(video);
-
-        // video.autoplay = true;
-        // console.log("3 " + video.muted);
-        // console.log(video);
-
-        // video.className = "video-cont";
         const userContainer = document.querySelector("#user_container");
         videoMask.insertAdjacentHTML("afterbegin", videoCont);
-        // videoMask.append(video);
         userContainer.insertBefore(videoMask, userContainer.firstChild);
 
         // for oppo
@@ -357,7 +317,6 @@ function videoChet (socket) {
         oppovideoMask.className = "video-mask";
         const oppovideo = document.createElement("video");
         oppovideo.id = "remoteVideo";
-        // oppovideo.muted = true; // 有問題 oppo要有聲音
         oppovideo.autoplay = true;
         oppovideo.className = "video-cont";
         const oppouserContainer = document.querySelector("#opposite_user_container");
@@ -431,4 +390,4 @@ function videoChet (socket) {
     }
 }
 
-export { videoChet };
+export { setVideoChat };

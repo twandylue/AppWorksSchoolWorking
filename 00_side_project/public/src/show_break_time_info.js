@@ -1,4 +1,4 @@
-function breakTimeInfo (nextRound) {
+function showBreakTimeInfo (nextRound) {
     const middle = document.querySelector("#middle");
     while (middle.firstChild) { // 移除middle下 每個項目
         middle.removeChild(middle.lastChild);
@@ -20,4 +20,4 @@ function breakTimeInfo (nextRound) {
     middle.append(status, goal, countdown);
 }
 
-export { breakTimeInfo };
+export { showBreakTimeInfo };

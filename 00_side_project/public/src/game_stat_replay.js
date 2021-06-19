@@ -1,5 +1,4 @@
-// for record page
-function gameStatReplay (hitRate, totalPointsNumber, roundsPoints, winnerStatus) {
+function showGameStatInReplay (hitRate, totalPointsNumber, roundsPoints, winnerStatus) {
     const deleteItem = document.querySelector("#middle");
     deleteItem.remove();
 
@@ -43,12 +42,6 @@ function gameStatReplay (hitRate, totalPointsNumber, roundsPoints, winnerStatus)
     eachRoundPoint.id = "each_round_point";
     const strRoundsPoints = roundsPoints.toString().replace(/,/g, "/");
     eachRoundPoint.innerHTML = "每回合得分: " + strRoundsPoints;
-    // console.log(roundsPoints);
-    // console.log(strRoundsPoints);
-
-    // const eachRoundTime = document.createElement("div");
-    // eachRoundTime.className = "record_info";
-    // eachRoundTime.id = "each_round_time";
 
     const winner = document.createElement("div");
     winner.className = "record_info";
@@ -110,4 +103,4 @@ function gameStatReplay (hitRate, totalPointsNumber, roundsPoints, winnerStatus)
     container.insertBefore(middle, container.children[container.children.length - 1]);
 }
 
-export { gameStatReplay };
+export { showGameStatInReplay };

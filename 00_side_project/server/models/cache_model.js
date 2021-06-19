@@ -13,12 +13,11 @@ function getCache (key) { // used in async function
     });
 }
 
-function getCardNumberinCache (gmaeID, round, cardID) {
+function getCardNumberInCache (gmaeID, round, cardID) {
     return new Promise((resolve, reject) => {
         client.get(gmaeID, (err, rawData) => {
             if (err) reject(err);
             const data = JSON.parse(rawData);
-            // console.log(data[round][cardID]);
             try {
                 const number = data[round][cardID];
                 resolve(number);
@@ -33,5 +32,5 @@ function getCardNumberinCache (gmaeID, round, cardID) {
 module.exports = {
     client,
     getCache,
-    getCardNumberinCache
+    getCardNumberInCache
 };

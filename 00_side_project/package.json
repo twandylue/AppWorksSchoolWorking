@@ -4,7 +4,7 @@
   "description": "my side project",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "author": "andy",
   "license": "ISC",
@@ -16,15 +16,15 @@
     "eslint-plugin-promise": "^4.3.1"
   },
   "dependencies": {
-    "@socket.io/redis-adapter": "^7.0.0",
-    "@socket.io/redis-emitter": "^4.1.0",
-    "@socket.io/sticky": "^1.0.0",
     "axios": "^0.21.1",
     "bcrypt": "^5.0.1",
+    "chai": "^4.3.4",
+    "chai-http": "^4.3.0",
     "dotenv": "^9.0.1",
+    "expect": "^27.0.2",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "mysql": "^2.18.1",
+    "mocha": "^9.0.0",
     "mysql2": "^2.2.5",
     "nodemon": "^2.0.7",
     "redis": "^3.1.2",
@@ -33,8 +33,6 @@
     "socket.io": "^4.1.2",
     "socket.io-client": "^4.1.2",
     "socket.io-redis": "^6.1.1",
-    "validator": "^13.6.0",
-    "ws": "^7.4.6",
-    "wss": "^3.3.4"
+    "validator": "^13.6.0"
   }
 }

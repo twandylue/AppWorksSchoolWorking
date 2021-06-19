@@ -5,7 +5,13 @@ const socket = io({
 });
 
 socket.on("connect", () => {
-    console.log("socketID: " + socket.id);
+    // console.log("socketID: " + socket.id);
+    main();
+    socket.on("update user photo", (info) => {
+        document.querySelector("#user-photo").src = info.src;
+        document.querySelector("#user_photo").src = info.src;
+        localStorage.setItem("access_token", info.token); // update photo
+    });
 });
 
 socket.on("connect_error", (err) => {
@@ -28,10 +34,6 @@ async function main () {
     const userRecord = await getUserRecord();
     const leaderboardObj = await getLeaderBoard();
     const leaderboardList = leaderboardObj.data;
-
-    // console.log(leaderboardList);
-    // console.log("-----------------");
-    // console.log(userRecord);
 
     let totalPoints, hitRate;
     if (userRecord.data.totalPoints === null) {
@@ -72,7 +74,6 @@ async function main () {
         leaderboard.append(leaderboardItem);
     }
 }
-main();
 
 const submit = document.querySelector("#submit");
 submit.addEventListener("click", () => {
@@ -96,7 +97,7 @@ profile.addEventListener("click", () => {
         cancelButtonText: "取消"
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = "/userprofile.html";
+            window.location.href = "/user_profile.html";
         } else if (result.isDenied) {
             localStorage.removeItem("access_token");
             window.location.href = "/";
@@ -132,8 +133,6 @@ photo.addEventListener("click", () => {
                     photoChooseds[i].classList.remove("user-photo-choose");
                 }
                 event.target.className = "user-photo-choose";
-                // const strArr = event.target.src.split("/");
-                // userPhoto = `/images/${strArr[strArr.length - 1]}`;
                 userPhoto = event.target.src;
             }));
         }
@@ -189,9 +188,3 @@ async function getLeaderBoard () {
     });
     return await response.json();
 }
-
-socket.on("update user photo", (info) => {
-    document.querySelector("#user-photo").src = info.src;
-    document.querySelector("#user_photo").src = info.src;
-    localStorage.setItem("access_token", info.token); // update photo
-});

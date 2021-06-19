@@ -1,5 +1,4 @@
-function cardGameinSingle (socket, gameID, round, target) { // 第一回合有選中 第二回合會出現問題
-    // let hasEmitCheckMatch = false;
+function cardGameInSingle (socket, gameID, round, target) {
     let hasEmitedTwice = false;
     let lockBoard = false;
     let firstCard, secondCard;
@@ -8,8 +7,6 @@ function cardGameinSingle (socket, gameID, round, target) { // 第一回合有�
     cards.forEach(card => card.addEventListener("click", flipCard));
 
     socket.on("opposite click card", (oppoInfo) => {
-        // const cards = document.querySelectorAll(".memory-card"); // 防止全域變數污染
-        // console.log(cards);
         cards[oppoInfo.cardID].classList.add("flip", "card-color-opponent"); // card flipped by oppo
         if (!opponentFirstCard) {
             opponentFirstCard = cards[oppoInfo.cardID];
@@ -54,7 +51,6 @@ function cardGameinSingle (socket, gameID, round, target) { // 第一回合有�
     }
 
     socket.on("card number match", (cardMatchInfo) => {
-        // const cards = document.querySelectorAll(".memory-card");
         if (cardMatchInfo.selecterID === socket.id) { // fliped by local
             firstCard = cards[cardMatchInfo.cardIDs[0]];
             secondCard = cards[cardMatchInfo.cardIDs[1]];
@@ -70,7 +66,6 @@ function cardGameinSingle (socket, gameID, round, target) { // 第一回合有�
     });
 
     socket.on("card number not match", (cardMatchInfo) => {
-        // const cards = document.querySelectorAll(".memory-card");
         if (cardMatchInfo.selecterID === socket.id) {
             firstCard = cards[cardMatchInfo.cardIDs[0]]; // 指定element
             secondCard = cards[cardMatchInfo.cardIDs[1]];
@@ -85,8 +80,8 @@ function cardGameinSingle (socket, gameID, round, target) { // 第一回合有�
             const oppoFirstCard = cards[cardMatchInfo.cardIDs[0]]; // 指定element
             const oppoSecondCard = cards[cardMatchInfo.cardIDs[1]];
             setTimeout(() => {
-                oppoFirstCard.classList.remove("flip", "card-color-opponent"); //
-                oppoSecondCard.classList.remove("flip", "card-color-opponent"); //
+                oppoFirstCard.classList.remove("flip", "card-color-opponent");
+                oppoSecondCard.classList.remove("flip", "card-color-opponent");
                 [oppoFirstCard.children[0].innerHTML, oppoSecondCard.children[0].innerHTML] = ["", ""];
                 [opponentFirstCard, opponentSecondCard] = [null, null];
             }, 400);
@@ -97,8 +92,6 @@ function cardGameinSingle (socket, gameID, round, target) { // 第一回合有�
         [firstCard, secondCard] = [null, null];
         [hasEmitedTwice, lockBoard] = [false, false];
     }
-
-    // cards.forEach(card => card.addEventListener("click", flipCard));
 }
 
-export { cardGameinSingle };
+export { cardGameInSingle };

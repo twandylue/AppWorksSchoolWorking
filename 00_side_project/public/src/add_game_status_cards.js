@@ -1,5 +1,5 @@
 // refresh page for cardgame and set cards
-function addGameStatusandCards (round, number, target, state, cardsSetting) {
+function addGameStatusAndCards (round, number, target, state, cardsSetting) {
     document.querySelector("#middle").className = ""; // 初始化
     const deleteItem = document.querySelector("#middle");
     deleteItem.remove();
@@ -42,9 +42,7 @@ function addGameStatusandCards (round, number, target, state, cardsSetting) {
     }
     middle.append(status, goal, countdown, memoryGame);
     const container = document.querySelector("#container");
-    // console.log(container.childNodes);
-    // container.insertBefore(middle, container.childNodes[2]);
     container.insertBefore(middle, container.children[container.children.length - 1]);
 }
 
-export { addGameStatusandCards };
+export { addGameStatusAndCards };

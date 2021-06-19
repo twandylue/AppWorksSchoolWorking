@@ -9,8 +9,7 @@ const socket = io({
 });
 
 socket.on("connect", () => {
-    console.log("socketID: " + socket.id);
-
+    // console.log("socketID: " + socket.id);
     socket.on("connect_error", (err) => {
         console.log(err.message);
         if (err.message) {
@@ -114,7 +113,7 @@ profile.addEventListener("click", () => {
         cancelButtonText: "取消"
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = "/userprofile.html";
+            window.location.href = "/user_profile.html";
         } else if (result.isDenied) {
             localStorage.removeItem("access_token");
             window.location.href = "/";
@@ -231,7 +230,6 @@ async function checkLogin () {
                 });
 
                 if (formValues) {
-                    console.log(formValues.value);
                     const data = JSON.stringify(formValues.value);
                     const response = await fetch("api/1.0/user/signin", {
                         body: data,

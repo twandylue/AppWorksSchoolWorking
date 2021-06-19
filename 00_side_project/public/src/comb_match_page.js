@@ -1,4 +1,4 @@
-function combineMatchPageforAgain () {
+function combineMatchPageForAgain () {
     const gameInfo = document.querySelector("#game_info");
     gameInfo.remove(); // game-info 初始化
 
@@ -82,4 +82,4 @@ function combineMatchPageforAgain () {
     middle.append(ruleSetting, settingDetails, buttonList);
 }
 
-export { combineMatchPageforAgain };
+export { combineMatchPageForAgain };

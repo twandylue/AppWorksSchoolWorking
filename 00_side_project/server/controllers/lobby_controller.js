@@ -1,6 +1,6 @@
-const roomModule = require("../models/Room_model");
+const Room = require("../models/room_model");
 const getLobbyInfo = async (req, res) => {
-    const info = await roomModule.getRoomLobbyInfo();
+    const info = await Room.getRoomLobbyInfo();
     res.status(200).send(info);
 };
 

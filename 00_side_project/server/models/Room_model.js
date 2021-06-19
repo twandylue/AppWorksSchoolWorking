@@ -11,7 +11,6 @@ const joinRoom = async (roomID, email) => {
         sql = "SELECT room_id, player, player_limit, watcher FROM lobby_table WHERE room_id = ?;";
         insert = roomID;
         const result = await conn.query(sql, [insert]);
-        // console.log(result[0][0]);
         if (result[0][0].player > result[0][0].player_limit) { // 房間數超過上限時
             const err = new Error("too many people");
             throw (err);
@@ -30,7 +29,7 @@ const joinRoom = async (roomID, email) => {
     }
 };
 
-const joinRoomwithRobot = async (roomID, email) => {
+const joinRoomWithRobot = async (roomID, email) => {
     try {
         const conn = await pool.getConnection();
         const inserts = [roomID, email, 1];
@@ -43,7 +42,7 @@ const joinRoomwithRobot = async (roomID, email) => {
     }
 };
 
-const leaveRoomwithRobot = async (email) => {
+const leaveRoomWithRobot = async (email) => {
     const conn = await pool.getConnection();
     try {
         const result = await conn.query("SELECT room_id, count FROM room WHERE email = ?", email);
@@ -83,8 +82,6 @@ const leaveRoom = async (email) => {
 
         const roomID = result[0][0].room_id;
         await conn.query("START TRANSACTION");
-        // await conn.query("UPDATE lobby_table SET player = player - 1 WHERE room_id = ?", roomID);
-        // await conn.query("DELETE FROM room WHERE email = ?;", email);
         await conn.query("UPDATE lobby_table SET player = 0 WHERE room_id = ?", roomID);
         await conn.query("DELETE FROM room WHERE room_id = ?", roomID);
 
@@ -151,7 +148,6 @@ const findRoom = async (email) => {
 
 const findRoomMember = async (roomID) => {
     const conn = await pool.getConnection();
-    // console.log(pool.format("SELECT user.name, room.email FROM room INNER JOIN user ON room.email = user.email WHERE room_id = ?", roomID));
     try {
         const result = await conn.query("SELECT user.name, room.email, user.photo_src FROM room INNER JOIN user ON room.email = user.email WHERE room_id = ?", roomID);
         return (result[0]);
@@ -165,7 +161,6 @@ const findRoomMember = async (roomID) => {
 const getRoomLobbyInfo = async () => {
     const conn = await pool.getConnection();
     let sql = "SELECT room_id, player, player_limit, watcher FROM lobby_table;";
-    // const sql = "SELECT user.name, lobby_table.room_id, lobby_table.player, lobby_table.player_limit, lobby_table.watcher FROM room INNER JOIN user ON user.email = room.email INNER JOIN lobby_table ON room.room_id = lobby_table.room_id;";
     const basicInfo = await conn.query(sql);
     sql = "SELECT user.name, room.room_id FROM room INNER JOIN user ON user.email = room.email;";
     const members = await conn.query(sql);
@@ -187,17 +182,15 @@ const getRoomLobbyInfo = async () => {
     for (const [key, value] of membersMap) {
         obj[key] = value;
     }
-    // console.log(Object.keys(obj));
     const list = [];
     for (const i of Object.keys(obj)) {
         list.push({ room_id: i, memberlist: obj[i] });
     }
-    // console.log(list);
     await conn.release();
     return { basicInfo: basicInfo[0], members: list };
 };
 
-const isReadyNumberOK = async (gameID) => {
+const isPlayerReady = async (gameID) => {
     const conn = await pool.getConnection();
     try {
         await conn.query("START TRANSACTION");
@@ -213,7 +206,7 @@ const isReadyNumberOK = async (gameID) => {
         const err = "opponent is not ready";
         throw err;
     } catch (err) {
-        console.log(`error in isReadyNumberOK: ${err}`);
+        console.log(`error in isPlayerReady: ${err}`);
         await conn.query("COMMIT");
         return (false);
     } finally {
@@ -221,7 +214,7 @@ const isReadyNumberOK = async (gameID) => {
     }
 };
 
-const isAgainNumberOK = async (gameID) => {
+const isPlayedAgain = async (gameID) => {
     const conn = await pool.getConnection();
     try {
         await conn.query("START TRANSACTION");
@@ -259,8 +252,8 @@ const bindGameIDinRoom = async (gameID, roomID) => {
 
 module.exports = {
     joinRoom,
-    joinRoomwithRobot,
-    leaveRoomwithRobot,
+    joinRoomWithRobot,
+    leaveRoomWithRobot,
     leaveRoom,
     watcherJoinRoom,
     watcherLeaveRoom,
@@ -268,7 +261,7 @@ module.exports = {
     findRoom,
     findRoomMember,
     getRoomLobbyInfo,
-    isReadyNumberOK,
-    isAgainNumberOK,
+    isPlayerReady,
+    isPlayedAgain,
     bindGameIDinRoom
 };
